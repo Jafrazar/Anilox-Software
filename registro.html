@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base href="./">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE-edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+  <meta name="theme-color", content="#134371">
+  <title>Registro - Ánilox Manager</title>
+  <!-- Ayuda Stylesheet -->
+  <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+  <!-- Manifest -->
+  <link rel="manifest" crossorigin="use-credentials" href="./manifest.json">
+  <!-- Material Icons CDN -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+  <link rel="stylesheet" href="./css/registro.css">
+</head>
+<body>
+  <br>
+  <form id="registro-form" method="post">
+    <div class="container">
+      <h1>Registro</h1>
+      <p>Por favor, rellene este formulario para crear una cuenta.</p>
+      <hr>
+
+      <div style="text-align: left;">
+        <label for="username"><b>Usuario</b></label><br>
+      </div>      
+      <input type="text" placeholder="Ingrese un nombre de usuario" id="username" name="username"><br>
+      
+      <div style="text-align: left;">
+        <label for="email"><b>Email</b></label><br>
+      </div>
+      <input type="email" placeholder="Ingrese su correo electrónico" id="email" name="email" required><br>
+      
+      <div style="text-align: left;">
+        <label for="password"><b>Contraseña:</b></label><br>
+      </div>      
+      <input type="password" placeholder="Ingrese una contraseña" id="password" name="password" required><br>
+
+      <div style="text-align: left">
+        <label for="psw-repeat"><b>Confirmar Contraseña</b></label>  
+      </div>  
+      <input type="password" placeholder="Repita su contraseña" id="psw-repeat" name="psw-repeat" required>
+      
+      <div style="text-align: left">
+        <label for="license"><b>Licencia</b></label>
+      </div>
+      <input type="text" placeholder="Ingrese una licencia válida" id="license" name="license" required>
+      
+      <input type="submit" value="Registrarse">
+      <div class="login">
+        <label>Ya tengo una cuenta. <span><a href="index.html">Iniciar sesión</a></span></label>
+      </div>
+    </div>
+  </form>
+
+  <script src="./js/registro.js"></script>
+</body>
+</html>

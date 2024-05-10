@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#134371">
+    <title>Iniciar Sesión - Ánilox Manager</title>
+    <!-- Ayuda Stylesheet -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="manifest" crossorigin="use-credentials" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <link rel="stylesheet" href="./css/login.css">
+</head>
+<body>
+    <br>
+    <form id="login-form">
+        <div class="container">
+            <h1>Iniciar Sesión</h1>
+            <p>Por favor, ingrese sus credenciales para iniciar sesión.</p>
+            <hr>
+
+            <div style="text-align: left;">
+                <label for="username"><b>Usuario</b></label><br>
+            </div>
+            <input type="text" placeholder="Ingrese su nombre de usuario" id="username" name="username" required><br>
+
+            <div style="text-align: left;">
+                <label for="password"><b>Contraseña:</b></label><br>
+            </div>
+            <input type="password" placeholder="Ingrese su contraseña" id="password" name="password" required><br>
+
+            <input type="submit" value="Iniciar Sesión">
+            <div style="display: flex; padding-top: 4px; margin-bottom: -7px">
+                <label>
+                    <input type="checkbox" checked="checked" name="remember">Recordarme
+                </label>
+            </div>
+            <div>
+                <br>
+                <center>
+                    <span class="psw">Olvidé mi <a href="password.html">contraseña</a></span><br><br>
+                    <label>¿No tienes una cuenta? </label><span><a href="registro.html">Regístrate</a></span>
+                </center>                
+            </div>
+        </div>
+    </form>
+    <script src="./js/login.js"></script>
+</body>
+</html>

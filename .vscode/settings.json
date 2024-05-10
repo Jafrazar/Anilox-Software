@@ -1,0 +1,6 @@
+{
+     "css.customData": [
+          "./.vscode/custom-css.json"
+     ],
+     "liveServer.settings.port": 3000
+}

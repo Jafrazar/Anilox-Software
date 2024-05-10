@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#134371">
+    <title>Ánilox Manager</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="manifest" crossorigin="use-credentials" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- Importar Datos Stylesheet -->
+    <link rel="stylesheet" href="./css/upload-file.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="dropdown">
+          <button class="dropbtn">Archivo
+          </button>
+          <div class="dropdown-content" id="drop-archivo">
+            <a href="upload-file.html">Importar datos</a>
+            <a id="buscar-anilox">Buscar ánilox</a>
+            <a href="listado.html">Listado de ánilox</a>
+            <a href="print-report.html">Imprimir reportes</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ver
+          </button>
+          <div class="dropdown-content" id="drop-ver">
+            <a id="ocultar-menu">Barra de herramientas</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Opciones
+          </button>
+          <div class="dropdown-content" id="drop-opciones">
+            <a href="export-data.html">Exportar datos</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ayuda
+          </button>
+          <div class="dropdown-content" id="drop-ayuda">
+            <a href="ayuda.html">Acerca de...</a>
+          </div>
+        </div>
+      </div>
+      <!-- Final Menu -->
+      <div class="top-bar">
+        <div class="logo">
+          <img src="./assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
+        </div>
+        <div class="title">
+          <h1>Importar Datos</h1>
+        </div>
+        <div class="user">
+          <p>Bienvenido, <b id="user-name"></b></p>
+          <small class="text-muted" id="user-level"></small>
+        </div>
+      </div>
+      <!-- Final de TopBar -->
+      <main>
+        <div class="left-content">
+          <div class="sidebar">
+            <a href="index.html">
+              <span class="material-icons-sharp" title="Panel Principal">
+                dashboard
+              </span>
+            </a>
+            <a href="upload-file.html" class="active">
+              <span class="material-icons-sharp" title="Importar Datos">
+                file_upload
+              </span>
+            </a>
+            <a id="search-anilox">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>
+            <a href="listado.html">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
+              </span>
+            </a>
+            <a href="print-report.html">
+              <span class="material-icons-sharp" title="Imprimir Reportes">
+                print
+              </span>
+            </a>
+            <a href="export-data.html">
+              <span class="material-icons-sharp" title="Exportar Datos">
+                file_download
+              </span>
+            </a>
+            <a href="ayuda.html">
+              <span class="material-icons-sharp" title="Ayuda">
+                help
+              </span>
+            </a>
+            <a href="#" id="log-out">
+              <span class="material-icons-sharp" title="Cerrar Sesión">
+                logout
+              </span>
+            </a>
+          </div>
+        </div>
+        <!-- Final Accesos Rapidos -->
+        <div class="right-content">
+          <div class="anilox-upload">
+            <form class="files-upload">
+              <div class="upload-inputs">
+                <div class="upload-csv">
+                  <input type="file" id="csv-upload" name="csv" accept=".csv" hidden>
+                  <label for="csv-upload">Seleccionar Archivo CSV</label>
+                </div>
+                <div class="upload-image">
+                  <input type="file" id="image-upload" accept=".JPG" hidden>
+                  <label for="image-upload">Seleccionar Imagen de Ánilox</label>
+                </div>
+              </div>
+              <div class="form">
+                <div class="csv">
+                  <div class="form-input">
+                    <p>Código:</p>
+                    <input type="text" name="code" id="import-code" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Fecha de revisión:</p>
+                    <input type="text" name="date" id="import-date" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Volumen de Celda (cm3/m2):</p>
+                    <input type="text" name="volume" id="import-volume" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Profundidad de Celda (um):</p>
+                    <input type="text" name="depth" id="import-depth" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Apertura de Celda (um):</p>
+                    <input type="text" name="opening" id="import-opening" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Pared de Celda (um):</p>
+                    <input type="text" name="wall" id="import-wall" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Lineatura (LPI):</p>
+                    <input type="text" name="screen" id="import-screen" disabled>
+                  </div>
+                  <div class="form-input">
+                    <p>Ángulo de Celdas(°):</p>
+                    <input type="text" name="angle" id="import-angle" disabled>
+                  </div>
+                </div>
+                <div class="image">
+                  <img src="./assets/anilox-placeholder.jpg" id="uploaded-image" alt="Ánilox">
+                </div>
+              </div>
+              <input id="submit" type="submit" value="Importar Datos">
+            </form>
+            <!-- Final de Form Upload -->
+          </div>
+          <!-- Final de Anilox Upload -->
+        </div>
+      </main>
+    </div>
+    <!-- Final de .container -->
+    <div class="modal" id="modal-search-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-search" autocomplete="off">
+            <div class="search-input">
+              <p>ID:</p>
+              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+            </div>
+            <div class="search-submit">
+              <input type="submit" value="Buscar" id="search-submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de buscar anilox --> 
+    <div class="modal" id="modal-new-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-new-anilox">
+            close
+          </span>
+          <h2>Nuevo rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-new" autocomplete="off">
+            <div class="new-input">
+              <span>
+                <p>Fabricante:</p>
+                <input type="text" name="brand" id="new-brand" placeholder="Ingrese el fabricante" required>
+              </span>
+              <span>
+                <p>Fecha de compra:</p>
+                <input type="date" name="purchase" id="new-purchase" required>
+              </span>
+              <span>
+                <p>Reporte de Fábrica:</p>
+                <input type="file" name="master" id="new-master" accept=".pdf" required>
+              </span>
+            </div>
+            <div class="sub-btn">
+              <div class="new-submit">
+                <input type="submit" value="Importar" id="new-submit">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de nuevo anilox -->
+    <div class="modal" id="modal-extra-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-extra-anilox">
+            close
+          </span>
+          <h2>Ingrese el recorrido del ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-extra" autocomplete="off">
+            <div class="extra-input">
+              <span>
+                <p>Recorrido (m):</p>
+                <input type="text" name="recorrido" id="extra-recorrido" placeholder="Ingrese el recorrido" pattern="^[0-9]+$">
+              </span>
+            </div>
+            <div class="sub-btn">
+              <div class="extra-skip">
+                <input type="button" value="Omitir" id="extra-skip">
+              </div>
+              <div class="extra-submit">
+                <input type="button" value="Importar" id="extra-submit">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de agregar recorrido -->
+    <!-- CSV Parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Common JS Script -->
+    <script src="./js/common.js"></script>
+    <!-- Upload File JS Script -->
+    <script src="./js/upload-file.js"></script>
+  </body>
+</html>
