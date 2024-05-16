@@ -1,3 +1,8 @@
+const path = require('path');
+const ruta = path.join(__dirname, '');
+console.log("la ruta de app.js es", ruta);
+module.exports = {ruta, path};
+
 const express = require("express");
 const session = require('express-session');
 const nodemailer = require('nodemailer');
@@ -6,25 +11,12 @@ const { anilloxAnalysis } = require("./utils/anillox-analysis");
 const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
+const { login, registro } = require("./controllers/autenticacion");
 
-const path = require('path');
+
 const app = express();
 const port = 3000;
 
-const db = mysql.createConnection({
-  host: 'database-1.cspwdfignp82.sa-east-1.rds.amazonaws.com',
-  user: 'admin',
-  password: '104#55Fppl2',
-  database: 'ANILOX'
-});
-
-db.connect((err) => {
-  if (err) throw err;
-  console.log('Conexión exitosa a MySQL');
-});
-
-// Parse URL-encoded bodies
-//app.use(express.urlencoded({ extended: true }));
 
 // Middleware para analizar el cuerpo de las solicitudes
 app.use(express.json());
@@ -37,70 +29,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// Configuración
 app.get('/index', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+// Rutas
 app.use('/', express.static(path.join(__dirname, '')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
 
-// Ruta para registrar un usuario
-app.post('/registro', (req, res) => {
-  const { username, password, email, license } = req.body;
-  const licenciaSql = 'SELECT * FROM licencias WHERE licenseNumber = ?';
-  db.query(licenciaSql, [license], (err, result) => {
-    if (err) throw err;
-    if(result.length == 0){
-      res.json('Licencia no válida');
-    } else {
-      const checkSql = 'SELECT * FROM login WHERE user_l = ? OR mail = ?';
-      db.query(checkSql, [username, email], (err, result) => {
-          if (err) throw err;
-          if (result.length > 0) {
-              res.json('El usuario ingresado ya existe');
-              return;
-              // res.json('El usuario ingresado ya existe');
-              // return;
-          } else {
-              const sql = 'INSERT INTO login (user_l, pass_l, mail) VALUES (?, ?, ?)';
-              db.query(sql, [username, password, email], (err, result) => {
-                  if (err) throw err;
-                  if (result.affectedRows === 0) {
-                      res.json('Error al registrar el usuario');
-                      return;
-                  } else {
-                      console.log('Usuario registrado nuevo:', result.insertId);
-                      res.redirect('/');
-                      return;
-                  }
-              });
-          }
-      });
-    }
-  });
-  console.log('El registro antes de la ruta...:', username);
-  res.redirect('/login.html');
-  return;
-});
-
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const sql = 'SELECT * FROM login WHERE user_l = ? AND pass_l = ?';
-  db.query(sql, [username, password], (err, result) => {
-    if (err) throw err;
-    if (result.length > 0) {
-      console.log('queso');
-      res.redirect('./index.html');
-      return;
-    } else {
-      res.json('Usuario o contraseña incorrectos');
-    }
-  });
-});
-
+app.post('/api/login', login);
+app.post('/api/registro', registro);
 app.post('/password', async (req, res) => {
   let { email } = req.body;
 
@@ -264,3 +208,4 @@ app.get("/client-info/client", (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at port: ${port}`);
 });
+

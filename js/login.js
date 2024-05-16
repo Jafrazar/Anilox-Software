@@ -1,25 +1,26 @@
-document.getElementById("login-form").addEventListener("submit", function(event) {
-  
+const mensajeError = document.getElementsByClassName("error")[0];
+
+document.getElementById("login-form").addEventListener("submit", async(event) => {
+    event.preventDefault();
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
   
     const passwordPattern = /^[a-zA-Z0-9@#\-_]*$/;
-    console.log("algo");
     if (!passwordPattern.test(password)) {
       alert('Contraseña incorrecta');
       return; // Detener la ejecución del código si la contraseña contiene caracteres no permitidos
     }
 
-    fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    })
-    .then(response => response.text())
-    .then(data => alert(data))
-    .catch((error) => {
-        console.error('Error:', error);
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
     });
+    if(!res.ok) return mensajeError.classList.toggle("escondido", false);
+    const resJson = await res.json();
+    if(resJson.redirect) {
+        window.location.href = resJson.redirect;
+    }
 });

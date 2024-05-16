@@ -1,5 +1,7 @@
-document.getElementById("registro-form").addEventListener("submit", function(event) {
-    
+const mensajeError = document.getElementsByClassName("error")[0];
+
+document.getElementById("registro-form").addEventListener("submit", async(event) => {
+    event.preventDefault();
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -17,33 +19,19 @@ document.getElementById("registro-form").addEventListener("submit", function(eve
         alert('La contraseña contiene caracteres no permitidos');
         return; // Detener la ejecución del código si la contraseña contiene caracteres no permitidos
     }
+    
+    const res = await fetch('/api/registro', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password, license }),
+    });
 
-    // fetch('/registro', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ username, email, password, license }),
-    // })
-    // .then(response => {
-    //     if (response.validated) {
-    //         console.log('Redirecting to login page');
-    //         window.location.href = './login.html';
-    //     } else {
-    //         console.log('Response:', response);
-    //         return response.json();
-    //     }
-    // })
-    // .then(data => {
-    //     if (response.validated) {
-    //         console.log('Redirecting after data');
-    //         window.location.href = './login.html';
-    //     } else {
-    //         console.log('Response after data not validated:', response);
-    //         return response.json();
-    //     }
-    // })
-    // .catch((error) => {
-    //     console.error('Error:', error);
-    // });
+    console.log(mensajeError);
+    if(!res.ok) return mensajeError.classList.toggle("escondido", false);
+    const resJson = await res.json();
+    if(resJson.redirect) {
+        window.location.href = resJson.redirect;
+    }
 });

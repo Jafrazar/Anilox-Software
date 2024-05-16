@@ -43,6 +43,10 @@ body {
     font-size: 1rem;
   }
   
-  button:hover {
-    opacity:1;
+  .error {
+    color: red;
+  }
+
+  .escondido {
+    display: none;
   }

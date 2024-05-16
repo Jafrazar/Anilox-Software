@@ -35,13 +35,14 @@ const CACHE_NAME = 'v1_cache_anilox_manager',
         './assets/anilox-placeholder.jpg',
         './assets/logo-placeholder.svg',
         './assets/navbar-background.jpg',
-        './assets/icons/manifest-icon-192.maskable.png',
-        './assets/icons/manifest-icon-512.maskable.png',
+        './assets/icons/./manifest-icon-192.maskable.png',
+        './assets/icons/./manifest-icon-512.maskable.png',
         './assets/logo.png',
         './utils/anillox-analysis.js',
         './utils/anillox-history.js',
         './utils/anillox-list.js',
         './utils/client-info.js',
+        './controllers/autenticacion.js',
       ];
 
 self.addEventListener('install', e=>{
