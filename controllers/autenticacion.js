@@ -1,15 +1,15 @@
 const mysql = require('mysql');
 const express = require("express");
+const jsonwebtoken = require('jsonwebtoken');
 const { ruta, path } = require("../app.js");
-console.log("La ruta de autenticacion.js es",ruta);
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: 'database-1.cspwdfignp82.sa-east-1.rds.amazonaws.com',
   user: 'admin',
   password: '104#55Fppl2',
   database: 'ANILOX'
 });
 
-db.connect((err) => {
+db.getConnection((err) => {
   if (err) throw err;
   console.log('Conexión exitosa a MySQL');
 });

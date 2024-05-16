@@ -9,7 +9,7 @@ const clientInfo = {
   ],
   user: [
     {
-      user: "Diego",
+      user: "Mario",
       level: 3,
     },
   ],

@@ -4,6 +4,7 @@ console.log("la ruta de app.js es", ruta);
 module.exports = {ruta, path};
 
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 const mysql = require('mysql');
@@ -12,6 +13,7 @@ const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
 const { login, registro } = require("./controllers/autenticacion");
+const { soloAdmin, soloPublico } = require("./middlewares/authorization");
 
 
 const app = express();

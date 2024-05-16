@@ -1,52 +1,57 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
-  }
+}
   
-  .container {
-    width: 400px;
-    padding: 20px;
-    background-color: white;
-    margin: 0 auto;
-    margin-top: 100px;
-    border: 1px solid black;
-    border-radius: 5px;
-  }
-  
-  input[type=text], input[type=password] {
-    width: 90%;
-    padding: 15px;
-    margin: 5px 0 22px 0;
-    display: inline-block;
-    border: none;
-    background: #f1f1f1;
-  }
-  
-  input[type=text]:focus, input[type=password]:focus {
-    background-color: #ddd;
-    outline: none;
-  }
-  
-  hr {
-    border: 1px solid #f1f1f1;
-    margin-bottom: 25px;
-  }
-  
-  input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 14px 20px;
-    margin: 6.5px 0 7px 0;
-    border: none;
-    cursor: pointer;
-    width: 97.5%;
-    opacity: 0.9;
-    font-size: 1rem;
-  }
-  
-  .error {
-    color: red;
-  }
+.container {
+  width: 400px;
+  padding: 20px;
+  background-color: white;
+  margin: 0 auto;
+  margin-top: 100px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
 
-  .escondido {
-    display: none;
-  }
+input[type=text], input[type=password] {
+  width: 90%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+
+input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 0px 0px 10px;
+  border: none;
+  cursor: pointer;
+  width: 97.5%;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.error {
+  color: red;
+  font-size: 0.9rem;
+}
+
+.escondido {
+  display: none;
+}
+
+.psw {
+  font-size: 0.96rem;
+}

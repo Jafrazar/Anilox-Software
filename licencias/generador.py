@@ -29,8 +29,8 @@ print(licencia)
 # Crear una tabla llamada "LICENCIAS" si no existe
 cursor = conexion.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS licencias (licencia VARCHAR(15))")
-cursor.execute("INSERT INTO licencias (usersLimit, usersUsed, licenseHolder, licenseNumber) VALUES (3, 0, 'Paraíso del Perú', %s)", (licencia,))
+cursor.execute("INSERT INTO licencias (usersLimit, usersUsed, licenseHolder, licenseNumber) VALUES (3, 0, 'PackPlast Envolturas', %s)", (licencia,))
 
 # # Confirmar los cambios y cerrar la conexión
-# conexion.commit()
-# conexion.close()
+conexion.commit()
+conexion.close()

@@ -17,9 +17,9 @@ body {
 
 input[type="text"], input[type="password"],
 input[type="email"] {
-  width: 90%;
+  width: 100%;
   padding: 15px;
-  margin: 5px 0 22px 0;
+  margin: 5px 30px 20px 0;
   display: inline-block;
   border: none;
   background: #f1f1f1;
@@ -39,7 +39,7 @@ input[type="submit"] {
   background-color: #007BFF;
   color: white;
   padding: 14px 20px;
-  margin: 1px 0;
+  margin: 0px 5px 4px 0px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -66,7 +66,13 @@ button:hover {
 }
 
 .container {
-  padding: 16px;
+  width: 400px;
+  padding: 20px;
+  background-color: white;
+  margin: 0 auto;
+  margin-top: 100px;
+  border: 1px solid black;
+  border-radius: 5px;
 }
 
 .clearfix::after {
