@@ -1,7 +1,7 @@
 const mensajeError = document.getElementsByClassName("error")[0];
 
 document.getElementById("registro-form").addEventListener("submit", async(event) => {
-    event.preventDefault();
+    event.preventDefault();    
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -10,7 +10,7 @@ document.getElementById("registro-form").addEventListener("submit", async(event)
 
     const passwordPattern = /^[a-zA-Z0-9@#\-_]*$/;
 
-    if (password !== password2) {
+    if (password_supervisor !== password2_supervisor) {
         alert('Las contraseñas no coinciden');
         return; // Detener la ejecución del código si las contraseñas no coinciden
     }

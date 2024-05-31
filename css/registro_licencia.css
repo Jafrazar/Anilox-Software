@@ -1,0 +1,90 @@
+/* styles.css */
+* {box-sizing: border-box;}
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 0.3rem;
+}
+
+#registro-form {
+  width: 25%;
+  display: inline-block;;  
+}
+
+#registro-form label {
+  font-weight: bold;
+}
+
+input[type="text"], input[type="password"],
+input[type="email"] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 30px 20px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+
+input[type="submit"] {
+  background-color: #007BFF;
+  color: white;
+  padding: 14px 20px;
+  margin: 0px 5px 4px 0px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+#registro-form input[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  color: white;
+  background-color: #007BFF;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;  
+}
+
+#registro-form input[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+button:hover {
+  opacity:1;
+}
+
+.container {
+  width: 400px;
+  padding: 20px;
+  background-color: white;
+  margin: 0 auto;
+  margin-top: 100px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.error {
+  color: red;
+}
+
+.escondido {
+  display: none;
+}

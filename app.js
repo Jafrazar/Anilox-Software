@@ -12,13 +12,11 @@ const { anilloxAnalysis } = require("./utils/anillox-analysis");
 const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
-const { login, registro } = require("./controllers/autenticacion");
+const { login, registro, registro_licencia } = require("./controllers/autenticacion");
 const { soloAdmin, soloPublico } = require("./middlewares/authorization");
-
 
 const app = express();
 const port = 3000;
-
 
 // Middleware para analizar el cuerpo de las solicitudes
 app.use(express.json());
@@ -40,6 +38,13 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+app.get('/registro', function(req, res) {
+  res.sendFile(path.join(__dirname, 'registro.html'));
+});
+
+app.get('/registro_licencia', function(req, res) {
+  res.sendFile(path.join(__dirname, 'registro_licencia.html'));
+});
 // Rutas
 app.use('/', express.static(path.join(__dirname, '')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
@@ -47,6 +52,7 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 
 app.post('/api/login', login);
 app.post('/api/registro', registro);
+app.post('/api/registro_licencia', registro_licencia);
 app.post('/password', async (req, res) => {
   let { email } = req.body;
 
