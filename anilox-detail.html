@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#134371">
+    <title>Ánilox Manager</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="./manifest" crossorigin="use-credentials" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- Anilox Detail -->
+    <link rel="stylesheet" href="./css/anilox-detail.css">
+    <!-- Chart JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="dropdown">
+          <button class="dropbtn">Archivo
+          </button>
+          <div class="dropdown-content" id="drop-archivo">
+            <a href="upload-file.html">Importar datos</a>
+            <a id="buscar-anilox">Buscar ánilox</a>
+            <a href="listado.html">Listado de ánilox</a>
+            <a href="print-report.html">Imprimir reportes</a>
+            <a href="login.html" id="cerrar-sesion">Cerrar sesión</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ver
+          </button>
+          <div class="dropdown-content" id="drop-ver">
+            <a id="ocultar-menu">Barra de herramientas</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Opciones
+          </button>
+          <div class="dropdown-content" id="drop-opciones">
+            <a href="export-data.html">Exportar datos</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ayuda
+          </button>
+          <div class="dropdown-content" id="drop-ayuda">
+            <a href="ayuda.html">Acerca de...</a>
+          </div>
+        </div>
+      </div>
+      <!-- Final Menu -->
+      <div class="top-bar">
+        <div class="logo">
+          <img src="assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
+        </div>
+        <div class="title">
+          <span class="material-icons-sharp" title="Código de ánilox">
+            hive
+          </span>
+          <h1 id="anilox-id"></h1>
+        </div>
+        <div class="user">
+          <p>Bienvenido, <b id="user-name"></b></p>
+          <small class="text-muted" id="user-level"></small>
+        </div>
+      </div>
+      <!-- Final de TopBar -->
+      <main>
+        <div class="left-content">
+          <div class="sidebar">
+            <a href="index.html">
+              <span class="material-icons-sharp" title="Panel Principal">
+                dashboard
+              </span>
+            </a>
+            <a href="upload-file.html">
+              <span class="material-icons-sharp" title="Importar Datos">
+                file_upload
+              </span>
+            </a>
+            <a id="search-anilox" class="active">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>
+            <a href="listado.html">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
+              </span>
+            </a>
+            <a href="print-report.html">
+              <span class="material-icons-sharp" title="Imprimir Reportes">
+                print
+              </span>
+            </a>
+            <a href="export-data.html">
+              <span class="material-icons-sharp" title="Exportar Datos">
+                file_download
+              </span>
+            </a>
+            <a href="ayuda.html">
+              <span class="material-icons-sharp" title="Ayuda">
+                help
+              </span>
+            </a>
+            <a href="#" id="log-out">
+              <span class="material-icons-sharp" title="Cerrar Sesión">
+                logout
+              </span>
+            </a>
+          </div>
+        </div>
+        <!-- Final Accesos Rapidos -->
+        <div class="right-content">
+          <div class="detail-content">
+            <div class="data-top">
+              <div class="data">
+                <span>
+                  <h3>Fabricante:</h3>
+                  <p id="data-brand"></p>
+                </span>
+                <span>
+                  <h3>Tipo:</h3>
+                  <p id="data-type"></p>
+                </span>
+                <span>
+                  <h3>Fecha de compra:</h3>
+                  <p id="data-purchase"></p>
+                </span>
+                <span>
+                  <h3>Volumen de celda (cm3/m2):</h3>
+                  <p id="data-volume"></p>
+                </span>
+                <span>
+                  <h3>Lineatura (LPI):</h3>
+                  <p id="data-screen"></p>
+                </span>
+                <span>
+                  <h3>Última fecha de revisión:</h3>
+                  <p id="data-last"></p>
+                </span>
+                <span>
+                  <h3>Próxima fecha de revisión:</h3>
+                  <p id="data-next"></p>
+                </span>
+                <span class="material-icons-sharp" title="Ver más" id="ver-mas">
+                  read_more
+                </span>
+              </div>
+              <div class="clean-graph">
+                <canvas id="clean-graph"></canvas>
+              </div>
+              <div class="damaged-graph">
+                <canvas id="damaged-graph"></canvas>
+              </div>
+              <div class="wear-graph">
+                <canvas id="wear-graph"></canvas>
+              </div>
+            </div>
+            <!-- Final de Data Top -->
+            <div class="data-middle">
+              <div class="graph-line">
+                <canvas id="bcm-graph"></canvas>
+              </div>
+            </div>
+            <!-- Final de Data Middle -->
+            <div class="data-bottom">
+              <div class="patron">
+                <img src="assets/anilox-placeholder.jpg" id="patron-image" alt="Patrón">
+              </div>
+              <div class="last">
+                <img src="assets/anilox-placeholder.jpg" id="last-image" alt="Revisión">
+              </div>
+              <div class="analysis">
+                <span>
+                  <h3>Estado:</h3>
+                  <p id="data-status"></p>
+                </span>
+                <span>
+                  <h3>Diagnóstico:</h3>
+                  <p id="data-diag"></p>
+                </span>
+                <span>
+                  <h3>Recomendación:</h3>
+                  <p id="data-act"></p>
+                </span>
+              </div>
+            </div>
+            <!-- Final de Data Bottom -->
+          </div>
+          <!-- Final de Detail Content -->
+        </div>
+      </main>
+    </div>
+    <!-- Final .container -->
+    <div class="modal" id="modal-search-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-search" autocomplete="off">
+            <div class="search-input">
+              <p>ID:</p>
+              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+            </div>
+            <div class="search-submit">
+              <input type="submit" value="Buscar" id="search-submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de buscar anilox -->
+    <div class="modal" id="modal-data-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-modal-data-anilox">
+            close
+          </span>
+          <h2>Datos del ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <span>
+            <h3>Fabricante:</h3>
+            <p id="more-brand"></p>
+          </span>
+          <span>
+            <h3>Tipo:</h3>
+            <p id="more-type"></p>
+          </span>
+          <span>
+            <h3>Fecha de compra:</h3>
+            <p id="more-purchase"></p>
+          </span>
+          <span>
+            <h3>Recorrido (m):</h3>
+            <p id="more-recorrido"></p>
+          </span>
+          <span>
+            <h3>Volumen de celda (cm3/m2):</h3>
+            <p id="more-volume"></p>
+          </span>
+          <span>
+            <h3>Profundidad de celda (um):</h3>
+            <p id="more-depth"></p>
+          </span>
+          <span>
+            <h3>Apertura de celda (um):</h3>
+            <p id="more-opening"></p>
+          </span>
+          <span>
+            <h3>Pared de celda (um):</h3>
+            <p id="more-wall"></p>
+          </span>
+          <span>
+            <h3>Lineatura (LPI):</h3>
+            <p id="more-screen"></p>
+          </span>
+          <span>
+            <h3>Ángulo de celdas (°):</h3>
+            <p id="more-angle"></p>
+          </span>
+          <span>
+            <h3>Última fecha de revisión:</h3>
+            <p id="more-last"></p>
+          </span>
+          <span>
+            <h3>Próxima fecha de revisión:</h3>
+            <p id="more-next"></p>
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Final mas info -->
+    <!-- Common JS Script -->
+    <script src="js/common.js"></script>
+    <!-- Anilox Detail JS Script -->
+    <script src="js/anilox-detail.js"></script>
+  </body>
+</html>

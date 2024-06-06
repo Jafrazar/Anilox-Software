@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#134371">
+    <title>Ánilox Manager</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="./manifest" crossorigin="use-credentials" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- Listado -->
+    <link rel="stylesheet" href="./css/listado.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="dropdown">
+          <button class="dropbtn">Archivo
+          </button>
+          <div class="dropdown-content" id="drop-archivo">
+            <a href="upload-file.html">Importar datos</a>
+            <a id="buscar-anilox">Buscar ánilox</a>
+            <a href="listado.html">Listado de ánilox</a>
+            <a href="print-report.html">Imprimir reportes</a>
+            <a href="login.html">Cerrar sesión</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ver
+          </button>
+          <div class="dropdown-content" id="drop-ver">
+            <a id="ocultar-menu">Barra de herramientas</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Opciones
+          </button>
+          <div class="dropdown-content" id="drop-opciones">
+            <a href="export-data.html">Exportar datos</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ayuda
+          </button>
+          <div class="dropdown-content" id="drop-ayuda">
+            <a href="ayuda.html">Acerca de...</a>
+          </div>
+        </div>
+      </div>
+      <!-- Final Menu -->
+      <div class="top-bar">
+        <div class="logo">
+          <img src="./assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
+        </div>
+        <div class="title">
+          <h1>Listado de Ánilox</h1>
+        </div>
+        <div class="user">
+          <p>Bienvenido, <b id="user-name"></b></p>
+          <small class="text-muted" id="user-level"></small>
+        </div>
+      </div>
+      <!-- Final de TopBar -->
+      <main>
+        <div class="left-content">
+          <div class="sidebar">
+            <a href="index.html">
+              <span class="material-icons-sharp" title="Panel Principal">
+                dashboard
+              </span>
+            </a>
+            <a href="upload-file.html">
+              <span class="material-icons-sharp" title="Importar Datos">
+                file_upload
+              </span>
+            </a>
+            <a id="search-anilox">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>
+            <a href="listado.html" class="active">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
+              </span>
+            </a>
+            <a href="print-report.html">
+              <span class="material-icons-sharp" title="Imprimir Reportes">
+                print
+              </span>
+            </a>
+            <a href="export-data.html">
+              <span class="material-icons-sharp" title="Exportar Datos">
+                file_download
+              </span>
+            </a>
+            <a href="ayuda.html">
+              <span class="material-icons-sharp" title="Ayuda">
+                help
+              </span>
+            </a>
+            <a href="#" id="log-out">
+              <span class="material-icons-sharp" title="Cerrar Sesión">
+                logout
+              </span>
+            </a>
+          </div>
+        </div>
+        <!-- Final Accesos Rapidos -->
+        <div class="right-content">
+          <div class="lista">
+            <table class="anilox-table">
+              <thead>
+                <tr>
+                  <th id="code">
+                    <span class="material-icons-sharp" title="Código de ánilox">
+                      hive
+                    </span>
+                  </th>
+                  <th id="brand">
+                    <span class="material-icons-sharp" title="Fabricante de ánilox">
+                      sell
+                    </span>
+                  </th>
+                  <th id="type">
+                    <span class="material-icons-sharp" title="Tipo de ánilox">
+                      handyman
+                    </span>
+                  </th>
+                  <th id="purchase-date">
+                    <span class="material-icons-sharp" title="Fecha de compra de ánilox">
+                      today
+                    </span>
+                  </th>
+                  <th id="volume">
+                    <span class="material-icons-sharp" title="Volumen de celda de ánilox (cm3/m2)">
+                      battery_3_bar
+                    </span>
+                  </th>
+                  <th id="last-date">
+                    <span class="material-icons-sharp" title="Última fecha de revisión de ánilox">
+                      bookmark_added
+                    </span>
+                  </th>
+                  <th id="next-date">
+                    <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                      notification_important
+                    </span>
+                  </th>
+                  <th id="status">
+                    <span class="material-icons-sharp" title="Estado de ánilox">
+                      battery_unknown
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <template id="anilox-template">
+              <tr>
+                <td class="id"></td>
+                <td class="brand"></td>
+                <td class="type"></td>
+                <td class="purchase-date"></td>
+                <td class="volume"></td>
+                <td class="last-date"></td>
+                <td class="next-date"></td>
+                <td class="status">
+                  <div class="barra-estado">
+                    <div id="barra"></div>
+                  </div>
+                </td>
+                <td class="pdf">
+                  <span class="material-icons-sharp master" title="Reporte de Fábrica" data-base64="">
+                    description
+                  </span>
+                </td>
+                <td class="trash">
+                  <span class="material-icons-sharp delete" title="Eliminar ánilox" data-id="">
+                    delete_forever
+                  </span>
+                </td>
+              </tr>
+            </template>
+          </div>
+          <!-- Final de Lista -->
+        </div>
+      </main>
+    </div>
+    <!-- Final de .container -->
+    <div class="modal" id="modal-search-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-search" autocomplete="off">
+            <div class="search-input">
+              <p>ID:</p>
+              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+            </div>
+            <div class="search-submit">
+              <input type="submit" value="Buscar" id="search-submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de buscar anilox -->
+    <div class="modal" id="modal-pdf">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-modal-pdf">
+            close
+          </span>
+        </div>
+        <div class="modal-body">
+          <object data="" type="application/pdf" id="master-pdf">
+          </object>
+        </div>
+      </div>
+    </div>
+    <!-- Final modal pdf -->
+    <!-- Common JS Script -->
+    <script src="./js/common.js"></script>
+    <!-- Listado JS Script -->
+    <script src="./js/listado.js"></script>
+  </body>
+</html>

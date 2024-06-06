@@ -1,0 +1,120 @@
+/* Lista */
+
+.right-content .lista{
+  background: var(--color-white);
+  width: 100%;
+  border-radius: var(--card-border-radius);
+  padding-bottom: 1rem;
+  text-align: center;
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+}
+
+.right-content .lista:hover{
+  box-shadow: none;
+}
+
+.right-content .lista table{
+  width: 100%;
+  text-align: center;
+  padding-top: 0.5rem;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.right-content .lista table thead, th, tbody, tr, td{
+  display: block;
+}
+
+.right-content .lista table tbody{
+  height: 79vh;
+  overflow-y: auto;
+}
+
+.right-content .lista table tbody td, thead th{
+  width: 11.65%;
+  float: left;
+}
+
+.right-content .lista table .pdf{
+  width: 4%;
+}
+
+.right-content .lista table .trash{
+  width: 1%;
+  color: red;
+}
+
+.right-content .lista thead tr{
+  height: 4.5rem;
+  border-bottom: 1px solid var(--color-light);
+}
+
+.right-content .lista table thead th{
+  padding-top: 1rem;
+}
+
+.right-content .lista table tbody tr{
+  height: 3rem;
+  margin-top: 1.5rem;
+  border-bottom: 1px solid var(--color-light);
+  color: var(--color-dark-variant);
+}
+
+.right-content .lista table tbody tr:last-child{
+  height: 2rem;
+  border: none;
+}
+
+.right-content .lista table tbody .id, .master, .delete{
+  cursor: pointer;
+}
+
+.right-content .lista table tbody td .barra-estado{
+  width: 100%;
+  margin-top: -0.5rem;
+  border: 1px solid var(--color-dark-variant);
+}
+
+.right-content .lista table tbody td #barra{
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  color: var(--color-dark);
+}
+
+.right-content .warning{
+  color: var(--color-warning);
+}
+
+.right-content .danger{
+  color: var(--color-danger);
+}
+
+.right-content .success{
+  color: var(--color-success);
+}
+
+/* Modal PDF */
+
+#modal-pdf{
+  display: none;
+  padding-top: 1rem;
+}
+
+#modal-pdf .modal-content{
+  width: 94%;
+}
+
+#modal-pdf .modal-header{
+  height: 2.5rem;
+}
+
+#modal-pdf .modal-body{
+  height: 92vh;
+}
+
+#modal-pdf #master-pdf{
+  height: 100%;
+  width: 100%;
+}

@@ -1,0 +1,258 @@
+/* Index Content */
+
+.index-content{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+/* Top Content */
+
+.top-content{
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 1rem;
+}
+
+/* Center */
+.index-content .top-content .center-content{
+  height: 38rem;
+}
+
+.index-content .top-content .center-content .semaforo{
+  padding-left: var(--card-padding);
+  padding-right: var(--card-padding);
+  border-radius: var(--card-border-radius);
+}
+
+/* Right */
+
+.index-content .top-content .right-content{
+  container-type: inline-size;
+  container-name: lista;
+  height: 38rem;
+}
+
+.index-content .top-content .right-content .lista table{
+  background: var(--color-white);
+  width: 100%;
+  border-radius: var(--card-border-radius);
+  padding: 0.5rem var(--card-padding);
+  text-align: center;
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.index-content .top-content .right-content .lista table:hover{
+  box-shadow: none;
+}
+
+.index-content .top-content .right-content table thead tr th{
+  height: 4.5rem;
+  border-bottom: 1px solid var(--color-light);
+}
+
+.index-content .top-content .right-content table tbody tr td{
+  width: 10%;
+  height: 5rem;
+  border-bottom: 1px solid var(--color-light);
+  color: var(--color-dark-variant);
+}
+
+.index-content .top-content .right-content table tbody tr:last-child td{
+  border: none;
+}
+
+.index-content .top-content .right-content table tbody .id{
+  cursor: pointer;
+}
+
+.index-content .top-content .right-content table tbody td .barra-estado{
+  width: 100%;
+  border: 1px solid var(--color-dark-variant);
+}
+
+.index-content .top-content .right-content table tbody td #barra{
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  color: var(--color-dark);
+}
+
+.index-content .top-content .right-content .lista a{
+  text-align: center;
+  font-size: 16px;
+  font-weight: 400;
+  display: block;
+  margin: 1rem auto;
+  color: var(--color-primary);
+}
+
+.index-content .top-content .right-content .warning{
+  color: var(--color-warning);
+}
+
+.index-content .top-content .right-content .danger{
+  color: var(--color-danger);
+}
+
+.index-content .top-content .right-content .success{
+  color: var(--color-success);
+}
+
+/* Bottom Content */
+
+.index-content .bottom-content{
+  margin-left: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.index-content .bottom-content .stat-id{
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1rem;
+}
+
+.index-content .bottom-content .stat-id span{
+  margin-left: 0.5rem;
+}
+
+.index-content .bottom-content .stat-id h2{
+  margin-left: 1rem;
+}
+
+.index-content .bottom-content .stats{
+  display: grid;
+  width: 99%;
+  grid-template-columns: 20% 20% 20% 40%;
+}
+
+.index-content .bottom-content .stats > div{
+  background: var(--color-white);
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  height: 29vh;
+  margin-right: 1.5rem;
+}
+
+.index-content .bottom-content .stats .bcm-stat{
+  margin-right: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.index-content .bottom-content .stats > div:hover{
+  box-shadow: none;
+}
+
+/* Media Queries */
+
+@container lista (max-width: 900px){
+  .index-content .top-content .right-content table thead tr #brand{
+    display: none;
+  }
+
+  .index-content .top-content .right-content tbody tr .brand{
+    display: none;
+  }
+
+  .index-content .top-content .right-content table thead tr #purchase-date{
+    display: none;
+  }
+
+  .index-content .top-content .right-content tbody tr .purchase-date{
+    display: none;
+  }
+
+  .index-content .top-content .right-content table thead tr #last-date{
+    display: none;
+  }
+
+  .index-content .top-content .right-content tbody tr .last-date{
+    display: none;
+  }
+}
+
+/* Editar pantalla principal */
+
+/* Mostrar / Ocultar */
+.modal .container-checkmark{
+  display: block;
+  position: relative;
+  padding-left: 3.5rem;
+  cursor: pointer;
+  font-size: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.modal .container-checkmark input{
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.modal .container-checkmark .checkmark{
+  position: absolute;
+  left: 1rem;
+  height: 25px;
+  width: 25px;
+  background: #eee;
+}
+
+.modal .container-checkmark:hover input ~ .checkmark{
+  background: #ccc;
+}
+
+.modal .container-checkmark input:checked ~ .checkmark{
+  background: var(--color-primary);
+}
+
+/* Ordenar */
+.modal .container-radial{
+  display: block;
+  position: relative;
+  padding-left: 3.5rem;
+  cursor: pointer;
+  font-size: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select:none;
+}
+
+.modal .container-radial input{
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.modal .container-radial .radial{
+  position: absolute;
+  left: 1rem;
+  height: 25px;
+  width: 25px;
+  background: #eee;
+  border-radius: 50%;
+}
+
+.modal .container-radial:hover input ~ .radial{
+  background: #ccc;
+}
+
+.modal .container-radial input:checked ~ .radial{
+  background: var(--color-primary);
+}

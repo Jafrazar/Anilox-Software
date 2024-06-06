@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#134371">
+    <title>Anilox Manager</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="./manifest" crossorigin="use-credentials" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- Index -->
+    <link rel="stylesheet" href="./css/index.css">
+    <!-- Chart JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="dropdown">
+          <button class="dropbtn">Archivo
+          </button>
+          <div class="dropdown-content" id="drop-archivo">
+            <a href="upload-file.html">Importar datos</a>
+            <a id="buscar-anilox">Buscar ánilox</a>
+            <a href="listado.html">Listado de ánilox</a>
+            <a href="print-report.html">Imprimir reportes</a>
+            <a href="login.html" id="cerrar-sesion">Cerrar sesión</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ver
+          </button>
+          <div class="dropdown-content" id="drop-ver">
+            <a id="editar-dashboard">Editar pantalla</a>
+            <a id="ocultar-menu">Barra de herramientas</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Opciones
+          </button>
+          <div class="dropdown-content" id="drop-opciones">
+            <a href="export-data.html">Exportar datos</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ayuda
+          </button>
+          <div class="dropdown-content" id="drop-ayuda">
+            <a href="ayuda.html">Acerca de...</a>
+          </div>
+        </div>
+      </div>
+      <!-- Final Menu -->
+      <div class="top-bar">
+        <div class="logo">
+          <img src="assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
+        </div>
+        <div class="title">
+          <h1>Panel Principal</h1>
+        </div>
+        <div class="user">
+          <p>Bienvenido, <b id="user-name"></b></p>
+          <small class="text-muted" id="user-level"></small>
+        </div>
+      </div>
+      <!-- Final de TopBar -->
+      <main>
+        <div class="left-content">
+          <div class="sidebar">
+            <a href="index.html" class="active">
+              <span class="material-icons-sharp" title="Panel Principal">
+                dashboard
+              </span>
+            </a>
+            <a href="upload-file.html">
+              <span class="material-icons-sharp" title="Importar Datos">
+                file_upload
+              </span>
+            </a>
+            <a id="search-anilox">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>
+            <a href="listado.html">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
+              </span>
+            </a>
+            <a href="print-report.html">
+              <span class="material-icons-sharp" title="Imprimir Reportes">
+                print
+              </span>
+            </a>
+            <a href="export-data.html">
+              <span class="material-icons-sharp" title="Exportar Datos">
+                file_download
+              </span>
+            </a>
+            <a href="ayuda.html">
+              <span class="material-icons-sharp" title="Ayuda">
+                help
+              </span>
+            </a>
+            <a href="#" id="log-out">
+              <span class="material-icons-sharp" title="Cerrar Sesión">
+                logout
+              </span>
+            </a>
+          </div>
+        </div>
+        <!-- Final Accesos Rapidos -->
+        <div class="index-content">
+          <div class="top-content">
+            <div class="center-content">
+              <div class="semaforo">
+                <canvas id="grafico" style="width: 251px; height: 475px;"></canvas>
+              </div>
+            </div>
+            <!-- Final semaforo -->
+            <div class="right-content">
+              <div class="lista">
+                <table class="anilox-table">
+                  <thead>
+                    <tr>
+                      <th id="code">
+                        <span class="material-icons-sharp" title="Código de ánilox">
+                          hive
+                        </span>
+                      </th>
+                      <th id="brand">
+                        <span class="material-icons-sharp" title="Fabricante de ánilox">
+                          sell
+                        </span>
+                      </th>
+                      <th id="type">
+                        <span class="material-icons-sharp" title="Tipo de ánilox">
+                          handyman
+                        </span>
+                      </th>
+                      <th id="purchase-date">
+                        <span class="material-icons-sharp" title="Fecha de compra de ánilox">
+                          today
+                        </span>
+                      </th>
+                      <th id="volume">
+                        <span class="material-icons-sharp" title="Volumen de celda de ánilox (cm3/m2)">
+                          battery_3_bar
+                        </span>
+                      </th>
+                      <th id="last-date">
+                        <span class="material-icons-sharp" title="Última fecha de revisión de ánilox">
+                          bookmark_added
+                        </span>
+                      </th>
+                      <th id="next-date">
+                        <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                          notification_important
+                        </span>
+                      </th>
+                      <th id="status">
+                        <span class="material-icons-sharp" title="Estado de ánilox">
+                          battery_unknown
+                        </span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-body"></tbody>
+                </table>
+                <template id="anilox-template">
+                  <tr>
+                    <td class="id"></td>
+                    <td class="brand"></td>
+                    <td class="type"></td>
+                    <td class="purchase-date"></td>
+                    <td class="volume"></td>
+                    <td class="last-date"></td>
+                    <td class="next-date"></td>
+                    <td class="status">
+                      <div class="barra-estado">
+                        <div id="barra"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <a href="listado.html">Mostrar todos</a>
+              </div>
+            </div>
+            <!-- Final de lista -->
+          </div>
+          <!-- Final de Top Content -->
+          <div class="bottom-content">
+            <div class="stat-id">
+              <span class="material-icons-sharp" title="Código de ánilox">
+                hive
+              </span>
+              <h2 id="stat-id"></h2>
+            </div>
+            <div class="stats">
+              <div class="clean-stat">
+                <canvas id="clean-stat"></canvas>
+              </div>
+              <div class="damaged-stat">
+                <canvas id="damaged-stat"></canvas>
+              </div>
+              <div class="wear-stat">
+                <canvas id="wear-stat"></canvas>
+              </div>
+              <div class="bcm-stat">
+                <canvas id="bcm-stat"></canvas>
+              </div>
+            </div>
+          </div>
+          <!-- Final de Bottom Content -->
+        </div>
+        <!-- Final de Index Content -->
+      </main>
+    </div>
+    <!-- Final .container -->
+    <div class="modal" id="modal-edit-dash">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-edit-dash">
+            close
+          </span>
+          <h2>Editar pantalla principal</h2>
+        </div>
+        <div class="modal-body">
+          <h3>Mostrar / Ocultar</h3>
+          <label class="container-checkmark">Sección estadísticas generales
+            <input type="checkbox" checked="checked" id="show-stats">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container-checkmark">Sección listado de ánilox
+            <input type="checkbox" id="show-anilox" checked="checked">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container-checkmark">Sección estadisticas detalladas
+            <input type="checkbox" id="show-details" checked="checked">
+            <span class="checkmark"></span>
+          </label>
+          <br>
+          <hr>
+          <br>
+          <h3>Ordernar</h3>
+          <label class="container-radial">Estadisticas generales y Listado de ánilox
+            <input type="radio" name="radio" id="top-first" checked="checked">
+            <span class="radial"></span>
+          </label>
+          <label class="container-radial">Estadisticas detalladas
+            <input type="radio" name="radio" id="bottom-first">
+            <span class="radial"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <!-- Final de editar pantalla -->
+    <div class="modal" id="modal-search-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-search" autocomplete="off">
+            <div class="search-input">
+              <p>ID:</p>
+              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+            </div>
+            <div class="search-submit">
+              <input type="submit" value="Buscar" id="search-submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de buscar anilox -->
+    <!-- Common JS Script -->
+    <script src="js/common.js"></script>
+    <!-- Index JS Script -->
+    <script src="js/index.js"></script>
+  </body>
+</html>

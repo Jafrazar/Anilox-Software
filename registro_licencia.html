@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="./">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE-edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+  <meta name="theme-color", content="#134371">
+  <title>Registro - Ánilox Manager</title>
+  <!-- Ayuda Stylesheet -->
+  <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+  <!-- Manifest -->
+  <link rel="./manifest" crossorigin="use-credentials" href="./manifest.json">
+  <!-- Material Icons CDN -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+  <link rel="stylesheet" href="./css/registro_licencia.css">
+</head>
+<body>
+  <form id="registro-form">
+    <div class="container">
+      <h2>Licencia de Administrador válida</h2>
+      <p>Su licencia ha sido validada. <br>Ingrese los 2 usuarios restantes a registrar:</p>
+      
+      <label class="rol"><b>SUPERVISOR</b></label><br><br>
+      <div class="campo">
+        <label for="username-supervisor">Usuario</label>
+        <input type="text" placeholder="Ingrese un nombre de usuario" id="username-supervisor" name="username-supervisor" required>
+      </div>
+      
+      <div class="campo">
+        <label for="email-supervisor">Correo electrónico</label>
+        <input type="email" placeholder="Ingrese su correo electrónico" id="email-supervisor" name="email-supervisor" required>
+      </div>                  
+      
+      <div class="campo" style="display: flex; justify-content: space-between; align-items: center;">
+        <label for="password-supervisor">Contraseña:</label><br>
+        <input type="password" placeholder="Ingrese una contraseña" id="password-supervisor" name="password-supervisor" required>
+      </div>
+
+      <div class="campo">
+        <label for="psw-repeat-supervisor">Confirmar contraseña</label>  
+        <input type="password" placeholder="Repita su contraseña" id="psw-repeat-supervisor" name="psw-repeat-supervisor" required>
+      </div>         
+      
+      <label class="rol"><b>OPERARIO</b></label><br><br>
+      <div class="campo">        
+        <label for="username-operario">Usuario</label>
+        <input type="text" placeholder="Ingrese un nombre de usuario" id="username-operario" name="username-operario" required>
+      </div>
+
+      <div class="campo">
+        <label for="email-operario">Correo electrónico</label>
+        <input type="email" placeholder="Ingrese su correo electrónico" id="email-operario" name="email-operario" required>
+      </div>
+      
+      <div class="campo">
+        <label for="password-operario">Contraseña:</label><br>
+        <input type="password" placeholder="Ingrese una contraseña" id="password-operario" name="password-operario" required>
+      </div>      
+      
+
+      <div class="campo">
+        <label for="psw-repeat-operario">Confirmar contraseña</label>
+        <input type="password" placeholder="Repita su contraseña" id="psw-repeat-operario" name="psw-repeat-operario" required>
+      </div>
+      
+      <input type="submit" value="Registrar">
+      <p class="error escondido">Error al registrar</p>
+    </div>
+  </form>
+  <script src="./js/registro_licencia.js" defer></script>
+</body>
+</html>
