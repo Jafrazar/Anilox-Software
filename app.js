@@ -1,20 +1,15 @@
 const path = require('path');
-const ruta = path.join(__dirname, '');
 require('dotenv').config();
-console.log("la ruta de app.js es", ruta);
-module.exports = {ruta, path};
+module.exports = { path };
 
 const express = require("express");
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
 const nodemailer = require('nodemailer');
-const mysql = require('mysql');
 const { anilloxAnalysis } = require("./utils/anillox-analysis");
 const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
-const { login, registro, registro_licencia, verificarToken } = require("./controllers/autenticacion");
-const { soloAdmin, soloPublico } = require("./middlewares/authorization");
+const { login, registro, registro_licencia, soloAdmin, soloPublico, mostrarEstado, 
+        mostrarLista, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory } = require("./controllers/autenticacion");
 
 const app = express();
 const port = 3000;
@@ -31,7 +26,11 @@ app.use((req, res, next) => {
 });
 
 // Configuración
-app.get('/index', function(req, res) {
+app.get('/index', soloAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/index.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -39,7 +38,11 @@ app.get('/', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-app.get('/login', function(req, res) {
+app.get('/login', soloPublico, function(req, res) {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/login.html', soloPublico, function(req, res) {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
@@ -47,31 +50,63 @@ app.get('/registro', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'registro.html'));
 });
 
+app.get('/registro.html', soloPublico, (req, res) => {
+  res.sendFile(path.join(__dirname, 'registro.html'));
+});
+
 app.get('/registro_licencia', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'registro_licencia.html'));
 });
 
-app.get('rcvpass', function(req, res) {
+app.get('/registro_licencia.html', soloPublico, (req, res) => {
+  res.sendFile(path.join(__dirname, 'registro_licencia.html'));
+});
+
+app.get('rcvpass', soloPublico, function(req, res) {
   res.sendFile(path.join(__dirname, 'rcvpass.html'));
 });
 
-app.get('/anilox-detail', function(req, res) {
+app.get('/rcvpass.html', soloPublico, function(req, res) {
+  res.sendFile(path.join(__dirname, 'rcvpass.html'));
+});
+
+app.get('/anilox-detail', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'anilox-detail.html'));
 });
 
-app.get('/ayuda', function(req, res) {
+app.get('/anilox-detail.html', soloAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'anilox-detail.html'));
+});
+
+app.get('/ayuda', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'ayuda.html'));
 });
 
-app.get('/export-data', function(req, res) {
+app.get('/ayuda.html', soloAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'ayuda.html'));
+});
+
+app.get('/export-data', soloAdmin, function(req, res) {
   res.sendFile(path.join(__dirname, 'export-data.html'));
 });
 
-app.get('/listado', function(req, res) {
+app.get('/export-data.html', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'export-data.html'));
+});
+
+app.get('/listado', soloAdmin, function(req, res) {
   res.sendFile(path.join(__dirname, 'listado.html'));
 });
 
-app.get('/upload-file', function(req, res) {
+app.get('/listado.html', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'listado.html'));
+});
+
+app.get('/upload-file', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'upload-file.html'));
+});
+
+app.get('/upload-file.html', soloAdmin, function(req, res) {
   res.sendFile(path.join(__dirname, 'upload-file.html'));
 });
 
@@ -80,12 +115,21 @@ app.use('/', express.static(path.join(__dirname, '')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
+// app.get('/admin', soloAdmin, (req, res) => {
+//   res.send('Bienvenido a la página de administrador');
+// });
 app.post('/api/login', login);
 app.post('/api/registro', registro);
 app.post('/api/registro_licencia', registro_licencia);
+app.post('/api/estado', mostrarEstado);
+app.post('/api/listado', mostrarLista);
+app.post('/api/anilox-history', tablaAniloxHistory);
+app.post('/api/usuarios', tablaUsuarios);
+app.post('/api/clientes', tablaClientes);
+app.post('/api/licencias', tablaLicencias);
 app.post('/rcvpass', async (req, res) => {
+  
   let { email } = req.body;
-
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     host: 'smtp.gmail.com',

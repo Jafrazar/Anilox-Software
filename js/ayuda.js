@@ -3,19 +3,25 @@ const $licenseNumber = d.getElementById("license-number"),
       $userLimit = d.getElementById("user-limit");
 
 const licenseData = async ()=>{
+  console.log("algodon");
   try {
-    if(ss.getItem("licenseNumber") === null){
-      let res = await fetch("/client-info/license"),
-          json = await res.json();
+    // if(ss.getItem("licenseNumber") === null){
+    let res = await fetch("/api/licencias", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
+      json = await res.json();
 
-      if(!res.ok) throw{status: res.status, statusText: res.statusText};
+    if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
-      ss.setItem("licenseNumber",json[0].licenseNumber);
-      ss.setItem("licenseHolder",json[0].licenseHolder);
-      ss.setItem("usersUsed",json[0].usersUsed);
-      ss.setItem("usersLimit",json[0].usersLimit);
-    }
-
+    ss.setItem("licenseNumber",json.result[0].licenseNumber);
+    ss.setItem("licenseHolder",json.result[0].licenseHolder);
+    ss.setItem("usersUsed",json.result[0].usersUsed);
+    ss.setItem("usersLimit",json.result[0].usersLimit);
+    // }
+    console.log("algodon3");
     $licenseNumber.textContent = ss.getItem("licenseNumber");
     $licenseHolder.textContent = ss.getItem("licenseHolder");
     $userLimit.textContent = `${ss.getItem("usersUsed")} / ${ss.getItem("usersLimit")}`;

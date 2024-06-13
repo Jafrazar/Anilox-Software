@@ -120,9 +120,11 @@ d.addEventListener("click",e=>{
 
   if (e.target.matches("#cerrar-sesion")) {
     // Borrar todas las cookies
+    console.log("Cookies antes de eliminar");
     document.cookie.split(";").forEach((c) => {
       document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
+    console.log("Cookies eliminadas", document.cookie);
   }
 
   if(e.target == closeModalEditDash){
@@ -262,13 +264,18 @@ const $clientLogo = d.getElementById("client-logo");
 const getUser = async()=>{
   try {
     if(ss.getItem("user") === null || ss.getItem("level") === null){
-      let res = await fetch("/client-info/user"), //Falta extraer user
+      let res = await fetch("/api/usuarios", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+      }), //Falta extraer user
           json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
-      ss.setItem("user",json[0].user);
-      ss.setItem("level",json[0].level);
+      ss.setItem("user",json.result[0].user);
+      ss.setItem("level",json.result[0].level);
     }
 
     $user.textContent = ss.getItem("user");
@@ -294,13 +301,18 @@ const getUser = async()=>{
 const getClient = async()=>{
   try {
     if(ss.getItem("client") === null){
-      let res = await fetch("/client-info/client"), // Falta extraer client
+      let res = await fetch("/api/clientes", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+      }),
       json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
-      ss.setItem("client", json[0].name);
-      ss.setItem("logo", json[0].logo);
+      ss.setItem("client", json.result[0].name);
+      ss.setItem("logo", json.result[0].logo);
     }
 
     $clientLogo.src = ss.getItem("logo");
@@ -326,6 +338,9 @@ const $logOut = d.getElementById("log-out"),
 const logOut = e=>{
   ss.clear();
   e.stopPropagation();
+  document.cookie.split(";").forEach((c) => {
+    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+  });
 }
 
 const showSearchAnilox = e=>{
@@ -353,7 +368,12 @@ const searchAnilox = async(e)=>{
     let searchId = $searchId.value.toUpperCase();
 
     try {
-      let res = await fetch("/anillox-list/anilox"),
+      let res = await fetch("/api/listado", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+      }),
       json = await res.json();
       
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
@@ -361,7 +381,7 @@ const searchAnilox = async(e)=>{
       let foundFlag;
 
       json.forEach(el=>{
-        if(el.id === searchId){
+        if(el.result.id === searchId){
           foundFlag = 1;
         }
       });

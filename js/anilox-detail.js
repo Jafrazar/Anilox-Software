@@ -52,7 +52,13 @@ const getAnilox = async()=>{
   try {
     $aniloxId.textContent = aniloxId;
 
-    let res1 = await fetch(`./anillox-list/anilox/${aniloxId}`),
+    let res1 = await fetch(`./anillox-list/anilox/${aniloxId}`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({id: aniloxId})
+    }),
         json1 = await res1.json();
     let res2 = await fetch(`./anillox-analysis/anilox/${aniloxId}`),
         json2 = await res2.json();

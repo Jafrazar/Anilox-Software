@@ -26,50 +26,48 @@ Chart.defaults.font.family = 'Rajdhani';
 const getData = (json, id)=>{
   return json.filter(el => el.id === id);
 }
-
 const drawIndex = async()=>{
   try {
     //Fetch call listado de anilox
-    let res1 = await fetch("/anillox-list/anilox"),
-        json1 = await res1.json();
-
-    //Fetch call server-response para el listado de anilox
-    let res2 = await fetch("/anillox-analysis/anilox"),
-        json2 = await res2.json();
-
-    if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
-    if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
-
-    //draw Semaforo
-    let numBuenos = 0,
-        numMedios = 0,
-        numMalos = 0;
-
-    
-    json2.forEach(el =>{
-      estado = parseFloat(el.estado);
-      if(estado >= 80 && estado <= 100){numBuenos++}
-      if(estado >= 25 && estado < 80){numMedios++}
-      if(estado >= 0 && estado < 25){numMalos++}
+    let res1 = await fetch("/api/listado", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
     });
 
+    //Fetch call server-response para el listado de anilox (anillox_analysis)
+    
+    let res2 = await fetch('/api/estado', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    });    
+
+    let json1 = await res1.json();
+    let json2 = await res2.json();
+    
+    if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
+    if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
+    
     const labels = ["Estado"];
     const data = {
       labels: labels,
       datasets: [
         {
           label: 'Buen Estado',
-          data: [numBuenos],
+          data: [json2.numBuenos],
           backgroundColor: "rgba(170,187,17,0.35)",
         },
         {
           label: 'Estado Aceptable',
-          data: [numMedios],
+          data: [json2.numMedios],
           backgroundColor: "rgba(255,186,38,0.35)",
         },
         {
           label: 'Mal Estado',
-          data: [numMalos],
+          data: [json2.numMalos],
           backgroundColor: "rgba(255,24,24,0.35)",
         },
       ],
@@ -172,11 +170,13 @@ const drawIndex = async()=>{
     });
 
     //sort lista de anilox por proxima fecha de revision
-    json2.sort((a,b)=>Date.parse(a.next) - Date.parse(b.next));
+    json2.result.sort((a,b)=>Date.parse(a.next) - Date.parse(b.next));
+    console.log(json2.result);
 
     //maximo de items en lista 5
     let lim = 6;
-    if(json1.length < lim){lim = json1.length}
+    if(json1.result.length < lim){lim = json1.result.length}
+    console.log(json1.result.length);
 
     //draw tabla
     let tableData = Array.from(Array(lim), ()=>({
@@ -191,15 +191,15 @@ const drawIndex = async()=>{
     }));
 
     for (i = 0; i < lim; i++){
-      let data = getData(json1, json2[i].id);
+      let data = getData(json1.result, json2.result[i].id);
       tableData[i].id = data[0].id;
       tableData[i].brand = data[0].brand;
       tableData[i].type = data[0].type;
       tableData[i].purchase = data[0].purchase;
       tableData[i].volume = data[0].volume;
       tableData[i].last = data[0].last;
-      tableData[i].next = json2[i].next;
-      tableData[i].estado = json2[i].estado;
+      tableData[i].next = json2.result[i].next;
+      tableData[i].estado = json2.result[i].estado;
     }
 
     tableData.forEach(el=>{
@@ -244,15 +244,15 @@ const drawIndex = async()=>{
     $table.querySelector("tbody").appendChild($fragment);
     
     //get primer item de la tabla
-    $tableFirstElement = json2[0].id;
+    $tableFirstElement = json2.primero;
     $statId.textContent = $tableFirstElement;
 
     //draw doughnut stats
-    let tapadas = parseFloat(json2[0].tapadas),
+    let tapadas = parseFloat(json2.tapadas),
         limpias = 100 - tapadas,
-        danadas = parseFloat(json2[0].danadas),
+        danadas = parseFloat(json2.danadas),
         sinDano = 100 - danadas,
-        desgastadas = parseFloat(json2[0].desgastadas),
+        desgastadas = parseFloat(json2.desgastadas),
         sinDesgaste = 100 - desgastadas;
 
     const dataCleanStat = {
@@ -529,9 +529,16 @@ const drawIndex = async()=>{
   }
   
   try {
-      //draw line stat
-      let res = await fetch(`./anillox-history/${$tableFirstElement}`),
+      //draw line stat -- tableFirstElement ES EL PRIMER ID: AA0000001
+      let res = await fetch('api/anilox-history', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({id: $tableFirstElement})
+      }),
       json = await res.json();
+      json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
@@ -652,8 +659,15 @@ const drawStats = async(e)=>{
       $statId.textContent = e.target.textContent;
 
       //draw doughnut stats
-      let res = await fetch(`./anillox-analysis/anilox/${e.target.textContent}`),
+      let res = await fetch('api/anilox-history', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({id: e.target.textContent})
+      }),
           json = await res.json();
+          json = json.result;
 
       let tapadas = parseFloat(json.tapadas),
           limpias = 100 - tapadas,
@@ -686,8 +700,15 @@ const drawStats = async(e)=>{
 
     try {
       //draw line stat
-      let res = await fetch(`./anillox-history/${e.target.textContent}`),
+      let res = await fetch(`./anillox-history/${e.target.textContent}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({id: e.target.textContent})
+      }),
       json = await res.json();
+      json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
@@ -720,11 +741,11 @@ const updateTable = async(mode)=>{
     $tableBody.innerHTML = '';
 
     //Fetch call listado de anilox
-    let res1 = await fetch("/anillox-list/anilox"),
+    let res1 = await fetch("/api/listado"),
         json1 = await res1.json();
 
     //Fetch call server-response para el listado de anilox
-    let res2 = await fetch("/anillox-analysis/anilox"),
+    let res2 = await fetch("/api/estado"),
         json2 = await res2.json();
 
     if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
@@ -732,7 +753,7 @@ const updateTable = async(mode)=>{
 
     let validData = [];
 
-    json2.forEach(el=>{
+    json2.result.forEach(el=>{
       let estado = parseFloat(el.estado);
       switch (mode) {
         case 0:
@@ -774,7 +795,7 @@ const updateTable = async(mode)=>{
     }));
 
     for (i = 0; i < lim; i++){
-    let data = getData(json1, validData[i].id);
+    let data = getData(json1.result, validData[i].id);
         tableData[i].id = data[0].id;
         tableData[i].brand = data[0].brand;
         tableData[i].purchase = data[0].purchase;
