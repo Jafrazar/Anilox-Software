@@ -3,7 +3,6 @@ const $licenseNumber = d.getElementById("license-number"),
       $userLimit = d.getElementById("user-limit");
 
 const licenseData = async ()=>{
-  console.log("algodon");
   try {
     // if(ss.getItem("licenseNumber") === null){
     let res = await fetch("/api/licencias", {
@@ -21,7 +20,6 @@ const licenseData = async ()=>{
     ss.setItem("usersUsed",json.result[0].usersUsed);
     ss.setItem("usersLimit",json.result[0].usersLimit);
     // }
-    console.log("algodon3");
     $licenseNumber.textContent = ss.getItem("licenseNumber");
     $licenseHolder.textContent = ss.getItem("licenseHolder");
     $userLimit.textContent = `${ss.getItem("usersUsed")} / ${ss.getItem("usersLimit")}`;

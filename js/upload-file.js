@@ -39,15 +39,15 @@ const uploadImage = e=>{
   }
 }
 
-const uploadPdf = e=>{
-  if(e.target === $pdfUpload){
-    if(e.target.files[0].type !== "application/pdf"){
-      alert("Solo se permite reportes de tipo PDF");
-      return;
-    }
-    master = e.target.files[0];
-  }
-}
+// const uploadPdf = e=>{
+//   if(e.target === $pdfUpload){
+//     if(e.target.files[0].type !== "application/pdf"){
+//       alert("Solo se permite reportes de tipo PDF");
+//       return;
+//     }
+//     master = e.target.files[0];
+//   }
+// }
 
 const uploadCSV = e=>{
   if(e.target === $csvUpload){
@@ -113,13 +113,22 @@ const submit = async(e)=>{
     }
     
     try {
-      let res = await fetch("/anillox-list/anilox"),
-          json = await res.json();
+      let res = await fetch("/api/listado", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
+        json = await res.json();
+        json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
       json.forEach(el=>{
+        console.log(el.id);
+        console.log($code.value);
         if(el.id === $code.value){
+          console.log("ya existe");
           alreadyExists = 1;
           saveId = el.id;
           saveBrand = el.brand;
@@ -130,6 +139,7 @@ const submit = async(e)=>{
           savePatron = el.patron;
         }
         else {
+          console.log("no existe pa");
           alreadyExists = 0;
         }
       });
@@ -180,9 +190,14 @@ const submit = async(e)=>{
           last: $date.value,
           master: pdf,
           patron: imagen,
+          insertar: 1,
         }),
       },
-          res = await fetch("/anillox-list/anilox", options);
+          // res = await fetch("/anillox-list/anilox", options);
+          res = await fetch("api/listado", options);
+
+        let json = res.json();
+        json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
     } catch (err) {
@@ -238,6 +253,7 @@ const recorrido = async(e)=>{
           master: saveMaster,
           patron: savePatron,
           revision: imagen,
+          modificar: 1,
         }),
       },
           res = await fetch(`./anillox-list/anilox/${saveId}`, options);
@@ -268,7 +284,7 @@ const levelCheck = ()=>{
 d.addEventListener("DOMContentLoaded",levelCheck);
 d.addEventListener("change", uploadImage);
 d.addEventListener("change", uploadCSV);
-d.addEventListener("change", uploadPdf);
+// d.addEventListener("change", uploadPdf);
 d.addEventListener("submit", submit);
 d.addEventListener("click", closeModal);
 d.addEventListener("click", recorrido);

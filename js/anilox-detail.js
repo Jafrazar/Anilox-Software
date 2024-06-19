@@ -52,7 +52,7 @@ const getAnilox = async()=>{
   try {
     $aniloxId.textContent = aniloxId;
 
-    let res1 = await fetch(`./anillox-list/anilox/${aniloxId}`, {
+    let res1 = await fetch('api/listado', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -60,24 +60,34 @@ const getAnilox = async()=>{
       body: JSON.stringify({id: aniloxId})
     }),
         json1 = await res1.json();
-    let res2 = await fetch(`./anillox-analysis/anilox/${aniloxId}`),
+        
+    let res2 = await fetch('api/analysis', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({id: aniloxId})
+    }),
         json2 = await res2.json();
 
     if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
     if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
 
-    let brand = json1.brand;
-    let type = json1.type;
-    let purchase = json1.purchase;
-    let recorrido = json1.recorrido;
-    let volume = json1.volume;
-    let depth = json1.depth;
-    let opening = json1.opening;
-    let wall = json1.wall;
-    let screen = json1.screen;
-    let angle = json1.angle;
-    let last = json1.last;
-    let next = json2.next;
+    json1 = json1.result;
+    json2 = json2.result;
+
+    let brand = json1[0].brand;
+    let type = json1[0].type;
+    let purchase = json1[0].purchase;
+    let recorrido = json1[0].recorrido;
+    let volume = json1[0].volume;
+    let depth = json1[0].depth;
+    let opening = json1[0].opening;
+    let wall = json1[0].wall;
+    let screen = json1[0].screen;
+    let angle = json1[0].angle;
+    let last = json1[0].last;
+    let next = json2[0].next;
 
     $dataBrand.textContent = brand;
     $dataType.textContent = type;
@@ -100,11 +110,11 @@ const getAnilox = async()=>{
     $moreLast.textContent = last;
     $moreNext.textContent = next;
 
-    let tapadas = parseFloat(json2.tapadas),
+    let tapadas = parseFloat(json2[0].tapadas),
         limpias = 100 - tapadas,
-        danadas = parseFloat(json2.danadas),
+        danadas = parseFloat(json2[0].danadas),
         sinDano = 100 - danadas,
-        desgastadas = parseFloat(json2.desgastadas),
+        desgastadas = parseFloat(json2[0].desgastadas),
         sinDesgaste = 100 - desgastadas;
 
     const dataCleanStat = {
@@ -371,12 +381,11 @@ const getAnilox = async()=>{
         maintainAspectRatio: false,
       }
     });
-
-    $imagePatron.src = json1.patron;
-    $imageLast.src = json1.revision;
-    $dataStatus.textContent = `${json2.estado}%`;
-    $dataDiag.textContent = json2.diagnostico;
-    $dataAct.textContent = json2.recomendacion;
+    $imagePatron.src = json1[0].patron;
+    $imageLast.src = json1[0].revision;
+    $dataStatus.textContent = `${json2[0].estado}%`;
+    $dataDiag.textContent = json2[0].diagnostico;
+    $dataAct.textContent = json2[0].recomendacion;
   } catch (err) {
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
@@ -386,8 +395,15 @@ const getAnilox = async()=>{
   }
 
   try {
-    let res = await fetch(`./anillox-history/${aniloxId}`),
+    let res = await fetch('/api/anilox-history', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({id: aniloxId})
+    }),
         json = await res.json();
+        json = json.result;
 
     if(!res.ok) throw{status: res.status, statusText: res.statusText};
 

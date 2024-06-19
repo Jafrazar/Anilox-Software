@@ -120,7 +120,6 @@ d.addEventListener("click",e=>{
 
   if (e.target.matches("#cerrar-sesion")) {
     // Borrar todas las cookies
-    console.log("Cookies antes de eliminar");
     document.cookie.split(";").forEach((c) => {
       document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
@@ -263,7 +262,8 @@ const $clientLogo = d.getElementById("client-logo");
 
 const getUser = async()=>{
   try {
-    if(ss.getItem("user") === null || ss.getItem("level") === null){
+    console.log("El ss.getItem(user) es: ", ss.getItem("user"));
+    console.log("El ss.getItem(level) es: ", ss.getItem("level"));
       let res = await fetch("/api/usuarios", {
         method: 'POST',
         headers: {
@@ -274,9 +274,8 @@ const getUser = async()=>{
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
-      ss.setItem("user",json.result[0].user);
-      ss.setItem("level",json.result[0].level);
-    }
+      ss.setItem("user",json.sesion_usuario);
+      ss.setItem("level",json.result[0].level);    
 
     $user.textContent = ss.getItem("user");
     let level = ss.getItem("level");

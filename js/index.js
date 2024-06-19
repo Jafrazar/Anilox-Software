@@ -36,9 +36,8 @@ const drawIndex = async()=>{
       }
     });
 
-    //Fetch call server-response para el listado de anilox (anillox_analysis)
-    
-    let res2 = await fetch('/api/estado', {
+    //Fetch call server-response para el listado de anilox (anillox_analysis)    
+    let res2 = await fetch('/api/analysis', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -171,12 +170,10 @@ const drawIndex = async()=>{
 
     //sort lista de anilox por proxima fecha de revision
     json2.result.sort((a,b)=>Date.parse(a.next) - Date.parse(b.next));
-    console.log(json2.result);
 
     //maximo de items en lista 5
     let lim = 6;
     if(json1.result.length < lim){lim = json1.result.length}
-    console.log(json1.result.length);
 
     //draw tabla
     let tableData = Array.from(Array(lim), ()=>({
@@ -659,7 +656,7 @@ const drawStats = async(e)=>{
       $statId.textContent = e.target.textContent;
 
       //draw doughnut stats
-      let res = await fetch('api/anilox-history', {
+      let res = await fetch('api/analysis', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -668,6 +665,7 @@ const drawStats = async(e)=>{
       }),
           json = await res.json();
           json = json.result;
+          json = json[0];
 
       let tapadas = parseFloat(json.tapadas),
           limpias = 100 - tapadas,
@@ -700,7 +698,7 @@ const drawStats = async(e)=>{
 
     try {
       //draw line stat
-      let res = await fetch(`./anillox-history/${e.target.textContent}`, {
+      let res = await fetch('api/anilox-history', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -741,11 +739,22 @@ const updateTable = async(mode)=>{
     $tableBody.innerHTML = '';
 
     //Fetch call listado de anilox
-    let res1 = await fetch("/api/listado"),
+    let res1 = await fetch("/api/listado", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
         json1 = await res1.json();
 
     //Fetch call server-response para el listado de anilox
-    let res2 = await fetch("/api/estado"),
+    let res2 = await fetch("/api/analysis", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ moda: 'x' })
+    }),
         json2 = await res2.json();
 
     if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
@@ -755,6 +764,7 @@ const updateTable = async(mode)=>{
 
     json2.result.forEach(el=>{
       let estado = parseFloat(el.estado);
+      console.log("Estado: ",estado);
       switch (mode) {
         case 0:
           if(estado >= 80 && estado <= 100){
@@ -778,6 +788,7 @@ const updateTable = async(mode)=>{
     });
 
     validData.sort((a,b)=>Date.parse(a.next) - Date.parse(b.next));
+    console.log("ValidData es: ", validData);
 
     //maximo de items en lista 6
     let lim = 6;

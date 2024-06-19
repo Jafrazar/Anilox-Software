@@ -17,8 +17,14 @@ let aniloxReportId, aniloxReportDate;
 const getAniloxList = async ()=>{
   try {
     $listaAnilox.style.display = "block";
-    let res = await fetch("/anillox-list/anilox"),
+    let res = await fetch("/api/listado", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
         json = await res.json();
+        json = json.result;
 
     if(!res.ok) throw{status: res.status, statusText: res.statusText};
     
@@ -43,11 +49,17 @@ const getReportList = async(e)=>{
       $reportTableBody.innerHTML = "";
       $listaReportes.style.display = "block";
       aniloxReportId = e.target.textContent;
-      let res = await fetch(`./anillox-history/${aniloxReportId}`),
+      let res = await fetch('/api/anilox-history', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({aniloxReportId: aniloxReportId})
+      }),
           json = await res.json();
+          json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-
       json.reverse();
 
       json.forEach(el =>{
@@ -72,8 +84,15 @@ const getReport = async(e)=>{
       $pdf.style.display = "block";
       aniloxReportDate = e.target.textContent;
       $reportTitle.textContent = `${aniloxReportId}_${aniloxReportDate}`
-      let res = await fetch(`./anillox-history/${aniloxReportId}`),
+      let res = await fetch('/api/anilox-history', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ aniloxReportId: aniloxReportId })
+    }),
           json = await res.json();
+          json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 

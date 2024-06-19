@@ -91,7 +91,12 @@ const submit = async(e)=>{
     
     let search = e.target.search.value.toUpperCase();
     try {
-      let res = await fetch("/anillox-list/anilox"),
+      let res = await fetch("api/listado", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+      }),
           json = await res.json();
       
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
@@ -99,7 +104,7 @@ const submit = async(e)=>{
       let foundFlag;
 
       if(exportFilter === 1){
-        json.forEach(el=>{
+        json.result.forEach(el=>{
           if(el.id === search){
             foundFlag = 1;
           }
@@ -113,7 +118,7 @@ const submit = async(e)=>{
         }
       }
       if(exportFilter === 2){
-        json.forEach(el=>{
+        json.result.forEach(el=>{
           if(el.brand.toUpperCase() === search){
             foundFlag = 1;
           }
@@ -127,7 +132,7 @@ const submit = async(e)=>{
         }
       }
       if(exportFilter === 3){
-        json.forEach(el=>{
+        json.result.forEach(el=>{
           if(Date.parse(el.purchase) === Date.parse(search)){
             foundFlag = 1;
           }

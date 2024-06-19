@@ -8,8 +8,8 @@ const { anilloxAnalysis } = require("./utils/anillox-analysis");
 const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
-const { login, registro, registro_licencia, soloAdmin, soloPublico, mostrarEstado, 
-        mostrarLista, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory } = require("./controllers/autenticacion");
+const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, 
+        tablaAniloxList, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox } = require("./controllers/autenticacion");
 
 const app = express();
 const port = 3000;
@@ -102,6 +102,14 @@ app.get('/listado.html', soloAdmin, function(req, res) {
   res.sendFile(path.join(__dirname, 'listado.html'));
 });
 
+app.get('/print-report', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'print-report.html'));
+});
+
+app.get('/print-report.html', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'print-report.html'));
+});
+
 app.get('/upload-file', soloAdmin, function(req, res) {
   res.sendFile(path.join(__dirname, 'upload-file.html'));
 });
@@ -121,9 +129,10 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 app.post('/api/login', login);
 app.post('/api/registro', registro);
 app.post('/api/registro_licencia', registro_licencia);
-app.post('/api/estado', mostrarEstado);
-app.post('/api/listado', mostrarLista);
+app.post('/api/analysis', tablaAniloxAnalysis);
+app.post('/api/listado', tablaAniloxList);
 app.post('/api/anilox-history', tablaAniloxHistory);
+app.post('/api/borrar-anilox', borrarAnilox);
 app.post('/api/usuarios', tablaUsuarios);
 app.post('/api/clientes', tablaClientes);
 app.post('/api/licencias', tablaLicencias);

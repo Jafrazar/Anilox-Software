@@ -12,16 +12,26 @@ const getData = (json, id)=>{
 
 const getAll = async ()=>{
   try {
-    let res1 = await fetch("/anillox-list/anilox"),
+    let res1 = await fetch("api/listado", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
         json1 = await res1.json();
         
-    let res2 = await fetch("/anillox-analysis/anilox"),
+    let res2 = await fetch("api/analysis", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
         json2 = await res2.json();
         
     if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
     if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
     
-    let tableData = Array.from(Array(json2.length), ()=>({
+    let tableData = Array.from(Array(json2.result.length), ()=>({
       id: '',
       brand: '',
       type: '',
@@ -33,8 +43,8 @@ const getAll = async ()=>{
       estado: '',
     }));
 
-    for (i = 0; i < json1.length; i++){
-      let data = getData(json1, json2[i].id);
+    for (i = 0; i < json1.result.length; i++){
+      let data = getData(json1.result, json2.result[i].id);
       tableData[i].id = data[0].id;
       tableData[i].brand = data[0].brand;
       tableData[i].type = data[0].type;
@@ -42,8 +52,8 @@ const getAll = async ()=>{
       tableData[i].volume = data[0].volume;
       tableData[i].last = data[0].last;
       tableData[i].master = data[0].master;
-      tableData[i].next = json2[i].next;
-      tableData[i].estado = json2[i].estado;
+      tableData[i].next = json2.result[i].next;
+      tableData[i].estado = json2.result[i].estado;
     }
     
     tableData.forEach(el=>{
@@ -137,21 +147,14 @@ const deleteAnilox = async(e)=>{
           },
         };
 
-        let res1 = await fetch(`./anillox-history/${deleteID}`),
-            json = await res1.json();
-
-        if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
-        
-        json.forEach(async(el) =>{
-          let res = await fetch(`./anillox-history/${deleteID}/${el.id}`, options);
-          if(!res.ok) throw{status: res.status, statusText: res.statusText};
+        let res1 = await fetch('api/borrar-anilox', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({deleteID: deleteID})
         });
-
-        let res2 = await fetch(`./anillox-list/anilox/${deleteID}`, options),
-            res3 = await fetch(`./anillox-analysis/anilox/${deleteID}`, options);
-
-        if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
-        if(!res3.ok) throw{status: res3.status, statusText: res3.statusText};
+        if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
         location.reload();
       } catch (err) {
         let errorCode = err.status || "2316",
