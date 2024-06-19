@@ -80,7 +80,7 @@ const getAnilox = async()=>{
     let type = json1[0].type;
     let purchase = json1[0].purchase;
     let recorrido = json1[0].recorrido;
-    let volume = json1[0].volume;
+    let volume = (json1[0].volume)/1.55;
     let depth = json1[0].depth;
     let opening = json1[0].opening;
     let wall = json1[0].wall;
@@ -92,7 +92,7 @@ const getAnilox = async()=>{
     $dataBrand.textContent = brand;
     $dataType.textContent = type;
     $dataPurchase.textContent = purchase;
-    $dataVolume.textContent = volume;
+    $dataVolume.textContent = Math.round(volume * 10) / 10;
     $dataScreen.textContent = screen;
     $dataLast.textContent = last;
     $dataNext.textContent = next;
@@ -413,14 +413,14 @@ const getAnilox = async()=>{
   
     for(let i = 0; i < json.length; i++){
      volLabels[i] = json[i].date;
-     volData[i] = json[i].volume;
+     volData[i] = Math.round(((json[i].volume)/1.55) * 10) / 10; // VOLUMEN EN BCM
      diag[i] = json[i].diagnostico;
     }
 
     const dataBcmStat = {
       labels: volLabels,
       datasets: [{
-        label: 'Volumen (cm3/m2)',
+        label: 'Volumen (BCM)',
         data: volData,
         info: diag,
         fill: false,
@@ -488,7 +488,7 @@ const getAnilox = async()=>{
               label: function(context){
                 let data = context.parsed.y;
 
-                return 'Volumen: ' + data + ' cm3/m2';
+                return 'Volumen: ' + data + ' BCM';
               },
               footer: function(tooltipItems){
                 let diag = tooltipItems[0].dataset.info[tooltipItems[0].dataIndex];

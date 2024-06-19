@@ -547,13 +547,13 @@ const drawIndex = async()=>{
 
       for(let i = json.length - 1; i >= json.length - lim; i--){
         volLabels[i - (json.length - lim)] = json[i].date;
-        volData[i - (json.length - lim)] = json[i].volume;
+        volData[i - (json.length - lim)] = Math.round(((json[i].volume)/1.55) * 10) / 10;
       }
 
       const dataBcmStat = {
         labels: volLabels,
         datasets: [{
-          label: 'Volumen (cm3/m2)',
+          label: 'Volumen (BCM)',
           data: volData,
           fill: false,
           borderColor: 'rgba(0, 0, 255, 0.35)',
@@ -616,7 +616,7 @@ const drawIndex = async()=>{
                 label: function(context){
                   let data = context.parsed.y;
   
-                  return 'Volumen: ' + data + ' cm3/m2';
+                  return 'Volumen: ' + data + ' BCM';
                 },
               },
             },
