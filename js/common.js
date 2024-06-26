@@ -289,6 +289,7 @@ const getUser = async()=>{
       $level.textContent = "Administrador";
     }
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
@@ -316,6 +317,7 @@ const getClient = async()=>{
 
     $clientLogo.src = ss.getItem("logo");
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
@@ -393,6 +395,7 @@ const searchAnilox = async(e)=>{
       }
       $searchId.value = "";
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",

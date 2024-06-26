@@ -15,7 +15,7 @@ const app = express();
 const port = 3000;
 
 // Middleware para analizar el cuerpo de las solicitudes
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
 
 // Middleware para permitir solicitudes desde cualquier dominio
 app.use((req, res, next) => {
@@ -161,7 +161,7 @@ app.post('/rcvpass', async (req, res) => {
     await transporter.sendMail(mailOptions);
     res.json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     res.json({ success: false, message: 'No se pudo enviar el correo electrónico.' });
   }
 });

@@ -20,10 +20,10 @@ def generar_licencia():
 licencia = generar_licencia()
 # Conectar a la base de datos MySQL
 conexion = mysql.connector.connect(
-    host="database-1.cspwdfignp82.sa-east-1.rds.amazonaws.com",
+    host="database-1.crkw6qaew4si.sa-east-1.rds.amazonaws.com",
     user="admin",
-    password="104#55Fppl2",
-    database="ANILOX"
+    password="104-55Fppl2",
+    database="ANDERS"
 )
 print(licencia)
 # Crear una tabla llamada "LICENCIAS" si no existe

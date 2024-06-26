@@ -3,10 +3,10 @@ const mysql = require('mysql');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const db = mysql.createPool({
-  host: 'database-1.cspwdfignp82.sa-east-1.rds.amazonaws.com',
+  host: 'database-1.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
   user: 'admin',
-  password: '104#55Fppl2',
-  database: 'ANILOX'
+  password: '104-55Fppl2',
+  database: 'ANDERS'
 });
 
 db.getConnection((err) => {
@@ -177,8 +177,26 @@ function revisarCookie(req){
 
 async function tablaAniloxList(req, res) {
   try {
-    const { id, brand, purchase, volumen, depth, opening, wall, screen, angle, last, master, patron, insertar, modificar } = req.body;
+    let { id, brand, purchase, volume, depth, opening, wall, screen, angle, last, master, patron, insertar, modificar, recorrido } = req.body;
+    let tipo = "";
+    if(angle){
+      if(angle > 45 && angle < 75) {
+        tipo = "Hexagonal";
+      } else {
+        tipo = "GTT";
+      }
+    }    
+    if(id) {
+      let id2 = id;
+      if(id2.slice(0,2) == "AA") {
+        id = id2.slice(0, 9);
+        console.log(id);
+      } else if (id2.slice(0,2) == "AS") {
+          id= id2.slice(0, 8);
+      }
+    }
     if(id && !brand) {
+      console.log("qwewqe");
       const sql = 'SELECT * FROM anilox_list WHERE id=? and empresa=?';
       db.query(sql, [id, sesion_empresa], (err, result) => {
         if (err) throw err;
@@ -198,27 +216,69 @@ async function tablaAniloxList(req, res) {
         });
         return res.status(200).send({ status: "Success", message: "Estado", result });
       });
-    } 
+    }
     else if (id && brand && modificar) {
-      const sql = 'UPDATE anilox_list SET brand=?, purchase=?, volumen=?, depth=?, opening=?, wall=?, screen=?, angle=?, last=?, master=?, patron=? WHERE id=? and empresa=?';
-      db.query(sql, [brand, purchase, volumen, depth, opening, wall, screen, angle, last, master, patron, id, sesion_empresa], (err, result) => {
+      const sql = 'UPDATE anilox_list SET brand=?, recorrido=?, volume=?, last=?, master=?, patron=? WHERE id=? and empresa=?';
+      db.query(sql, [brand, recorrido, volume, last, master, patron, id, sesion_empresa], (err, result) => {
         if (err) throw err;
         return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
       });
-    } 
+    }
     else if (id && brand && insertar) {
-      const sql = 'INSERT INTO anilox_list (id, brand, purchase, volumen, depth, opening, wall, screen, angle, last, master, patron, empresa) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-      db.query(sql, [id, brand, purchase, volumen, depth, opening, wall, screen, angle, last, master, patron, sesion_empresa], (err, result) => {
+      const sqlVerificarList = 'SELECT * FROM anilox_list WHERE id = ?';
+      db.query(sqlVerificarList, [id], (err, result) => {
         if (err) throw err;
-      });
-      const sql2 = 'INSERT INTO anilox_history (anilox, date, volume, empresa) VALUES (?,?,?,?)';
-      db.query(sql2, [id, last, 100, 0, 0, 0, sesion_empresa], (err2, result2) => { // Hace falta cambiar esta línea pr los valores correctos de las celdas
-        if (err2) throw err2;
+        if(result.length > 0){
+          const sql = 'UPDATE anilox_list SET volume=?, last=?, revision=? WHERE id=?';
+          db.query(sql, [volume, last, patron, id], (err, result) => {
+            if (err) throw err;
+          });
+        }
+        else{
+          const sql = 'INSERT INTO anilox_list (id, brand, type, purchase, recorrido, volume, depth, opening, wall, screen, angle, last, master, patron, revision, empresa) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+          db.query(sql, [id, brand, tipo, purchase, 0, volume, depth, opening, wall, screen, angle, last, master, patron, patron, sesion_empresa], (err, result) => {
+            if (err) throw err;
+          });
+        }
       });      
-      const sql3 = 'INSERT INTO anilox_analysis (id, next) VALUES (?,?,?,?,?,?)'; // FALTA VERIFICAR PRIMERO QUE NO EXISTA EL ID, SINO HACER UPDATE INSTEAD OF INSERT
-      db.query(sql3, [id, 100, last, 0, 0, 0], (err3, result3) => {
-        if (err3) throw err3;
-        return res.status(200).send({ status: "Success", message: "Anilox insertado correctamente" });
+
+      const sqlVerificarHistory = 'SELECT * FROM anilox_history WHERE anilox = ?';
+      db.query(sqlVerificarHistory, [id], (err, result) => {
+        if (err) throw err;
+        if(result.length > 0){
+          const sql2 = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
+          db.query(sql2, [id, result.length + 1, last, volume, "https://www.africau.edu/images/default/sample.pdf",sesion_empresa], (err2, result2) => { // Falta introducir el diagnóstico en base al PDI
+            if (err2) throw err2;
+          });
+        } else {
+          const sql2 = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
+          db.query(sql2, [id, 1, last, volume, "https://www.africau.edu/images/default/sample.pdf",sesion_empresa], (err2, result2) => { // Falta introducir el diagnóstico en base al PDI
+            if (err2) throw err2;
+          });
+        }
+      });
+      // Primero, verifica si el id ya existe
+      const sqlVerificar = 'SELECT * FROM anilox_analysis WHERE id = ?';
+      db.query(sqlVerificar, [id], (err, result) => {
+        if (err) throw err;
+        let nextDate = new Date(last);
+        nextDate.setMonth(nextDate.getMonth() + 6);
+
+        // Si el id ya existe, actualiza el registro
+        if (result.length > 0) {
+          const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ? WHERE id = ?';
+          db.query(sqlUpdate, [nextDate, 100, 0, 0, 0, id], (err2, result2) => {
+            if (err2) throw err2;
+            return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
+          });
+        } else {
+          // Si el id no existe, inserta el nuevo registro
+          const sqlInsert = 'INSERT INTO anilox_analysis (id, next, estado, tapadas, danadas, desgastadas, empresa) VALUES (?,?,?,?,?,?,?)';
+          db.query(sqlInsert, [id, nextDate, 100, 0, 0, 0, sesion_empresa], (err3, result3) => {
+            if (err3) throw err3;
+            return res.status(200).send({ status: "Success", message: "Anilox insertado correctamente" });
+          });
+        }
       });
     }
     else {

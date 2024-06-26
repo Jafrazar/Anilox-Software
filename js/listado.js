@@ -42,7 +42,6 @@ const getAll = async ()=>{
       next: '',
       estado: '',
     }));
-
     for (i = 0; i < json1.result.length; i++){
       let data = getData(json1.result, json2.result[i].id);
       tableData[i].id = data[0].id;
@@ -100,6 +99,7 @@ const getAll = async ()=>{
     $table.querySelector("tbody").appendChild($fragment);
 
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",

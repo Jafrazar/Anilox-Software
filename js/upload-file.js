@@ -39,15 +39,15 @@ const uploadImage = e=>{
   }
 }
 
-// const uploadPdf = e=>{
-//   if(e.target === $pdfUpload){
-//     if(e.target.files[0].type !== "application/pdf"){
-//       alert("Solo se permite reportes de tipo PDF");
-//       return;
-//     }
-//     master = e.target.files[0];
-//   }
-// }
+const uploadPdf = e=>{
+  if(e.target === $pdfUpload){
+    if(e.target.files[0].type !== "application/pdf"){
+      alert("Solo se permite reportes de tipo PDF");
+      return;
+    }
+    master = e.target.files[0];
+  }
+}
 
 const uploadCSV = e=>{
   if(e.target === $csvUpload){
@@ -60,7 +60,12 @@ const uploadCSV = e=>{
       delimiter: ",",
       worker: true,
       skipEmptyLines: true,
-      complete: function(results){
+      complete: function(results){        
+        if(results.data[0][2].slice(0, 2) == "AA"){
+          results.data[0][2] = results.data[0][2].slice(0, 9);
+        } else if(results.data[0][2].slice(0, 2) == "AS"){
+          results.data[0][2] = results.data[0][2].slice(0, 8);
+        }        
         const date = results.data[0][4].split(' ');
         const formatedDate = date[0].split('/');
         $code.value = results.data[0][2];
@@ -102,15 +107,17 @@ const submit = async(e)=>{
     if($code.value === "" || $date.value === "" || $volume.value === "" || $depth.value === "" || $opening.value === "" || $wall.value === "" || $screen.value === "" || $angle.value === ""){
       alert("Debe seleccionar un archivo CSV válido para poder importar los datos");
       return;
-    }
-    if(!image.name.includes($code.value)){
+    }    
+    console.log("El code value es,", $code.value.trim() + "-y su tipo de variable es: ", typeof $code.value);
+    console.log("El nombre de la imagen es,", image.name.trim() + "-y su tipo de variable es: ", typeof image.name);
+    if(!image.name.trim().includes($code.value.trim())){
       alert("Archivo CSV e imagen de ánilox no coinciden");
       return;
     }
-    if(Date.parse(image.lastModifiedDate) !== Date.parse(data.lastModifiedDate)){
-      alert("Fecha de archivo CSV e imagen de ánilox no coinciden");
-      return;
-    }
+    // if(Date.parse(image.lastModifiedDate) !== Date.parse(data.lastModifiedDate)){
+    //   alert("Fecha de archivo CSV e imagen de ánilox no coinciden");
+    //   return;
+    // }
     
     try {
       let res = await fetch("/api/listado", {
@@ -125,8 +132,6 @@ const submit = async(e)=>{
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
       json.forEach(el=>{
-        console.log(el.id);
-        console.log($code.value);
         if(el.id === $code.value){
           console.log("ya existe");
           alreadyExists = 1;
@@ -139,7 +144,6 @@ const submit = async(e)=>{
           savePatron = el.patron;
         }
         else {
-          console.log("no existe pa");
           alreadyExists = 0;
         }
       });
@@ -156,6 +160,7 @@ const submit = async(e)=>{
         $modalNewAnilox.style.display = "block";
       }
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",
@@ -188,8 +193,8 @@ const submit = async(e)=>{
           screen: $screen.value,
           angle: $angle.value,
           last: $date.value,
-          master: pdf,
-          patron: imagen,
+          master: pdf,  // master: pdf
+          patron: imagen, // patron: imagen
           insertar: 1,
         }),
       },
@@ -201,6 +206,7 @@ const submit = async(e)=>{
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",
@@ -256,11 +262,33 @@ const recorrido = async(e)=>{
           modificar: 1,
         }),
       },
-          res = await fetch(`./anillox-list/anilox/${saveId}`, options);
+          res = await fetch('api/listado', {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+            body: JSON.stringify({
+              id: saveId,
+              brand: saveBrand,
+              recorrido: valRecorrido,
+              volume: $volume.value,
+              depth: $depth.value,
+              opening: $opening.value,
+              wall: $wall.value,
+              screen: $screen.value,
+              angle: $angle.value,
+              last: $date.value,
+              master: saveMaster,
+              patron: savePatron,
+              revision: imagen,
+              modificar: 1,
+            }),
+          });
   
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
       $formExtra.submit();
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",
@@ -284,7 +312,7 @@ const levelCheck = ()=>{
 d.addEventListener("DOMContentLoaded",levelCheck);
 d.addEventListener("change", uploadImage);
 d.addEventListener("change", uploadCSV);
-// d.addEventListener("change", uploadPdf);
+d.addEventListener("change", uploadPdf);
 d.addEventListener("submit", submit);
 d.addEventListener("click", closeModal);
 d.addEventListener("click", recorrido);
