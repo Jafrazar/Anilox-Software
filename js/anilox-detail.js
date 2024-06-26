@@ -434,6 +434,17 @@ const getAnilox = async()=>{
       data: dataBcmStat,
       options: {
         plugins: {
+          annotation: {
+            annotations: {
+              line1: {
+                type: 'line',
+                yMin: volData[0], // Primer valor de volData
+                yMax: volData[0], // Mismo valor para mantener la línea horizontal
+                borderColor: 'rgb(255, 99, 132)', // Color de la línea
+                borderWidth: 2, // Grosor de la línea
+                },
+              },
+          },
           title: {
             display: true,
             align: "center",
