@@ -264,8 +264,19 @@ async function tablaAniloxList(req, res) {
 
         // Si el id ya existe, actualiza el registro
         if (result.length > 0) {
-          const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ? WHERE id = ?';
-          db.query(sqlUpdate, [nextDate, 100, 0, 0, 0, id], (err2, result2) => {
+          let volumenOriginal = 1;
+          const sqlVolume = 'SELECT * FROM anilox_history WHERE id = ? AND anilox = ?';
+          db.query(sqlVolume, [1, id], (err, result) => {
+            if (err) throw err;
+            volumenOriginal = result[0].volume;
+          });
+          porcentaje_estado = (volume / volumenOriginal) * 100;
+          if (porcentaje_estado > 100){ 
+            porcentaje_estado = 100;
+          } 
+
+          const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ?, diagnostico = ?, recomendacion = ? WHERE id = ?';
+          db.query(sqlUpdate, [nextDate, porcentaje_estado, 0, 0, 0, "Rodillo en buen estado", "No requerido", id], (err2, result2) => {
             if (err2) throw err2;
             return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
           });
