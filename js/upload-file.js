@@ -107,10 +107,8 @@ const submit = async(e)=>{
     if($code.value === "" || $date.value === "" || $volume.value === "" || $depth.value === "" || $opening.value === "" || $wall.value === "" || $screen.value === "" || $angle.value === ""){
       alert("Debe seleccionar un archivo CSV válido para poder importar los datos");
       return;
-    }    
-    console.log("El code value es,", $code.value.trim() + "-y su tipo de variable es: ", typeof $code.value);
-    console.log("El nombre de la imagen es,", image.name.trim() + "-y su tipo de variable es: ", typeof image.name);
-    if(!image.name.trim().includes($code.value.trim())){
+    }
+    if(!image.name.includes($code.value)){
       alert("Archivo CSV e imagen de ánilox no coinciden");
       return;
     }
@@ -133,7 +131,6 @@ const submit = async(e)=>{
 
       json.forEach(el=>{
         if(el.id === $code.value){
-          console.log("ya existe");
           alreadyExists = 1;
           saveId = el.id;
           saveBrand = el.brand;
@@ -174,6 +171,7 @@ const submit = async(e)=>{
 
   if(e.target === $formNew){
     try {
+      
       const imagen = await toBase64(image);
       const pdf = await toBase64(master);
 
@@ -181,7 +179,7 @@ const submit = async(e)=>{
         method: "POST",
         headers: {
           "Content-type": "application/json; charset=UTF-8",
-        },
+        },        
         body: JSON.stringify({
           id: $code.value,
           brand: e.target.brand.value,
@@ -225,7 +223,7 @@ const recorrido = async(e)=>{
       const imagen = await toBase64(image);
       let valRecorrido;
       if(e.target === $extraSkip){
-        valRecorrido = '---';
+        valRecorrido = 0;
       }
       else if(e.target === $extraSubmit){
         if($extraRecorrido.validity.patternMismatch){
@@ -233,36 +231,36 @@ const recorrido = async(e)=>{
           return;
         }
         if($extraRecorrido.value === ""){
-          valRecorrido = '---';
+          valRecorrido = 0;
         } else {
           valRecorrido = $extraRecorrido.value;
         }
       }
-      let options = {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify({
-          id: saveId,
-          brand: saveBrand,
-          type: saveType,
-          purchase: savePurchase,
-          recorrido: valRecorrido,
-          volume: $volume.value,
-          depth: $depth.value,
-          opening: $opening.value,
-          wall: $wall.value,
-          screen: $screen.value,
-          angle: $angle.value,
-          last: $date.value,
-          master: saveMaster,
-          patron: savePatron,
-          revision: imagen,
-          modificar: 1,
-        }),
-      },
-          res = await fetch('api/listado', {
+      // let options = {
+      //   method: "PUT",
+      //   headers: {
+      //     "Content-type": "application/json; charset=UTF-8",
+      //   },
+      //   body: JSON.stringify({
+      //     id: saveId,
+      //     brand: saveBrand,
+      //     type: saveType,
+      //     purchase: savePurchase,
+      //     recorrido: valRecorrido,
+      //     volume: $volume.value,
+      //     depth: $depth.value,
+      //     opening: $opening.value,
+      //     wall: $wall.value,
+      //     screen: $screen.value,
+      //     angle: $angle.value,
+      //     last: $date.value,
+      //     master: saveMaster,
+      //     patron: savePatron,
+      //     revision: imagen,
+      //     modificar: 1,
+      //   }),
+      // },
+      let res = await fetch('api/listado', {
             method: "POST",
             headers: {
               "Content-type": "application/json; charset=UTF-8",
@@ -272,20 +270,31 @@ const recorrido = async(e)=>{
               brand: saveBrand,
               recorrido: valRecorrido,
               volume: $volume.value,
-              depth: $depth.value,
-              opening: $opening.value,
-              wall: $wall.value,
-              screen: $screen.value,
-              angle: $angle.value,
               last: $date.value,
-              master: saveMaster,
               patron: savePatron,
               revision: imagen,
               modificar: 1,
             }),
           });
-  
+      // CÓDIGO PARA INSERTAR UNA NUEVA REVISION
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
+      let res2 = await fetch('api/listado', {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({
+          id: saveId,
+          brand: saveBrand,
+          recorrido: valRecorrido,
+          volume: $volume.value,
+          last: $date.value,
+          patron: savePatron,
+          revision: imagen,
+          insertar: 1,
+        }),
+      });
+      if(!res2.ok) throw{status: res.status, statusText: res.statusText};
       $formExtra.submit();
     } catch (err) {
       console.log(err);

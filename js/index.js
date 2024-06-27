@@ -764,7 +764,6 @@ const updateTable = async(mode)=>{
 
     json2.result.forEach(el=>{
       let estado = parseFloat(el.estado);
-      console.log("Estado: ",estado);
       switch (mode) {
         case 0:
           if(estado >= 80 && estado <= 100){
@@ -788,7 +787,6 @@ const updateTable = async(mode)=>{
     });
 
     validData.sort((a,b)=>Date.parse(a.next) - Date.parse(b.next));
-    console.log("ValidData es: ", validData);
 
     //maximo de items en lista 6
     let lim = 6;

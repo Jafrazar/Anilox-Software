@@ -177,7 +177,7 @@ function revisarCookie(req){
 
 async function tablaAniloxList(req, res) {
   try {
-    let { id, brand, purchase, volume, depth, opening, wall, screen, angle, last, master, patron, insertar, modificar, recorrido } = req.body;
+    let { id, brand, purchase, volume, depth, opening, wall, screen, angle, last, master, patron, revision, insertar, modificar, recorrido } = req.body;
     let tipo = "";
     if(angle){
       if(angle > 45 && angle < 75) {
@@ -196,7 +196,6 @@ async function tablaAniloxList(req, res) {
       }
     }
     if(id && !brand) {
-      console.log("qwewqe");
       const sql = 'SELECT * FROM anilox_list WHERE id=? and empresa=?';
       db.query(sql, [id, sesion_empresa], (err, result) => {
         if (err) throw err;
@@ -217,11 +216,11 @@ async function tablaAniloxList(req, res) {
         return res.status(200).send({ status: "Success", message: "Estado", result });
       });
     }
-    else if (id && brand && modificar) {
-      const sql = 'UPDATE anilox_list SET brand=?, recorrido=?, volume=?, last=?, master=?, patron=? WHERE id=? and empresa=?';
-      db.query(sql, [brand, recorrido, volume, last, master, patron, id, sesion_empresa], (err, result) => {
+    else if (id && brand && modificar) {  // Esto es cuando se ingresa el recorrido de un anilox existente
+      const sql = 'UPDATE anilox_list SET recorrido=?, volume=?, last=?, revision=? WHERE id=? and empresa=?';
+      db.query(sql, [recorrido, volume, last, revision, id, sesion_empresa], (err, result) => {
         if (err) throw err;
-        return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
+        return res.status(200).send({ status: "Success", message: "Anilox modificado correctamente" });
       });
     }
     else if (id && brand && insertar) {
@@ -230,7 +229,7 @@ async function tablaAniloxList(req, res) {
         if (err) throw err;
         if(result.length > 0){
           const sql = 'UPDATE anilox_list SET volume=?, last=?, revision=? WHERE id=?';
-          db.query(sql, [volume, last, patron, id], (err, result) => {
+          db.query(sql, [volume, last, revision, id], (err, result) => {
             if (err) throw err;
           });
         }
@@ -240,8 +239,7 @@ async function tablaAniloxList(req, res) {
             if (err) throw err;
           });
         }
-      });      
-
+      });
       const sqlVerificarHistory = 'SELECT * FROM anilox_history WHERE anilox = ?';
       db.query(sqlVerificarHistory, [id], (err, result) => {
         if (err) throw err;
@@ -262,7 +260,7 @@ async function tablaAniloxList(req, res) {
       db.query(sqlVerificar, [id], (err, result) => {
         if (err) throw err;
         let nextDate = new Date(last);
-        nextDate.setMonth(nextDate.getMonth() + 6);
+        nextDate.setMonth(nextDate.getMonth() + 6); 
 
         // Si el id ya existe, actualiza el registro
         if (result.length > 0) {
