@@ -15,7 +15,7 @@ const $pdfUpload = d.getElementById("new-master");
 
 let image, data, master;
 
-let alreadyExists, saveId, saveBrand, saveType, savePurchase, saveMaster, saveLast, savePatron;
+let alreadyExists, saveId, saveBrand, saveType, savePurchase, saveMaster, saveLast, savePatron, saveNomVol;
 
 const $modalNewAnilox = d.getElementById("modal-new-anilox"),
       $closeModalNewAnilox = d.getElementById("close-new-anilox"),
@@ -136,6 +136,7 @@ const submit = async(e)=>{
           saveBrand = el.brand;
           saveType = el.type;
           savePurchase = el.purchase;
+          saveNomVol = el.nomvol;
           saveLast = el.last;
           saveMaster = el.master;
           savePatron = el.patron;
@@ -199,7 +200,7 @@ const submit = async(e)=>{
           // res = await fetch("/anillox-list/anilox", options);
           res = await fetch("api/listado", options);
 
-        let json = res.json();
+        let json = await res.json();
         json = json.result;
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
@@ -276,25 +277,32 @@ const recorrido = async(e)=>{
               modificar: 1,
             }),
           });
-      // CÓDIGO PARA INSERTAR UNA NUEVA REVISION
+      let json = await res.json();
+      json = json.result;
+      console.log("El valor de json en modificar es: ", json);
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-      let res2 = await fetch('api/listado', {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify({
-          id: saveId,
-          brand: saveBrand,
-          recorrido: valRecorrido,
-          volume: $volume.value,
-          last: $date.value,
-          patron: savePatron,
-          revision: imagen,
-          insertar: 1,
-        }),
-      });
-      if(!res2.ok) throw{status: res.status, statusText: res.statusText};
+
+      // // CÓDIGO PARA INSERTAR UNA NUEVA REVISION
+      // let res2 = await fetch('api/listado', {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-type": "application/json; charset=UTF-8",
+      //   },
+      //   body: JSON.stringify({
+      //     id: saveId,
+      //     brand: saveBrand,
+      //     recorrido: valRecorrido,
+      //     volume: $volume.value,
+      //     last: $date.value,
+      //     patron: savePatron,
+      //     revision: imagen,
+      //     insertar: 1,
+      //   }),
+      // });
+      // if(!res2.ok) throw{status: res.status, statusText: res.statusText};
+      // let json2 = await res2.json();
+      // json2 = json2.result;      
+      // console.log("El valor de json2 en insertar es: ", json2);
       $formExtra.submit();
     } catch (err) {
       console.log(err);

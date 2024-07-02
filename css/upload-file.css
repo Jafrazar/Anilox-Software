@@ -146,7 +146,7 @@
   margin: 0.5rem 1rem;
 }
 
-.modal .modal-body #new-brand, #new-purchase, #extra-recorrido{
+.modal .modal-body #new-brand, #new-purchase, #new-nomvol, #extra-recorrido{
   color: var(--color-dark);
   font-size: 18px;
   font-family: inherit;

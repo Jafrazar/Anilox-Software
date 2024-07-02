@@ -111,17 +111,17 @@ const getAll = async ()=>{
 const load = e=>{
   if(e.target.matches(".id")){
     let loadId = e.target.textContent;
+    let loadBrand = e.target.nextElementSibling.textContent;
     ss.setItem("aniloxId", loadId);
+    ss.setItem("aniloxBrand", loadBrand);
     window.location.href = 'anilox-detail.html';
-  }
-  if(e.target.matches(".master")){
-    const base64 = e.target.dataset.base64;
-    $masterPdf.setAttribute("data", base64);
   }
 }
 
 const showModalPdf = e=>{
   if(e.target.matches(".master")){
+    const base64 = e.target.dataset.base64;
+    $masterPdf.setAttribute("data", base64);
     $modalPdf.style.display = "block";
   }
   if(e.target === $closeModalPdf){

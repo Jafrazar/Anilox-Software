@@ -287,6 +287,63 @@
       </div>
     </div>
     <!-- Final mas info -->
+    <div class="modal" id="modal-eol-anilox">
+      <div class="modal-content" id="modal-content-eol-anilox">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-modal-eol-anilox">
+            close
+          </span>
+          <h2>Estimación de vida útil restante</h2>
+        </div>
+        <div class="modal-body">
+          <div id="eol-graph-container">
+            <canvas id="eol-graph"></canvas>
+          </div>
+          <p id="eol-description"></p>
+          <!-- Final grafico de estimacion de vida -->
+          <div id="tabla-porcentajes">
+            <div class="modal-eol-graph">
+              <canvas id="clean-graph-2"></canvas>
+            </div>
+            <div class="modal-eol-graph">
+              <canvas id="damaged-graph-2"></canvas>
+            </div>
+            <div class="modal-eol-graph">
+              <canvas id="wear-graph-2"></canvas>
+            </div>
+            <table class="eol-table">
+              <thead>
+                <th id="volume-percent">
+                  <span class="material-icons-sharp" title="Porcentaje del volumen nominal">
+                    percent
+                  </span>
+                </th>
+                <th id="volume-estimated">
+                  <span class="material-icons-sharp" title="Volumen estimado">
+                    battery_3_bar
+                  </span>
+                </th>
+                <th id="time-remaning-estimated">
+                  <span class="material-icons-sharp" title="Tiempo restante estimado">
+                    timer
+                  </span>
+                </th>
+              </thead>
+              <tbody class="table-body"></tbody>
+            </table>
+            <template id="eol-table-template">
+              <tr>
+                <td class="volume-percent"></td>
+                <td class="volume-estimated"></td>
+                <td class="time-remaining-estimated"></td>
+              </tr>
+            </template>
+          </div>
+          <!-- Final tabla de porcentajes de volumen restante -->
+        </div>
+      </div>
+    </div>
+    <!-- Final estimar vida -->
     <!-- Common JS Script -->
     <script src="js/common.js"></script>
     <!-- Anilox Detail JS Script -->

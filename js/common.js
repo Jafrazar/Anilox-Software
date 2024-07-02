@@ -123,7 +123,6 @@ d.addEventListener("click",e=>{
     document.cookie.split(";").forEach((c) => {
       document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-    console.log("Cookies eliminadas", document.cookie);
   }
 
   if(e.target == closeModalEditDash){

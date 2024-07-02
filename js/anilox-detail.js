@@ -2,6 +2,7 @@ Chart.register(ChartDataLabels);
 
 const $aniloxId = d.getElementById("anilox-id"),
       aniloxId = ss.getItem("aniloxId");
+      aniloxBrand = ss.getItem("aniloxBrand");
 
 const $dataTop = d.querySelector(".data-top"),
       $dataMid = d.querySelector(".data-middle"),
@@ -45,6 +46,25 @@ const $cleanGraph = d.getElementById("clean-graph"),
       $dataStatus = d.getElementById("data-status"),
       $dataDiag = d.getElementById("data-diag"),
       $dataAct = d.getElementById("data-act");
+
+const $eolGraph = d.getElementById("eol-graph"),
+      $eolGraphContainer = d.getElementById("eol-graph-container"),
+      $estimarVida = d.getElementById("estimar-vida"),
+      $closeModalEOLAnilox = d.getElementById("close-modal-eol-anilox"),
+      $modalEOLAnilox = d.getElementById("modal-eol-anilox"),
+      $eolDescription = d.getElementById("eol-description");
+
+const $cleanGraph2 = d.getElementById("clean-graph-2"),
+      $damagedGraph2 = d.getElementById("damaged-graph-2"),
+      $wearGraph2 = d.getElementById("wear-graph-2");
+
+let cleanGraph, cleanGraphConfig, damagedGraph, damagedGraphConfig, wearGraph, wearGraphConfig, bcmChart, eolGraph, cleanGraph2, damagedGraph2, wearGraph2;
+
+const $table = d.querySelector(".eol-table"),
+      $tableContainer = d.getElementById("tabla-porcentajes"),
+      $tableBody = d.querySelector(".table-body"),
+      $template = d.getElementById("eol-table-template").content,
+      $fragment = d.createDocumentFragment();
 
 Chart.defaults.font.family = 'Rajdhani';
 
@@ -162,7 +182,7 @@ const getAnilox = async()=>{
       }]
     };
 
-    new Chart($cleanGraph, {
+    cleanGraphConfig = {
       type: "doughnut",
       data: dataCleanStat,
       options: {
@@ -207,7 +227,7 @@ const getAnilox = async()=>{
               size: 16,
               weight: 500,
             },
-            formatter: function(value, context){
+            formatter: function(value){
               return value + '%';
             }
           },
@@ -233,9 +253,10 @@ const getAnilox = async()=>{
         responsive: true,
         maintainAspectRatio: false,
       }
-    });
-    
-    new Chart($damagedGraph, {
+    };
+    cleanGraph = new Chart($cleanGraph, cleanGraphConfig);
+
+    damagedGraphConfig = {
       type: "doughnut",
       data: dataDamagedStat,
       options: {
@@ -280,7 +301,7 @@ const getAnilox = async()=>{
               size: 16,
               weight: 500,
             },
-            formatter: function(value, context){
+            formatter: function(value){
               return value + '%';
             }
           },
@@ -306,9 +327,10 @@ const getAnilox = async()=>{
         responsive: true,
         maintainAspectRatio: false,
       }
-    });
+    };
+    damagedGraph = new Chart($damagedGraph, damagedGraphConfig);
 
-    new Chart($wearGraph, {
+    wearGraphConfig = {
       type: "doughnut",
       data: dataWearStat,
       options: {
@@ -354,7 +376,7 @@ const getAnilox = async()=>{
               size: 16,
               weight: 500,
             },
-            formatter: function(value, context){
+            formatter: function(value){
               return value + '%';
             }
           },
@@ -380,9 +402,13 @@ const getAnilox = async()=>{
         responsive: true,
         maintainAspectRatio: false,
       }
-    });
+    };
+    wearGraph = new Chart($wearGraph, wearGraphConfig);
+    
     $imagePatron.src = json1[0].patron;
-    $imageLast.src = json1[0].revision;
+    if(json1[0].hasOwnProperty("revision")){
+      $imageLast.src = json1[0].revision;
+    }
     $dataStatus.textContent = `${json2[0].estado}%`;
     $dataDiag.textContent = json2[0].diagnostico;
     $dataAct.textContent = json2[0].recomendacion;
@@ -405,6 +431,16 @@ const getAnilox = async()=>{
         json = await res.json();
         json = json.result;
 
+    let res2 = await fetch('api/listado', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({id: aniloxId})
+    }),
+        json2 = await res2.json();
+        json2 = json2.result
+
     if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
     let volLabels = [],
@@ -415,6 +451,13 @@ const getAnilox = async()=>{
      volLabels[i] = json[i].date;
      volData[i] = Math.round(((json[i].volume)/1.55) * 10) / 10; // VOLUMEN EN BCM
      diag[i] = json[i].diagnostico;
+    }
+
+    let nomVol = json2[0].nomvol;
+    let nomData = [];
+
+    for(let i = 0; i < json.length; i++){
+      nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
     }
 
     const dataBcmStat = {
@@ -438,10 +481,18 @@ const getAnilox = async()=>{
             annotations: {
               line1: {
                 type: 'line',
-                yMin: volData[0], // Primer valor de volData
-                yMax: volData[0], // Mismo valor para mantener la línea horizontal
-                borderColor: 'rgb(255, 99, 132)', // Color de la línea
+                yMin: nomData[0], // Primer valor de volData
+                yMax: nomData[0], // Mismo valor para mantener la línea horizontal
+                borderColor: 'rgba(255, 0, 0, 0.35)', // Color de la línea
                 borderWidth: 2, // Grosor de la línea
+                label: {
+                  content: 'Volumen nominal (BCM)',
+                  enabled: true,
+                  position: 'start',
+                  font: {
+                    size: 14 // Tamaño de la fuente
+                  }
+                }
                 },
               },
           },
@@ -474,12 +525,12 @@ const getAnilox = async()=>{
           },
           datalabels:{
             color: '#363949',
-            align: 'top',
+            align: -45,
             font: {
-              size: 16,
+              size: 14,
               weight: 500,
             },
-            clip: true,
+            clip: false,
           },
           tooltip: {
             enabled: true,
@@ -496,14 +547,18 @@ const getAnilox = async()=>{
               weight: 300,
             },
             callbacks: {  
-              label: function(context){
-                let data = context.parsed.y;
-
-                return 'Volumen: ' + data + ' BCM';
+              label: function(tooltipItem){
+                if(tooltipItem.datasetIndex == 0){
+                  let data = tooltipItem.parsed.y;
+                  return 'Volumen: ' + data + ' BCM'; 
+                }
+                else{return ""}
               },
-              footer: function(tooltipItems){
-                let diag = tooltipItems[0].dataset.info[tooltipItems[0].dataIndex];
-                return 'Diagnostico:' + '\n' + diag;
+              footer: function(tooltipItem){
+                if(tooltipItem[0].datasetIndex == 0){
+                  let diag = tooltipItem[0].dataset.info[tooltipItem[0].dataIndex];
+                  return 'Diagnostico:' + '\n' + diag;
+                }
               }
             },
           },
@@ -521,8 +576,9 @@ const getAnilox = async()=>{
             },
           },
           y: {
+            grace: 0.15,
             ticks: {
-              stepSize: 0.1,
+              stepSize: 0.05,
               font: {
                 weight: 500,
                 size: 14,
@@ -550,5 +606,254 @@ const viewMore = (e)=>{
   }
 }
 
+const estimarVida = async(e)=>{
+  if(e.target === $estimarVida){
+    $modalEOLAnilox.style.display = "block";
+    try {
+      let res1 = await fetch('api/analysis', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({id: aniloxId})
+      }),
+          json1 = await res1.json();
+          
+      let res2 = await fetch('api/listado', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({id: aniloxId})
+      }),
+          json2 = await res2.json();
+      let res3, json3;
+        json1 = json1.result;
+        json2 = json2.result;
+  
+      if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
+      if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
+      console.log()
+      let eolData = json1[0].eol,
+          nomVol = json2[0].nomvol;
+      let msg;
+// ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
+      if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${Math.round(((nomVol * 0.6) + Number.EPSILON) * 10) / 10}).`;}
+      else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;}
+      else {
+        res3 = await fetch('/api/anilox-history', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({id: aniloxId})
+        }),
+            json3 = await res3.json();
+            json3 = json3.result;
+
+        if(!res3.ok) throw{status: res3.status, statusText: res3.statusText};
+
+        $eolGraphContainer.style.display = "flex";
+        $tableContainer.style.display = "flex";
+
+        let eolDates = [],
+            volData = [],
+            percentVol = json1[0].percent[1],
+            percentDates = json1[0].percent[0];
+
+        for(let i = 0; i < json3.length; i++){
+          eolDates[i] = json3[i].date;
+          volData[i] = json3[i].volume;
+        }
+
+        for(let i = 0; i < json1[0].eol.length - json3.length; i++){
+          let last = `${eolDates[json3.length - 1 + i]} 00:00:00`;
+          last = new Date(last);
+
+          let next = new Date(last.setMonth(last.getMonth() + 6)),
+              year = String(next.getFullYear()),
+              month = String(next.getMonth() + 1),
+              day = String(next.getDate());
+
+          month.length < 2 ? month = `0${month}` : month = month;
+          day.length < 2 ? day = `0${day}` : day = day;
+          console.log(next, year, month, day);
+
+          next = [year, month, day].join('-');
+          eolDates[json3.length + i] = next;
+        }
+
+        const dataEOLGraph = {
+          labels: eolDates,
+          datasets: [{
+            type: 'line',
+            label: 'Volumen estimado (cm3/m2)',
+            data: eolData,
+            fill: false,
+            borderColor: 'rgba(255, 0, 0, 0.35)',
+            tension: 0.1,
+            datalabels: {
+              display: true,
+              align: 'top',
+            },
+          }, {
+            type: 'scatter',
+            label: 'Volumen medido (cm3/m2)',
+            data: volData,
+            fill: false,
+            borderColor: 'rgba(0, 0, 255, 0.6)',
+            datalabels: {
+              display: true,
+            },
+          }]
+        };
+
+        eolGraph = new Chart($eolGraph, {
+          data: dataEOLGraph,
+          options: {
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  font: {
+                    weight: 500,
+                    size: 14,
+                  },
+                  padding: 15,
+                  boxWidth: 30,
+                },
+                reverse: true,
+              },
+              datalabels:{
+                color: '#363949',
+                align: 'right',
+                padding: {
+                  right: 7,
+                },
+                font: {
+                  size: 13,
+                  weight: 500,
+                },
+                clip: false,
+                formatter: function(value, context){
+                  if(context.dataset.type === 'line'){
+                    if((value == percentVol[0] && ((percentDates[0] - json3.length) / 2) > 0) || (value == percentVol[1] && ((percentDates[1] - json3.length) / 2) > 0) || (value == percentVol[2] && ((percentDates[2] - json3.length) / 2) > 0) || (value == percentVol[3] && ((percentDates[3] - json3.length) / 2) > 0)) {return value}
+                    else {return ''}
+                  }
+                },
+              },
+              tooltip: {
+                enabled: true,
+                titleFont: {
+                  size: 16,
+                  weight: 600,
+                },
+                bodyFont: {
+                  size: 14,
+                  weight: 500,
+                },
+                footerFont: {
+                  size: 16,
+                  weight: 300,
+                },
+                callbacks: {  
+                  label: function(context){
+                    let data = context.parsed.y;
+                    return 'Volumen: ' + data + ' cm3/m2';
+                  },
+                  footer: function(tooltipItems){
+                    let vol = tooltipItems[0].dataset.data[tooltipItems[0].dataIndex];
+                    if(vol == percentVol[0] && ((percentDates[0] - json3.length) / 2) > 0){return `Volumen de celda aprox. 90% del nominal (${Math.round(((nomVol * 0.9) + Number.EPSILON) * 10) / 10})`}
+                    if(vol == percentVol[1] && ((percentDates[1] - json3.length) / 2) > 0){return `Volumen de celda aprox. 80% del nominal (${Math.round(((nomVol * 0.8) + Number.EPSILON) * 10) / 10})`}
+                    if(vol == percentVol[2] && ((percentDates[2] - json3.length) / 2) > 0){return `Volumen de celda aprox. 70% del nominal (${Math.round(((nomVol * 0.7) + Number.EPSILON) * 10) / 10})`}
+                    if(vol == percentVol[3] && ((percentDates[3] - json3.length) / 2) > 0){return `Volumen de celda aprox. 60% del nominal (${Math.round(((nomVol * 0.6) + Number.EPSILON) * 10) / 10})`}
+                  }
+                },
+              },
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                ticks: {
+                  display: true,
+                  font: {
+                    weight: 500,
+                    size: 14,
+                  }
+                },
+              },
+              y: {
+                ticks: {
+                  stepSize: 0.1,
+                  font: {
+                    weight: 500,
+                    size: 14,
+                  }
+                },
+              },
+            },
+          }
+        });
+        msg = '';
+
+        let tableData = Array.from(Array(percentVol.length), ()=>({
+          volumePercent: '',
+          volumeEstimated: '',
+          timeRemainingEstimated: '',
+        }));
+
+        for (i = 0; i < percentVol.length; i++){
+          if(((percentDates[i] - json3.length) / 2) <= 0){
+            tableData[i].volumePercent = null;
+            tableData[i].volumeEstimated = null;
+            tableData[i].timeRemainingEstimated = null;
+          }
+          else {
+            tableData[i].volumePercent = (90 - (i * 10));
+            tableData[i].volumeEstimated = percentVol[i];
+            tableData[i].timeRemainingEstimated = ((percentDates[i] - json3.length) / 2);
+          }
+        }
+
+        tableData.forEach(el=>{
+          if(el.volumePercent != null && el.volumeEstimated !== null && el.timeRemainingEstimated != null){
+            $template.querySelector(".volume-percent").textContent = `${el.volumePercent}%`;
+            $template.querySelector(".volume-estimated").textContent = el.volumeEstimated;
+            $template.querySelector(".time-remaining-estimated").textContent = `${el.timeRemainingEstimated} años`;
+
+            let $clone = d.importNode($template, true);
+            $fragment.appendChild($clone);
+          }
+        });
+        $table.querySelector(".table-body").appendChild($fragment);
+      }
+
+      cleanGraph2 = new Chart($cleanGraph2, cleanGraphConfig);
+      damagedGraph2 = new Chart($damagedGraph2, damagedGraphConfig);
+      wearGraph2 = new Chart($wearGraph2, wearGraphConfig);
+
+      $eolDescription.textContent = msg;
+    } catch (err) {
+      let errorCode = err.status || "2316",
+          errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
+          message1 = "Error " + errorCode + ": ",
+          message2 = errorStatus;
+      $tableContainer.insertAdjacentHTML("afterend", `<p><b>${message1}</b>${message2}</p>`);
+    }
+  }
+
+  if(e.target === $closeModalEOLAnilox){
+    $modalEOLAnilox.style.display = "none"
+    if(typeof eolGraph !== 'undefined'){eolGraph.destroy()}
+    if(typeof cleanGraph2 !== 'undefined'){cleanGraph2.destroy()}
+    if(typeof damagedGraph2 !== 'undefined'){damagedGraph2.destroy()}
+    if(typeof wearGraph2 !== 'undefined'){wearGraph2.destroy()}
+    $tableBody.innerHTML = '';
+  }
+}
+
 d.addEventListener("click",viewMore);
+d.addEventListener("click",estimarVida);
 d.addEventListener("DOMContentLoaded",getAnilox);
