@@ -24,3 +24,18 @@ document.getElementById("login-form").addEventListener("submit", async(event) =>
         window.location.href = resJson.redirect;
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    var imagenesDeFondo = [
+      '../assets/anilox1.jpeg',
+      '../assets/anilox2.jpeg',
+      '../assets/anilox3.jpeg',
+      '../assets/anilox4.jpeg',
+      '../assets/anilox5.jpeg'
+    ];
+    
+    var indiceAleatorio = Math.floor(Math.random() * imagenesDeFondo.length);
+    var imagenSeleccionada = imagenesDeFondo[indiceAleatorio];
+    console.log("queso");
+    document.body.style.backgroundImage = 'url(' + imagenSeleccionada + ')';
+});

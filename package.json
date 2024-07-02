@@ -24,6 +24,7 @@
     "express-session": "^1.18.0",
     "git": "^0.1.5",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.1",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "node-cache": "^5.1.2",
