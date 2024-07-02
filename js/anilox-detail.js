@@ -455,7 +455,7 @@ const getAnilox = async()=>{
 
     let nomVol = json2[0].nomvol;
     let nomData = [];
-    console.lo(nomVol)
+    console.log(nomVol)
 
     for(let i = 0; i < json.length; i++){
       nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
