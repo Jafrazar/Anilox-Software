@@ -23,11 +23,33 @@ db.getConnection((err) => {
 
 const app = express();
 let anilox = 'AS183209'; let fecha; let fabricante=""; let revision="";
-let danadas; let desgastadas; let tapadas; 
+let danadas; let desgastadas; let tapadas;
 let tapadas_img; let danadas_img; let desgastadas_img;
 const pdfPath = "./modelo_reporte_final.pdf";
 
+async function addBase64ImageToPDF(doc, pSet, base64Image, options) {    
+    // Convertir la cadena base64 a buffer y escribirlo en un archivo temporal 
+    const imageBuffer = Buffer.from(base64Image, 'base64');
+    const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); // Asegúrate de usar la extensión correcta
+    fs.writeFileSync(tempImagePath, imageBuffer);
 
+    // Cargar la imagen desde el archivo temporal
+    const pdfImage = await PDFNet.Image.createFromFile(doc, tempImagePath);
+
+    // Usar PDFNet.Stamper para colocar la imagen en el documento PDF
+    const stamper = await PDFNet.Stamper.create(PDFNet.Stamper.SizeType.e_absolute_size, options.width, options.height);
+    stamper.setAlignment(PDFNet.Stamper.HorizontalAlignment.e_horizontal_left, PDFNet.Stamper.VerticalAlignment.e_vertical_top);
+    stamper.setPosition(options.x, options.y);
+    try {
+        await stamper.stampImage(doc, pdfImage, pSet);
+    } catch (error) {
+        console.error('Error al estampar la imagen:', error);
+    }
+    console.log("Imagen añadida al PDF");
+
+    // Opcional: Eliminar el archivo temporal de la imagen 
+    fs.unlinkSync(tempImagePath);
+}
 
 sql = 'SELECT * FROM anilox_analysis WHERE id = ?'
 db.query(sql, ['AS183209'], (err, rows) => {
@@ -313,7 +335,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
         new Chart(ctx, grafico);
         
         // Utilizar un retraso antes de guardar el canvas como una imagen JPG
-        const buffer = canvas.toBuffer('image/jpeg'); // Guardar el canvas como una imagen JPG
+        const buffer = canvas.toBuffer('image/png'); // Guardar el canvas como una imagen JPG
         const buffer64 = buffer.toString('base64');
         return buffer64;
     }
@@ -356,79 +378,24 @@ app.get('/generarReporte', (req, res) => {
         const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath); // Crea un archivo PDFdoc desde un archivo PDF existente
         await pdfdoc.initSecurityHandler(); // Habilita el security Handler para poder realizar cambios en el PDF
         const replacer = await PDFNet.ContentReplacer.create(); // Crea un objeto ContentReplacer para reemplazar texto en el PDF
-        const page = await pdfdoc.getPage(1); // Se obtiene la primera página del PDF
+        const page = await pdfdoc.getPage(1); // Se obtiene la primera página del PDF        
+        const pageSet = await PDFNet.PageSet.createRange(1, 1);
         await replacer.addString('ANILOX', anilox);
         await replacer.addString('date', '2024-06-16');
         await replacer.addString('fabricante', fabricante);
+        await replacer.addString('revision', revision);    
 
-                    // Convertir la cadena base64 a buffer y escribirlo en un archivo temporal 
-                    const imageBuffer = Buffer.from(revision, 'base64');
-                    const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); // Asegúrate de usar la extensión correcta
-                    fs.writeFileSync(tempImagePath, imageBuffer);
-                
-                    // Cargar la imagen desde el archivo temporal
-                    const pdfImage = await PDFNet.Image.createFromFile(pdfdoc, tempImagePath);
-                    
-                    // Definir la posición y el tamaño de la imagen
-                    // const rect = await PDFNet.Rect.init(options.x, options.y, options.x + options.width, options.y + options.height);
-                
-                    // Usar PDFNet.Stamper para colocar la imagen en el documento PDF
-                    const stamper = await PDFNet.Stamper.create(PDFNet.Stamper.SizeType.e_absolute_size, coord_revision.width, coord_revision.height);
-                    stamper.setAlignment(PDFNet.Stamper.HorizontalAlignment.e_horizontal_left, PDFNet.Stamper.VerticalAlignment.e_vertical_top);
-                    stamper.setPosition(coord_revision.x, coord_revision.y);
-                    try {                        
-                        const pageSet = await PDFNet.PageSet.createRange(1, 1);
-                        console.log("pageSet = ", pageSet);
-                        await stamper.stampImage(pdfdoc, pdfImage, pageSet);
-                    } catch (error) {
-                        console.error('Error al estampar la imagen:', error);
-                    }
-                    console.log("Imagen añadida al PDF");
-                
-                    // Opcional: Eliminar el archivo temporal de la imagen 
-                    fs.unlinkSync(tempImagePath);
-
-        // async function addBase64ImageToPDF(doc, base64Image, options) {       
-    
-        //     // Convertir la cadena base64 a buffer y escribirlo en un archivo temporal 
-        //     const imageBuffer = Buffer.from(base64Image, 'base64');
-        //     const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); // Asegúrate de usar la extensión correcta
-        //     fs.writeFileSync(tempImagePath, imageBuffer);
-        
-        //     // Cargar la imagen desde el archivo temporal
-        //     const pdfImage = await PDFNet.Image.createFromFile(doc, tempImagePath);
-            
-        //     // Definir la posición y el tamaño de la imagen
-        //     // const rect = await PDFNet.Rect.init(options.x, options.y, options.x + options.width, options.y + options.height);
-        
-        //     // Usar PDFNet.Stamper para colocar la imagen en el documento PDF
-        //     const stamper = await PDFNet.Stamper.create(PDFNet.Stamper.SizeType.e_absolute_size, options.width, options.height);
-        //     stamper.setAlignment(PDFNet.Stamper.HorizontalAlignment.e_horizontal_left, PDFNet.Stamper.VerticalAlignment.e_vertical_top);
-        //     stamper.setPosition(options.x, options.y);
-        //     const pageSet = PDFNet.PageSet.createRange(1, 1);
-        //     console.log("pageSet = ", pageSet);
-        //     try {
-        //         await stamper.stampImage(doc, pdfImage, pageSet);
-        //     } catch (error) {
-        //         console.error('Error al estampar la imagen:', error);
-        //     }
-        //     console.log("Imagen añadida al PDF");
-        
-        //     // Opcional: Eliminar el archivo temporal de la imagen 
-        //     fs.unlinkSync(tempImagePath);
-        // }
-
-        // await addBase64ImageToPDF(pdfdoc, revision, coord_revision);
-        // console.log('Imagen de revision añadida al PDF con éxito');
-        // await addBase64ImageToPDF(pdfdoc, tapadas_img, coord_tapadas);
-        // console.log('Imagen de tapadas añadida al PDF con éxito');
-        // await addBase64ImageToPDF(pdfdoc, danadas_img, coord_danadas);
-        // console.log('Imagen de dañadas añadida al PDF con éxito');
-        await addBase64ImageToPDF(pdfdoc, desgastadas_img, coord_desgastadas)
+        await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
+        console.log('Revision añadida con éxito');
+        await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
+        console.log('Tapadas añadida con éxito');
+        await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
+        console.log('Dañadas añadida con éxito');
+        await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas)
             .then(() => {                 
                 replacer.process(page);               
                 pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
-                console.log('Imagen añadida al PDF con éxito');
+                console.log('Imágenes añadidas al PDF con éxito');
                 fs.readFile(outputPath, (err, data) => {
                     if (err) {
                         console.error('Error al leer el archivo PDF:', err);
@@ -436,7 +403,6 @@ app.get('/generarReporte', (req, res) => {
                         return;
                     }
                     const base64PDF = data.toString('base64');
-                    console.log("base64PDF = ", base64PDF.substring(0, 20));
                     // const sql2 = 'INSERT INTO anilox_history (id_anilox, fecha, pdf) VALUES (?,?,?)';
                     // db.query(sql2,[anilox, new Date(), base64PDF], (err, rows) => {
                     //     if (err) throw err;
