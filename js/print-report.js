@@ -1,3 +1,5 @@
+import { jsPDF } from "jspdf";
+import pdfjsLib from "pdfjs-dist";
 const $aniloxTable = d.querySelector(".anilox-table"),
       $reportTable = d.querySelector(".report-table"),
       $aniloxTemplate = d.getElementById("anilox-template").content,

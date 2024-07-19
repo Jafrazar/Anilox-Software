@@ -27,7 +27,7 @@ document.getElementById("login-form").addEventListener("submit", async(event) =>
 
 document.addEventListener('DOMContentLoaded', function() {
     var imagenesDeFondo = [
-      '../assets/anilox1.jpeg',
+      '../assets/anilox1_3.jpeg',
       '../assets/anilox2.jpeg',
       '../assets/anilox3.jpeg',
       '../assets/anilox4.jpeg',
@@ -36,6 +36,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     var indiceAleatorio = Math.floor(Math.random() * imagenesDeFondo.length);
     var imagenSeleccionada = imagenesDeFondo[indiceAleatorio];
-    console.log("queso");
     document.body.style.backgroundImage = 'url(' + imagenSeleccionada + ')';
+    document.body.style.backgroundSize = 'cover'; // Asegura que el fondo cubra toda el área sin redimensionarse con el zoom
+    //document.body.style.backgroundPosition = 'center'; // Centra el fondo
+    document.body.style.backgroundRepeat = 'no-repeat'; // Evita que el fondo se repita
+
+    // Añade aquí la lógica para cambiar la marca de agua
+    var logoBlanco = '../assets/LogoANXSuite_blanco.png'; // Asume que este es el camino al logo blanco
+    var contenedorMarcaDeAgua = document.getElementById('logoMarcaDeAgua');
+
+    if (imagenSeleccionada.includes('anilox3.jpeg')) {
+        contenedorMarcaDeAgua.innerHTML = '<img src="' + logoBlanco + '" alt="ANX Suite Blanco" class="logo" style="width: 300px;">';  
+    }
 });

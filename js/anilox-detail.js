@@ -393,7 +393,6 @@ const getAnilox = async()=>{
             callbacks: {  
               label: function(context){
                 let data = context.parsed;
-
                 return ' ' + data + '%';
               },
             },
@@ -638,7 +637,7 @@ const estimarVida = async(e)=>{
       let eolData = json1[0].eol,
           nomVol = json2[0].nomvol;
       let msg;
-// ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
+  // ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
       if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${Math.round(((nomVol * 0.6) + Number.EPSILON) * 10) / 10}).`;}
       else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;}
       else {

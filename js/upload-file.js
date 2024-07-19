@@ -303,6 +303,49 @@ const recorrido = async(e)=>{
       // let json2 = await res2.json();
       // json2 = json2.result;      
       // console.log("El valor de json2 en insertar es: ", json2);
+
+// --------CÓDIGO PARA GENERAR PDF-----
+      let res2 = await fetch('api/pdf', {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({
+          id: saveId,
+          brand: saveBrand,
+          recorrido: valRecorrido,
+          volume: $volume.value,
+          last: $date.value,
+          patron: savePatron,
+          revision: imagen,
+          insertar: 1,
+        }),
+      });
+      let json2 = await res2.json();
+//-----CÓDIGO PARA GENERAR GRÁFICO Y GUARDARLO EN UN CANVA PARA LUEGO PONERLO EN EL REPORTE PDF-----//
+
+      // let res3 = await fetch('api/analysis', {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-type": "application/json; charset=UTF-8",
+      //   },
+      //   body: JSON.stringify({
+      //     id: saveId,
+      //     recorrido: valRecorrido,
+      //     volume: $volume.value,
+      //   }),
+      // });
+      // let json3 = await res3.json();
+      // let tapadas = parseFloat(json3[0].tapadas),
+      //   limpias = 100 - tapadas,
+      //   danadas = parseFloat(json3[0].danadas),
+      //   sinDano = 100 - danadas,
+      //   desgastadas = parseFloat(json3[0].desgastadas),
+      //   sinDesgaste = 100 - desgastadas;
+
+      // console.log("El valor de json en grafico es: ", json3);
+      // if(!res3.ok) throw{status: res.status, statusText: res.statusText};
+//------------------------------------
       $formExtra.submit();
     } catch (err) {
       console.log(err);
@@ -333,3 +376,4 @@ d.addEventListener("change", uploadPdf);
 d.addEventListener("submit", submit);
 d.addEventListener("click", closeModal);
 d.addEventListener("click", recorrido);
+

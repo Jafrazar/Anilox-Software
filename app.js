@@ -8,8 +8,8 @@ const { anilloxAnalysis } = require("./utils/anillox-analysis");
 const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
-const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, 
-        tablaAniloxList, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox } = require("./controllers/autenticacion");
+const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
+       tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
 const app = express();
 const port = 3000;
@@ -136,6 +136,7 @@ app.post('/api/borrar-anilox', borrarAnilox);
 app.post('/api/usuarios', tablaUsuarios);
 app.post('/api/clientes', tablaClientes);
 app.post('/api/licencias', tablaLicencias);
+app.post('api/pdf', generarPdf);
 app.post('/rcvpass', async (req, res) => {
   
   let { email } = req.body;

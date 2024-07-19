@@ -2,7 +2,15 @@ let sesion_usuario = 'Franco', sesion_empresa = 'Anders Perú';
 const mysql = require('mysql');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const { Chart } = require('chart.js/auto');
+const ChartDataLabels = require('chartjs-plugin-datalabels');
+Chart.register(ChartDataLabels);
 const { createCanvas, loadImage } = require('canvas');
+const { PDFNet } = require("@pdftron/pdfnet-node");
+const fs = require('fs');
+const os = require('os');
+
 const db = mysql.createPool({
   host: 'database-1.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
   user: 'admin',
@@ -125,10 +133,15 @@ async function registro_licencia(req, res) {
     });
 }
 
+let primeraVezAdmin = true; let primeraVezPublico = true;
 function soloAdmin(req, res, next) {
   console.log("Solo admin: ",usuarios);
   const logueado = revisarCookie(req);
   if(logueado){
+    if(primeraVezAdmin) {
+      primeraVezAdmin = false;
+      console.log("Logueado / SoloAdmin");
+    }
     console.log("Logueado / SoloAdmin");
     return next();
   }
@@ -138,6 +151,7 @@ function soloAdmin(req, res, next) {
 }
 
 function soloPublico(req, res, next) {
+  
   console.log("Solo publico: ",usuarios);
   const logueado = revisarCookie(req);
   if(logueado){
@@ -145,7 +159,10 @@ function soloPublico(req, res, next) {
     return res.redirect("/index");
   }
   if(!logueado){
-    console.log("No logueado / SoloPublico");
+    if(primeraVezPublico) {
+      primeraVezPublico = false;
+      console.log("No logueado / SoloPublico");
+    }
     return next();
   }
 }
@@ -477,188 +494,124 @@ async function tablaAniloxList(req, res) {
       const sqlObtenerPatron = 'SELECT patron FROM anilox_list WHERE id=?';
       db.query(sqlObtenerPatron, [id], (err, result) => {
         if (err) throw err;
-        if (result.length === 0) {
-          console.log("No se encontró el anilox con el id ingresado.");
-          return res.status(400).send({ status: "Error", message: "No se encontró el anilox con el id ingresado." });
-        }
-        else {
-          patron = result[0].patron;
-          const sqlModificarLista = 'UPDATE anilox_list SET recorrido=?, volume=?, last=?, revision=? WHERE id=?';
-          db.query(sqlModificarLista, [recorrido, volume, last, revision, id], (errA, resultA) => {
-            if (errA) throw errA;
-            if (resultA.affectedRows === 0) {
-              console.log("No se encontró el registro para actualizar.");
-              return res.status(400).send({ status: "Error", message: "No se encontró el registro para actualizar." });
-            } else {
-              console.log("Registro actualizado con éxito.");
-              console.log("id: ", id, "volume: ", volume, "last: ", last, "recorrido: ", recorrido);
-              //--------------ANALYSIS DE ANILOX----------------//
-              analysis(patron, revision).then(res_analysis => {
-                console.log("saliendo del analysis patron, revision")
-                const { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion } = res_analysis;
-                let nextDate2 = new Date(last);
-                nextDate2.setMonth(nextDate2.getMonth() + 6); // Se suma 6 meses a la fecha de última revisión
-                const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ?, diagnostico = ?, recomendacion = ? WHERE id = ?';
-                db.query(sqlUpdate, [nextDate2, estado, porcentajeTapadas, porcentajeDano, porcentajeDesgaste, diagnostico, recomendacion, id], (errB, resultB) => {
-                  if (errB) console.error("Error al actualizar el análisis:", errB);
-                  if(resultB.affectedRows === 0){
-                    console.log("No se encontró el registro para actualizar.");
-                    return res.status(400).send({ status: "Error", message: "No se encontró el registro para actualizar." });
-                  } 
-                  else{
-                    const sqlVerifyHistory = 'SELECT * FROM anilox_history WHERE anilox = ?';
-                    db.query(sqlVerifyHistory, [id], (errC, resultC) => {
-                      if (errC) throw errC;
-                      console.log("Insertando historial. result.length = ", result.length);
-                      let aux = resultC.length > 0 ? resultC.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
-                      const sqlModifyHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
-                      db.query(sqlModifyHistory, [id, aux, last, volume, "https://www.africau.edu/images/default/sample.pdf",sesion_empresa], (errD, resultD) => { // Falta introducir el diagnóstico en base al PDI
-                        if (errD) throw errD;
-                        if(resultD.affectedRows === 0){
-                          console.log("No se encontró el registro para actualizar.");
-                          return res.status(400).send({ status: "Error", message: "No se encontró el registro para actualizar." });
-                        }
-                        else {
-                          const sqlHistory = 'UPDATE anilox_history SET diagnostico = ? WHERE anilox = ?';
-                          db.query(sqlHistory, [diagnostico, id], (errE, resultE) => {
-                            if (errE) throw errE;                            
-                            console.log("Actualizando diagnostico de anilox_history");
-                            console.log("diagnostico: ", diagnostico, "id: ", id);
-                            if(resultE.affectedRows === 0){
-                              console.log("No se encontró el registro para actualizar.");
-                              return res.status(400).send({ status: "Error", message: "No se encontró el registro para actualizar." });
-                            }
-                            else {
-                              const sqlInsert = 'INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)';
-                              db.query(sqlInsert, [id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (errF, resultF) => {
-                                if (errF) console.error("Error al insertar las imágenes:", errF);
-                                return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
-                              });
-                            }
-                          });
-                        }
-                      });
-                    });
-                  }
-                });                
-              });
-              }
-          });
-        }
-      });     
-        
-      console.log("Se saltó el analysis");
-
-      return res.status(200).send({ status: "Success", message: "Anilox modificado correctamente" });
-
-    } else if (id && brand && insertar) {
-        const sqlVerificarList = 'SELECT * FROM anilox_list WHERE id = ?';
-        db.query(sqlVerificarList, [id], (err, result) => {
-          if (err) throw err;
-          if(result.length > 0){
-            const sql = 'UPDATE anilox_list SET volume=?, last=?, revision=? WHERE id=?';
-            db.query(sql, [volume, last, revision, id], (err, result) => {
-              if (err) throw err;
-            });
-          }
-          else{
-            const sql = 'INSERT INTO anilox_list (id, brand, type, purchase, recorrido, nomvol, volume, depth, opening, wall, screen, angle, last, master, patron, revision, empresa) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            db.query(sql, [id, brand, tipo, purchase, 0, nomvol, volume, depth, opening, wall, screen, angle, last, master, patron, patron, sesion_empresa], (err, result) => {
-              if (err) throw err;
-            });
-          }
-        });
-        const sqlVerificarHistory = 'SELECT * FROM anilox_history WHERE anilox = ?';
-        db.query(sqlVerificarHistory, [id], (err, result) => {
-          if (err) throw err;
-          console.log("Insertando historial. result.length = ", result.length);
-          let aux = result.length > 0 ? result.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
-          const sqlModificarHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
-          db.query(sqlModificarHistory, [id, aux, last, volume, "https://www.africau.edu/images/default/sample.pdf",sesion_empresa], (err2, result2) => { // Falta introducir el diagnóstico en base al PDI
-            if (err2) throw err2;
-          });
-        });
-        // Primero, verifica si el id ya existe
-        const sqlVerificar = 'SELECT * FROM anilox_analysis WHERE id = ?';
-        db.query(sqlVerificar, [id], (err, result) => {
-          if (err) throw err;
-          let nextDate = new Date(last);
-          nextDate.setMonth(nextDate.getMonth() + 6); // Se suma 6 meses a la fecha de última revisión
-          // Si el id ya existe, actualiza el registro
-          if (result.length === 0) {            
-            console.log("No se encontró el anilox con el id ingresado.");
-            return res.status(400).send({ status: "Error", message: "No se encontró el id en anilox_analysis." });
-          }            
-          else if(result.length > 0) {
-            let volumenOriginal = 1;
-            const sqlVolume = 'SELECT * FROM anilox_history WHERE id = ? AND anilox = ?';
-            db.query(sqlVolume, [1, id], (err2, result2) => {
-              if (err2) throw err2;
-              volumenOriginal = result2[0].volume;
-              console.log("result2 es: ",result2);
-              console.log("El volumen original es: ", volumenOriginal);
-              let porcentaje_estado = (volume / volumenOriginal) * 100;
-              console.log("El % de estado es: ", porcentaje_estado);
-              if (porcentaje_estado > 100){ 
-                porcentaje_estado = 100;
-              }
-              const sqlUpdate = 'UPDATE anilox_analysis SET estado = ? WHERE id = ?';
-              db.query(sqlUpdate, [porcentaje_estado, id], (err3, result3) => {
-                if (err3) throw err3;
-                if(result3.affectedRows === 0){
-                  console.log("No se encontró el registro para actualizar.");
-                  return res.status(400).send({ status: "Error", message: "No se encontró el registro para actualizar." });
-                }
-                else {
-                  analysis(patron, revision).then(res_analysis => {
-                    console.log("Probando si es que siquiera entro a analysis");
-                    const { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion } = res_analysis;
-                    const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ?, diagnostico = ?, recomendacion = ? WHERE id = ?';
-                    db.query(sqlUpdate, [nextDate, estado, porcentajeTapadas, porcentajeDano, porcentajeDesgaste, diagnostico, recomendacion, id], (err2, result2) => {
-                      if (err2) throw err2;
-                    });
-                    const sqlHistory = 'UPDATE anilox_history SET diagnostico = ? WHERE anilox = ?';
-                    db.query(sqlHistory, [diagnostico, id], (err2, result2) => {
-                      if (err2) throw err2;
-                    });
+        patron = result[0].patron;
+        const sqlModificarLista = 'UPDATE anilox_list SET recorrido=?, volume=?, last=?, revision=? WHERE id=?';
+        db.query(sqlModificarLista, [recorrido, volume, last, revision, id], (errA, resultA) => {
+          if (errA) throw errA;
+          console.log("id: ", id, "volume: ", volume, "last: ", last, "recorrido: ", recorrido);
+          analysis(patron, revision).then(res_analysis => {
+            const { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion } = res_analysis;
+            let nextDate2 = new Date(last);
+            nextDate2.setMonth(nextDate2.getMonth() + 6);
+            const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ?, diagnostico = ?, recomendacion = ? WHERE id = ?';
+            db.query(sqlUpdate, [nextDate2, estado, porcentajeTapadas, porcentajeDano, porcentajeDesgaste, diagnostico, recomendacion, id], (errB, resultB) => {
+              if (errB) throw errB;
+              const sqlVerifyHistory = 'SELECT * FROM anilox_history WHERE anilox = ?';
+              db.query(sqlVerifyHistory, [id], (errC, resultC) => {
+                if (errC) throw errC;
+                let aux = resultC.length > 0 ? resultC.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
+                const sqlModifyHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
+                db.query(sqlModifyHistory, [id, aux, last, volume, "https://www.africau.edu/images/default/sample.pdf", sesion_empresa], (errD, resultD) => {
+                  if (errD) throw errD;
+                  const sqlHistory = 'UPDATE anilox_history SET diagnostico = ? WHERE anilox = ?';
+                  db.query(sqlHistory, [diagnostico, id], (errE, resultE) => {
+                    if (errE) throw errE;
+                    console.log("diagnostico: ", diagnostico, "id: ", id);
                     const sqlInsert = 'INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)';
-                    db.query(sqlInsert, [id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (err3, result3) => {
-                      if (err3) throw err3;
+                    db.query(sqlInsert, [id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (errF, resultF) => {
+                      if (errF) throw errF;
                       return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
                     });
-                    console.log("Se pasó la funcion analysis de manera exitosa"); 
                   });
-                  console.log("Le llego el analysis al pincho");
-                }               
+                });
               });
-              console.log("aqui si le valio madres");
-            });   
-
-            // const sqlUpdate = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ?, diagnostico = ?, recomendacion = ? WHERE id = ?';
-            // db.query(sqlUpdate, [nextDate, estadoA, porcentajeTapadas, porcentajeDano, porcentajeDesgaste, diagnosticoA, recomendacionA, id], (err2, result2) => {
-            //   if (err2) throw err2;
-            // });
-
-            // const sqlHistory = 'UPDATE anilox_history SET diagnostico = ? WHERE anilox = ?';
-            // db.query(sqlHistory, [diagnosticoA, id], (err2, result2) => {
-            //   if (err2) throw err2;
-            // });
-
-            // const sqlInsert = 'INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)';
-            // db.query(sqlInsert, [id, IpRed, IrRed, IpBlue, IrBlue, IpDano, IrDano], (err3, result3) => {
-            //   if (err3) throw err3;
-            //   return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
-            // });
-              
-          } else {
-            // Si el id no existe, inserta el nuevo registro
-            const sqlInsert = 'INSERT INTO anilox_analysis (id, next, estado, tapadas, danadas, desgastadas, empresa) VALUES (?,?,?,?,?,?,?)';
-            db.query(sqlInsert, [id, nextDate, 100, 0, 0, 0, sesion_empresa], (err3, result3) => {
-              if (err3) throw err3;
-              return res.status(200).send({ status: "Success", message: "Anilox insertado correctamente" });
             });
-          }
+          });
         });
+      });
+    }
+    else if (id && brand && insertar) {
+      const sqlVerificarList = 'SELECT * FROM anilox_list WHERE id = ?';
+      db.query(sqlVerificarList, [id], (err, result) => {
+        if (err) throw err;
+        if(result.length > 0){
+          const sql = 'UPDATE anilox_list SET volume=?, last=?, revision=? WHERE id=?';
+          db.query(sql, [volume, last, revision, id], (err2, result2) => {
+            if (err2) throw err2;
+          });
+        }
+        else{
+          const sql = 'INSERT INTO anilox_list (id, brand, type, purchase, recorrido, nomvol, volume, depth, opening, wall, screen, angle, last, master, patron, revision, empresa) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+          db.query(sql, [id, brand, tipo, purchase, 0, nomvol, volume, depth, opening, wall, screen, angle, last, master, patron, patron, sesion_empresa], (err3, result3) => {
+            if (err3) throw err3;
+          });
+        }
+        setTimeout(() => {
+          const sqlVerificarHistory = 'SELECT * FROM anilox_history WHERE anilox = ?';
+          db.query(sqlVerificarHistory, [id], (err4, result4) => {
+            if (err4) throw err4;
+            console.log("Insertando historial. result.length = ", result4.length);
+            let aux = result4.length > 0 ? result4.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
+            const sqlModificarHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
+            db.query(sqlModificarHistory, [id, aux, last, volume, "https://www.africau.edu/images/default/sample.pdf",sesion_empresa], (err5, result5) => {
+              if (err5) throw err5;
+              // Primero, verifica si el id ya existe
+              const sqlVerificar = 'SELECT * FROM anilox_analysis WHERE id = ?';
+              db.query(sqlVerificar, [id], (err6, result6) => {
+                if (err6) throw err6;
+                let nextDate = new Date(last);
+                nextDate.setMonth(nextDate.getMonth() + 6); // Se suma 6 meses a la fecha de última revisión
+                // Si el id ya existe, actualiza el registro
+                if (result6.length === 0) {
+                  console.log("No se encontró el anilox con el id ingresado.");
+                  return res.status(400).send({ status: "Error", message: "No se encontró el id en anilox_analysis." });
+                }
+                else if(result6.length > 0) {
+                  let volumenOriginal = 1;
+                  const sqlVolume = 'SELECT * FROM anilox_history WHERE id = ? AND anilox = ?';
+                  db.query(sqlVolume, [1, id], (err7, result7) => {
+                    if (err7) throw err7;
+                    volumenOriginal = result7[0].volume;
+                    let porcentaje_estado = (volume / volumenOriginal) * 100;
+                    if (porcentaje_estado > 100){ porcentaje_estado = 100; }                    
+                    console.log("El % de estado es: ", porcentaje_estado);
+                    const sqlUpdate = 'UPDATE anilox_analysis SET estado = ? WHERE id = ?';
+                    db.query(sqlUpdate, [porcentaje_estado, id], (err8, result8) => {
+                      if (err8) throw err8;
+                      analysis(patron, revision).then(res_analysis => {
+                        console.log("Anlizando ando");
+                        const { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion } = res_analysis;
+                        const sqlUpdate2 = 'UPDATE anilox_analysis SET next = ?, estado = ?, tapadas = ?, danadas = ?, desgastadas = ?, diagnostico = ?, recomendacion = ? WHERE id = ?';
+                        db.query(sqlUpdate2, [nextDate, estado, porcentajeTapadas, porcentajeDano, porcentajeDesgaste, diagnostico, recomendacion, id], (err9, result9) => {
+                          if (err9) throw err9;
+                          const sqlHistory = 'UPDATE anilox_history SET diagnostico = ? WHERE anilox = ?';
+                          db.query(sqlHistory, [diagnostico, id], (err10, result10) => {
+                            if (err10) throw err10;
+                            const sqlInsert = 'INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)';
+                            db.query(sqlInsert, [id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (err11, result11) => {
+                              if (err11) throw err11;
+                              return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
+                            });
+                            console.log("Se pasó la funcion analysis de manera exitosa");
+                          });
+                        });
+                      });
+                    });
+                  });     
+                }
+                else {
+                  // Si el id no existe, inserta el nuevo registro
+                  const sqlInsert = 'INSERT INTO anilox_analysis (id, next, estado, tapadas, danadas, desgastadas, empresa) VALUES (?,?,?,?,?,?,?)';
+                  db.query(sqlInsert, [id, nextDate, 100, 0, 0, 0, sesion_empresa], (err3, result3) => {
+                    if (err3) throw err3;
+                    return res.status(200).send({ status: "Success", message: "Anilox insertado correctamente" });
+                  });
+                }
+              });                        
+            });
+          });
+        }, 1500);
+      });        
     }
     else {
       const sql = 'SELECT * FROM anilox_list WHERE empresa=?';
@@ -840,6 +793,135 @@ async function tablaLicencias(req, res) {
   }
 }
 
+async function addBase64ImageToPDF(pdfPath, base64Image, options) {
+  await PDFNet.initialize();
 
+  const pdfDoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
+  await pdfDoc.initSecurityHandler();
+  const page = await pdfDoc.getPage(1);
+  const pageSet = await PDFNet.PageSet.createRange(1, 1);
 
-module.exports = { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox };
+  // Convertir la cadena base64 a buffer y escribirlo en un archivo temporal
+  const imageBuffer = Buffer.from(base64Image, 'base64');
+  const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); // Asegúrate de usar la extensión correcta
+  fs.writeFileSync(tempImagePath, imageBuffer);
+
+  // Cargar la imagen desde el archivo temporal
+  const pdfImage = await PDFNet.Image.createFromFile(pdfDoc, tempImagePath);
+
+  // Definir la posición y el tamaño de la imagen
+  const rect = await PDFNet.Rect.init(options.x, options.y, options.x + options.width, options.y + options.height);
+
+  // Usar PDFNet.Stamper para colocar la imagen en el documento PDF
+  const stamper = await PDFNet.Stamper.create(PDFNet.Stamper.SizeType.e_absolute_size, options.width, options.height);
+  stamper.setAlignment(PDFNet.Stamper.HorizontalAlignment.e_horizontal_left, PDFNet.Stamper.VerticalAlignment.e_vertical_top);
+  stamper.setPosition(options.x, options.y);
+  await stamper.stampImage(pdfDoc, pdfImage, pageSet);
+
+  // Guardar el documento PDF modificado
+  const outputPath = 'output.pdf';
+  await pdfDoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
+
+  // Opcional: Eliminar el archivo temporal de la imagen
+  fs.unlinkSync(tempImagePath);
+}
+
+async function generarPdf(req, res) {
+  try {
+    const { id, revision } = req.body;
+    const pdfPath = "./modelo_reporte_final.pdf";
+    const sql_PDF = 'SELECT * FROM anilox_list WHERE id=?';
+    db.query(sql_PDF,[anilox], (err, rows) => {
+      if (err) throw err;
+      let revisionPDF = rows[0].revision;
+      revisionPDF = revisionPDF.replace('data:image/jpeg;base64,', '');
+    });
+    const sql = 'SELECT * FROM anilox_history WHERE anilox=?';
+    db.query(sql, [id], (err, result) => {
+      if (err) throw err;
+      console.log("El result.length es: ", result.length);
+      if(result.length === 0){
+        return res.status(400).send({ status: "Error", message: "No se encontró el anilox con el id ingresado." });
+      }
+      else {
+        const coord_revision = {
+          x: 270,
+          y: 300,
+          width: 100,
+          height: 100
+        };
+        //------------------------
+        const outputPath = path.join(__dirname, '/output.pdf');
+        const replaceText = async () => {
+            const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
+            await pdfdoc.initSecurityHandler();
+            const replacer = await PDFNet.ContentReplacer.create();
+            const page = await pdfdoc.getPage(1);
+
+            await replacer.addString('ANILOX', anilox);
+            await replacer.addString('date', '2024-06-16');
+            await replacer.addString('fabricante', 'Apex');
+            // await replacer.addString('tapadas', tapadas);
+            // await replacer.addString('danadas', danadas);
+            // await replacer.addString('desgastadas', desgastadas);
+
+            await replacer.process(page);
+
+            pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
+
+            addBase64ImageToPDF(outputPath, revision, coord_revision)
+                .then(() => {
+                    console.log('Imagen añadida al PDF con éxito');
+                    fs.readFile(outputPath, (err, data) => {
+                        if (err) {
+                            console.error('Error al leer el archivo PDF:', err);
+                            res.status(500).send('Error al procesar el archivo PDF');
+                            return;
+                        }
+                        // Convertir el contenido a Base64
+                        const base64PDF = data.toString('base64');
+                        // const sql2 = 'INSERT INTO anilox_history (id_anilox, fecha, pdf) VALUES (?,?,?)';
+                        // db.query(sql2,[anilox, new Date(), base64PDF], (err, rows) => {
+                        //     if (err) throw err;
+                        //     console.log('PDF convertido a Base64 y almacenado con éxito');
+                        // });
+                        res.send('PDF convertido a Base64 y almacenado con éxito');
+                    });                
+                })
+                .catch((error) => {
+                    console.error('Error al añadir imagen al PDF:', error);
+                    res.status(500).send('Error al añadir imagen al PDF');
+                });  
+        }    
+
+      PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+          fs.readFile(outputPath, (err, data) => {
+              if (err) {
+                  res.statusCode = 500;
+                  res.send(err);
+              } else {
+                  res.setHeader('Content-Type', 'application/pdf');
+                  res.send(data);
+              }
+          })
+      }).catch(err => {
+          res.statusCode = 500;
+          res.send(err);
+      });
+        const sql2 = 'UPDATE anilox_history SET report=? WHERE id=?';
+        db.query(sql2, ["https://www.africau.edu/images/default/sample.pdf", result.length], (err2, result2) => {
+          if (err2) throw err2;
+          return res.status(200).send({ status: "Success", message: "PDF generado correctamente" });
+        });
+      }
+
+      return res.status(200).send({ status: "Success", message: "Estado", result });
+    });
+  } catch {
+    console.log(error);
+    return res.status(500).send({status: "Error", message: "Error al obtener los datos del cliente"});
+  }
+}
+
+module.exports = { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
+                   tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf };

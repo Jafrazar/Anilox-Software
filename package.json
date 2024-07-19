@@ -12,9 +12,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@pdftron/pdfnet-node": "^10.10.0",
     "bcryptjs": "^2.4.3",
     "canvas": "^2.11.2",
+    "chart": "^0.1.2",
+    "chart.js": "^4.4.3",
     "chartjs-plugin-annotation": "^3.0.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
@@ -28,7 +32,8 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "node-cache": "^5.1.2",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "pdfjs-dist": "^4.4.168"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
