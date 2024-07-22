@@ -9,7 +9,7 @@ const { anilloxHistory } = require("./utils/anillox-history");
 const { clientInfo } = require("./utils/client-info");
 const { anilloxList } = require("./utils/anillox-list");
 const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
-       tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
+        tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
 const app = express();
 const port = 3000;

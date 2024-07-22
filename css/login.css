@@ -1,15 +1,25 @@
+@font-face {
+  font-family: 'Magistral';
+  src: url('../fonts/Magistral-Light.ttf');
+}
+
 body {
     font-family: Arial, Helvetica, sans-serif;
 }
-  
+
 .container {
   width: 400px;
   padding: 20px;
   background-color: white;
-  margin-top: 240px;
-  margin-left: 100px;
+  margin-top: 245px;
+  margin-left: 105px;
   border: 1px solid black;
-  border-radius: 5px;
+  border-radius: 15px;
+  transition: background-color 0.5s ease;
+}
+
+.container:hover {
+  background-color: #ddd;
 }
 
 input[type=text], input[type=password] {
@@ -31,16 +41,24 @@ hr {
   margin-bottom: 25px;
 }
 
+h1 {
+  text-align: center;
+  font-family: 'Magistral';
+  font-size: 2.1rem;
+}
+
 input[type="submit"] {
   background-color: #4CAF50;
   color: white;
   padding: 14px 20px;
-  margin: 0px 0px 10px;
+  margin: 0px 0px 12px;
+  border-radius: 15px;
   border: none;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
   cursor: pointer;
   width: 97.5%;
-  opacity: 0.9;
-  font-size: 1rem;
+  font-size: 1.3rem;
+  font-family: 'Magistral';
 }
 
 .error {
@@ -53,5 +71,5 @@ input[type="submit"] {
 }
 
 .psw {
-  font-size: 0.96rem;
+  font-size: 0.97rem;
 }

@@ -25,16 +25,14 @@ const app = express();
 let anilox = 'AS183209'; let fecha; let fabricante=""; let revision="";
 let danadas; let desgastadas; let tapadas;
 let tapadas_img; let danadas_img; let desgastadas_img;
-const pdfPath = "./modelo_reporte_final.pdf";
+const pdfPath = "./modelo_reporte_final2.pdf";
 
 async function addBase64ImageToPDF(doc, pSet, base64Image, options) {    
-    // Convertir la cadena base64 a buffer y escribirlo en un archivo temporal 
-    const imageBuffer = Buffer.from(base64Image, 'base64');
-    const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); // Asegúrate de usar la extensión correcta
-    fs.writeFileSync(tempImagePath, imageBuffer);
+    const imageBuffer = Buffer.from(base64Image, 'base64'); // Convertir la cadena base64 a buffer 
+    const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); 
+    fs.writeFileSync(tempImagePath, imageBuffer); // Escribir la cadena en un archivo temporal 
 
-    // Cargar la imagen desde el archivo temporal
-    const pdfImage = await PDFNet.Image.createFromFile(doc, tempImagePath);
+    const pdfImage = await PDFNet.Image.createFromFile(doc, tempImagePath); // Cargar la imagen desde el archivo temporal
 
     // Usar PDFNet.Stamper para colocar la imagen en el documento PDF
     const stamper = await PDFNet.Stamper.create(PDFNet.Stamper.SizeType.e_absolute_size, options.width, options.height);
@@ -45,10 +43,7 @@ async function addBase64ImageToPDF(doc, pSet, base64Image, options) {
     } catch (error) {
         console.error('Error al estampar la imagen:', error);
     }
-    console.log("Imagen añadida al PDF");
-
-    // Opcional: Eliminar el archivo temporal de la imagen 
-    fs.unlinkSync(tempImagePath);
+    fs.unlinkSync(tempImagePath); // Opcional: Eliminar el archivo temporal de la imagen 
 }
 
 sql = 'SELECT * FROM anilox_analysis WHERE id = ?'
@@ -123,7 +118,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     align: "center",
                     color: "#363949",
                     font: {
-                        weight: 600,
+                        weight: 550,
                         size: 22,
                     },
                     padding: {
@@ -136,12 +131,12 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     display: true,
                     position: "bottom",
                     labels: {
-                    font: {
-                        weight: 600,
-                        size: 14,
-                    },
-                    padding: 15,
-                    boxWidth: 35,
+                        font: {
+                            weight: 550,
+                            size: 14,
+                        },
+                        padding: 15,
+                        boxWidth: 35,
                     },
                     reverse: true,
                 },
@@ -150,7 +145,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     anchor: 'center',
                     font: {
                         size: 16,
-                        weight: 600,
+                        weight: 550,
                     },
                     formatter: function(value){
                         return value + '%';
@@ -160,11 +155,11 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     enabled: true,
                     titleFont: {
                         size: 16,
-                        weight: 600,
+                        weight: 550,
                     },
                     bodyFont: {
                         size: 14,
-                        weight: 600,
+                        weight: 550,
                     },
                     callbacks: {  
                         label: function(context){
@@ -196,7 +191,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     align: "center",
                     color: "#363949",
                     font: {
-                        weight: 500,
+                        weight: 550,
                         size: 22,
                     },
                     padding: {
@@ -210,7 +205,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     position: "bottom",
                     labels: {
                         font: {
-                            weight: 500,
+                            weight: 550,
                             size: 14,
                         },
                         padding: 15,
@@ -223,7 +218,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     anchor: 'center',
                     font: {
                         size: 16,
-                        weight: 500,
+                        weight: 550,
                     },
                     formatter: function(value){
                         return value + '%';
@@ -233,11 +228,11 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     enabled: true,
                     titleFont: {
                         size: 16,
-                        weight: 600,
+                        weight: 550,
                     },
                     bodyFont: {
                         size: 14,
-                        weight: 500,
+                        weight: 550,
                     },
                     callbacks: {  
                         label: function(context){
@@ -269,7 +264,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     align: "center",
                     color: "#363949",
                     font: {
-                        weight: 500,
+                        weight: 700,
                         size: 22,
                     },
                     padding: {
@@ -283,7 +278,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     position: "bottom",
                     labels: {
                         font: {            
-                            weight: 500,
+                            weight: 550,
                             size: 14,
                         },
                         padding: 15,
@@ -296,7 +291,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     anchor: 'center',
                     font: {
                         size: 16,
-                        weight: 500,
+                        weight: 550,
                     },
                     formatter: function(value){
                         return value + '%';
@@ -306,11 +301,11 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     enabled: true,
                     titleFont: {
                         size: 16,
-                        weight: 600,
+                        weight: 550,
                     },
                     bodyFont: {
                         size: 14,
-                        weight: 500,
+                        weight: 550,
                     },
                     callbacks: {  
                         label: function(context){
@@ -330,12 +325,10 @@ db.query(sql, ['AS183209'], (err, rows) => {
         const height = 300; // Alto del canvas
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext('2d');
+                
+        new Chart(ctx, grafico); // Renderizar el gráfico en el canvas
         
-        // Renderizar el gráfico en el canvas
-        new Chart(ctx, grafico);
-        
-        // Utilizar un retraso antes de guardar el canvas como una imagen JPG
-        const buffer = canvas.toBuffer('image/png'); // Guardar el canvas como una imagen JPG
+        const buffer = canvas.toBuffer('image/png'); // Guardar el canvas como una imagen PNG
         const buffer64 = buffer.toString('base64');
         return buffer64;
     }
@@ -348,28 +341,29 @@ db.query(sql, ['AS183209'], (err, rows) => {
         revision = revision.replace('data:image/jpeg;base64,', '');
         tapadas_img = generarGrafico(cleanGraphConfig).replace('data:image/jpeg;base64,', '');
         danadas_img = generarGrafico(damagedGraphConfig).replace('data:image/jpeg;base64,', '');
-        desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');        
+        desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');
+        console.log('Terminó el query');
     });    
 });
 
 const coord_revision = {
-    x: 240,     y: 210,     // 270 y 300
-    width: 120, height: 120 // 100 y 100
+    x: 235,     y: 650,     // 270 y 300
+    width: 130, height: 130 // 100 y 100
 };
 
 const coord_tapadas = {
-    x: 100,     y: 300,
-    width: 120, height: 120
+    x: 45,     y: 375,
+    width: 160, height: 205
 };
 
 const coord_danadas = {
-    x: 230,     y: 300,
-    width: 120, height: 120   
+    x: 230,     y: 375,
+    width: 160, height: 205
 };
 
 const coord_desgastadas = {
-    x: 360,     y: 300,
-    width: 120, height: 120
+    x: 410,     y: 375,
+    width: 155, height: 205
 };
 
 app.get('/generarReporte', (req, res) => {
@@ -383,14 +377,14 @@ app.get('/generarReporte', (req, res) => {
         await replacer.addString('ANILOX', anilox);
         await replacer.addString('date', '2024-06-16');
         await replacer.addString('fabricante', fabricante);
-        await replacer.addString('revision', revision);    
+        await replacer.addString('revision', revision);
+        await replacer.addString('tapadas', '');
+        await replacer.addString('danadas', '');
+        await replacer.addString('desgastadas', '');
 
         await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
-        console.log('Revision añadida con éxito');
         await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
-        console.log('Tapadas añadida con éxito');
         await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
-        console.log('Dañadas añadida con éxito');
         await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas)
             .then(() => {                 
                 replacer.process(page);               
