@@ -445,7 +445,7 @@ const getAnilox = async()=>{
     let volLabels = [],
         volData = [],
         diag = [];
-  
+
     for(let i = 0; i < json.length; i++){
      volLabels[i] = json[i].date;
      volData[i] = Math.round(((json[i].volume)/1.55) * 10) / 10; // VOLUMEN EN BCM
@@ -454,7 +454,6 @@ const getAnilox = async()=>{
 
     let nomVol = json2[0].nomvol;
     let nomData = [];
-    console.log(nomVol)
 
     for(let i = 0; i < json.length; i++){
       nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
@@ -463,39 +462,34 @@ const getAnilox = async()=>{
     const dataBcmStat = {
       labels: volLabels,
       datasets: [{
-        label: 'Volumen (BCM)',
+        label: 'Volumen medido (BCM)',
         data: volData,
         info: diag,
         fill: false,
         borderColor: 'rgba(0, 0, 255, 0.35)',
         tension: 0.1,
+      },
+      {
+        label: 'Volumen Nominal (BCM)',
+        data: nomData,
+        fill: false,
+        borderColor: 'rgba(255, 0, 0, 0.35)',
+        tension: 0.1,
+        pointRadius: 0,
+        datalabels: {
+          // display: function(context){
+          //   return context.dataIndex === 0;
+          // }
+          display: false, // Desactiva etiquetas
+        },
       }]
     };
 
-    new Chart($bcmChart, {
+    bcmChart = new Chart($bcmChart, {
       type: "line",
       data: dataBcmStat,
       options: {
         plugins: {
-          annotation: {
-            annotations: {
-              line1: {
-                type: 'line',
-                yMin: nomData[0], // Primer valor de volData
-                yMax: nomData[0], // Mismo valor para mantener la línea horizontal
-                borderColor: 'rgba(255, 0, 0, 0.35)', // Color de la línea
-                borderWidth: 2, // Grosor de la línea
-                label: {
-                  content: 'Volumen nominal (BCM)',
-                  enabled: true,
-                  position: 'start',
-                  font: {
-                    size: 14 // Tamaño de la fuente
-                  }
-                }
-                },
-              },
-          },
           title: {
             display: true,
             align: "center",
@@ -607,7 +601,7 @@ const viewMore = (e)=>{
 }
 
 const estimarVida = async(e)=>{
-  if(e.target === $estimarVida){
+  if(e.target === $estimarVida){ 
     $modalEOLAnilox.style.display = "block";
     try {
       let res1 = await fetch('api/analysis', {
@@ -634,8 +628,8 @@ const estimarVida = async(e)=>{
       if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
       console.log()
-      let eolData = json1[0].eol,
-          nomVol = json2[0].nomvol;
+      let eolData = JSON.parse(json1[0].eol),
+          nomVol = json2[0].nomvol; // nomVol en cm3/m2
       let msg;
   // ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
       if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${Math.round(((nomVol * 0.6) + Number.EPSILON) * 10) / 10}).`;}
@@ -658,15 +652,18 @@ const estimarVida = async(e)=>{
 
         let eolDates = [],
             volData = [],
-            percentVol = json1[0].percent[1],
-            percentDates = json1[0].percent[0];
-
+            percentVol = JSON.parse(json1[0].percent).values,
+            percentDates = JSON.parse(json1[0].percent).dates;
         for(let i = 0; i < json3.length; i++){
           eolDates[i] = json3[i].date;
           volData[i] = json3[i].volume;
         }
+        console.log("eolDates", eolDates);
+        console.log("volData: ", volData);
+        console.log("percentVol: ", percentVol);
+        console.log("percentDates: ", percentDates);
 
-        for(let i = 0; i < json1[0].eol.length - json3.length; i++){
+        for(let i = 0; i < JSON.parse(json1[0].eol).length - json3.length; i++){
           let last = `${eolDates[json3.length - 1 + i]} 00:00:00`;
           last = new Date(last);
 
@@ -682,13 +679,13 @@ const estimarVida = async(e)=>{
           next = [year, month, day].join('-');
           eolDates[json3.length + i] = next;
         }
-
+        
         const dataEOLGraph = {
           labels: eolDates,
           datasets: [{
             type: 'line',
-            label: 'Volumen estimado (cm3/m2)',
-            data: eolData,
+            label: 'Volumen estimado (BCM)',
+            data: eolData.map(dato => Math.round((dato/1.55) * 10) / 10),
             fill: false,
             borderColor: 'rgba(255, 0, 0, 0.35)',
             tension: 0.1,
@@ -698,8 +695,8 @@ const estimarVida = async(e)=>{
             },
           }, {
             type: 'scatter',
-            label: 'Volumen medido (cm3/m2)',
-            data: volData,
+            label: 'Volumen medido (BCM)',
+            data: volData.map(dato => Math.round((dato/1.55) * 10) / 10),
             fill: false,
             borderColor: 'rgba(0, 0, 255, 0.6)',
             datalabels: {
@@ -707,6 +704,10 @@ const estimarVida = async(e)=>{
             },
           }]
         };
+        
+        console.log("json3.length: ", json3.length);
+        console.log("percentDates[0]: ", percentDates[0]);
+        console.log("percentVol[0]: ", percentVol[0]);
 
         eolGraph = new Chart($eolGraph, {
           data: dataEOLGraph,
@@ -718,7 +719,7 @@ const estimarVida = async(e)=>{
                 labels: {
                   font: {
                     weight: 500,
-                    size: 14,
+                    size: 11,
                   },
                   padding: 15,
                   boxWidth: 30,
@@ -727,19 +728,23 @@ const estimarVida = async(e)=>{
               },
               datalabels:{
                 color: '#363949',
-                align: 'right',
+                align: 'right', // 'right'
                 padding: {
                   right: 7,
                 },
                 font: {
-                  size: 13,
+                  size: 11,
                   weight: 500,
                 },
                 clip: false,
                 formatter: function(value, context){
                   if(context.dataset.type === 'line'){
-                    if((value == percentVol[0] && ((percentDates[0] - json3.length) / 2) > 0) || (value == percentVol[1] && ((percentDates[1] - json3.length) / 2) > 0) || (value == percentVol[2] && ((percentDates[2] - json3.length) / 2) > 0) || (value == percentVol[3] && ((percentDates[3] - json3.length) / 2) > 0)) {return value}
-                    else {return ''}
+                    if((value == percentVol[0] && ((percentDates[0] - json3.length) / 2) > 0) || (value == percentVol[1] && ((percentDates[1] - json3.length) / 2) > 0) || (value == percentVol[2] && ((percentDates[2] - json3.length) / 2) > 0) || (value == percentVol[3] && ((percentDates[3] - json3.length) / 2) > 0)) {
+                      return value
+                    }
+                    else {
+                      return ''
+                    }
                   }
                 },
               },
@@ -757,7 +762,7 @@ const estimarVida = async(e)=>{
                   size: 16,
                   weight: 300,
                 },
-                callbacks: {  
+                callbacks: {
                   label: function(context){
                     let data = context.parsed.y;
                     return 'Volumen: ' + data + ' cm3/m2';
@@ -836,6 +841,7 @@ const estimarVida = async(e)=>{
 
       $eolDescription.textContent = msg;
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",

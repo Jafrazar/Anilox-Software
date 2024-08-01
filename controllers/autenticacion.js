@@ -1,4 +1,4 @@
-let sesion_usuario = 'Franco', sesion_empresa = 'Anders Perú';
+let sesion_usuario, sesion_empresa;
 const mysql = require('mysql');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
@@ -45,8 +45,11 @@ async function login(req, res) {
     db.query(sql, [username, password], (err, result) => {
         if (err) throw err;
         if (result.length > 0) {
+            sesion_usuario =  result[0].user_l;
+            sesion_empresa = result[0].empresa;
             console.log(result[0].user_l);
-            const token = jwt.sign({ user: result[0].user_l }, process.env.ACCESS_TOKEN_SECRET, {
+            const token = jwt.sign({ user: result[0].user_l, sesion_usuario: sesion_usuario,
+                sesion_empresa: sesion_empresa }, process.env.ACCESS_TOKEN_SECRET, {
                 expiresIn: process.env.ACCESS_TOKEN_EXPIRATION // expira en una hora
             });
 
@@ -56,8 +59,6 @@ async function login(req, res) {
             }
             res.cookie("jwt", token, cookieOption);
             res.set('Authorization', token);
-            sesion_usuario = result[0].user_l;
-            sesion_empresa = result[0].empresa;
             return res.status(200).send({status: "Success", message: `Usuario ${username} logueado correctamente`,  redirect: '/index'});
         } else {
             console.log('Error: Usuario o contraseña incorrectos');
@@ -133,40 +134,6 @@ async function registro_licencia(req, res) {
     });
 }
 
-let primeraVezAdmin = true; let primeraVezPublico = true;
-function soloAdmin(req, res, next) {
-  console.log("Solo admin: ",usuarios);
-  const logueado = revisarCookie(req);
-  if(logueado){
-    if(primeraVezAdmin) {
-      primeraVezAdmin = false;
-      console.log("Logueado / SoloAdmin");
-    }
-    console.log("Logueado / SoloAdmin");
-    return next();
-  }
-  else {
-    return res.redirect("/");
-  }
-}
-
-function soloPublico(req, res, next) {
-  
-  console.log("Solo publico: ",usuarios);
-  const logueado = revisarCookie(req);
-  if(logueado){
-    console.log("Logueado / SoloPublico");
-    return res.redirect("/index");
-  }
-  if(!logueado){
-    if(primeraVezPublico) {
-      primeraVezPublico = false;
-      console.log("No logueado / SoloPublico");
-    }
-    return next();
-  }
-}
-
 function revisarCookie(req){
   try {
     if (!req.headers.cookie) {
@@ -177,10 +144,13 @@ function revisarCookie(req){
     // console.log("Cookie JWT: ", cookieJWT);
     // console.log("Secret: ", process.env.ACCESS_TOKEN_SECRET);
     const decodificada = jwt.verify(cookieJWT, process.env.ACCESS_TOKEN_SECRET);
-    console.log("Decodificada: ", decodificada);
     const usuarioARevisar = usuarios.find(usuario => usuario == decodificada.user);
     if(!usuarioARevisar) {
       console.log("No se encontró el usuario en la base de datos");
+      return false;
+    }
+    if(decodificada.sesion_usuario != sesion_usuario || decodificada.sesion_empresa != sesion_empresa) {
+      console.log("Sesión no válida");
       return false;
     }
     console.log("Usuario encontrado: ", usuarioARevisar);
@@ -189,6 +159,37 @@ function revisarCookie(req){
   catch (error){
     console.log(error);
     return false;
+  }
+}
+
+let primeraVezAdmin = true; let primeraVezPublico = true;
+function soloAdmin(req, res, next) {
+  const logueado = revisarCookie(req);
+  if(logueado){
+    if(primeraVezAdmin) {
+      primeraVezAdmin = false;      
+      console.log("Solo admin: ",usuarios);
+      console.log("Logueado / SoloAdmin");
+    }
+    return next();
+  }
+  else {
+    return res.redirect("/");
+  }
+}
+
+function soloPublico(req, res, next) {  
+  const logueado = revisarCookie(req);
+  if(logueado){
+    return res.redirect("/index");
+  }
+  if(!logueado){
+    if(primeraVezPublico) {
+      primeraVezPublico = false;
+      console.log("Solo publico: ",usuarios);
+      console.log("No logueado / SoloPublico");
+    }
+    return next();
   }
 }
 
@@ -654,7 +655,7 @@ async function tablaAniloxAnalysis(req, res) {
         });
         return res.status(200).send({ status: "Success", message: "Analisis", result });
       });
-    } else {      
+    } else {
       const sql = 'SELECT * FROM anilox_analysis WHERE empresa=?';
       db.query(sql, [sesion_empresa], (err, result) => {
         if (err) throw err;

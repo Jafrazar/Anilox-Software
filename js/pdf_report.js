@@ -8,7 +8,8 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const mysql = require('mysql');
-
+const canvas_bcm = createCanvas(800, 185);
+const bcm_ctx = canvas_bcm.getContext('2d');
 const db = mysql.createPool({
     host: 'database-1.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
     user: 'admin',
@@ -23,9 +24,9 @@ db.getConnection((err) => {
 
 const app = express();
 let anilox = 'AS183209'; let fecha; let fabricante=""; let revision="";
-let danadas; let desgastadas; let tapadas;
-let tapadas_img; let danadas_img; let desgastadas_img;
-const pdfPath = "./modelo_reporte_final2.pdf";
+let danadas; let desgastadas; let tapadas; let volLabels = [], volData = [], diag = [];
+let tapadas_img; let danadas_img; let desgastadas_img; let nomVol, nomData = [];let bcmChart;
+const pdfPath = "./modelo_reporte_final3.pdf";
 
 async function addBase64ImageToPDF(doc, pSet, base64Image, options) {    
     const imageBuffer = Buffer.from(base64Image, 'base64'); // Convertir la cadena base64 a buffer 
@@ -119,7 +120,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     color: "#363949",
                     font: {
                         weight: 550,
-                        size: 22,
+                        size: 20,
                     },
                     padding: {
                         top: 10,
@@ -192,7 +193,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     color: "#363949",
                     font: {
                         weight: 550,
-                        size: 22,
+                        size: 20,
                     },
                     padding: {
                         top: 10,
@@ -265,7 +266,7 @@ db.query(sql, ['AS183209'], (err, rows) => {
                     color: "#363949",
                     font: {
                         weight: 700,
-                        size: 22,
+                        size: 20,
                     },
                     padding: {
                         top: 10,
@@ -318,20 +319,31 @@ db.query(sql, ['AS183209'], (err, rows) => {
             responsive: true,
             maintainAspectRatio: false,
         }
-    };
+    };    
     //wearGraph = new Chart($wearGraph, wearGraphConfig);
+    
     function generarGrafico(grafico) {
-        const width = 220; // Ancho del canvas
-        const height = 300; // Alto del canvas
-        const canvas = createCanvas(width, height);
-        const ctx = canvas.getContext('2d');
-                
-        new Chart(ctx, grafico); // Renderizar el gráfico en el canvas
-        
-        const buffer = canvas.toBuffer('image/png'); // Guardar el canvas como una imagen PNG
-        const buffer64 = buffer.toString('base64');
-        return buffer64;
+        let buffer, buffer64;
+        if (grafico == bcmChart) {
+            buffer = canvas_bcm.toBuffer('image/png'); // Guardar el canvas como una imagen PNG
+            buffer64 = buffer.toString('base64');
+            return buffer64;
+        }
+        else {                    
+            let width = 220; // Ancho del canvas
+            let height = 300; // Alto del canvas    
+            const canvas = createCanvas(width, height);
+            const ctx = canvas.getContext('2d');                    
+            new Chart(ctx, grafico); // Renderizar el gráfico en el canvas
+            buffer = canvas.toBuffer('image/png'); // Guardar el canvas como una imagen PNG
+            buffer64 = buffer.toString('base64');
+            return buffer64;
+        }  
     }
+
+    tapadas_img = generarGrafico(cleanGraphConfig).replace('data:image/jpeg;base64,', '');
+    danadas_img = generarGrafico(damagedGraphConfig).replace('data:image/jpeg;base64,', '');
+    desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');    
     //-----------Codigo PDF----------------//
     const sql2 = 'SELECT * FROM anilox_list WHERE id=?';
     db.query(sql2,[anilox], (err2, rows2) => {
@@ -339,31 +351,165 @@ db.query(sql, ['AS183209'], (err, rows) => {
         fabricante = rows2[0].brand;
         revision = rows2[0].revision;
         revision = revision.replace('data:image/jpeg;base64,', '');
-        tapadas_img = generarGrafico(cleanGraphConfig).replace('data:image/jpeg;base64,', '');
-        danadas_img = generarGrafico(damagedGraphConfig).replace('data:image/jpeg;base64,', '');
-        desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');
-        console.log('Terminó el query');
-    });    
-});
+        nomVol = rows2[0].nomvol;
+        const sql3 = 'SELECT * FROM anilox_history WHERE anilox=?';
+        db.query(sql3,[anilox], (err3, rows3) => {
+            if (err3) throw err3;
+            for(let i = 0; i < rows3.length; i++){
+                let date = new Date(rows3[i].date);
+                volLabels[i] = date.toISOString().split('T')[0];
+                volData[i] = Math.round(((rows3[i].volume)/1.55) * 10) / 10; // VOLUMEN EN BCM
+                diag[i] = rows3[i].diagnostico;
+                nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
+            }
+            const dataBcmStat = {
+                labels: volLabels,
+                datasets: [{
+                  label: 'Volumen medido (BCM)',
+                  data: volData,
+                  info: diag,
+                  fill: false,
+                  borderColor: 'rgba(0, 0, 255, 0.35)',
+                  tension: 0.1,
+                },
+                {
+                  label: 'Volumen Nominal (BCM)',
+                  data: nomData,
+                  fill: false,
+                  borderColor: 'rgba(255, 0, 0, 0.35)',
+                  tension: 0.1,
+                  pointRadius: 0,
+                  datalabels: {
+                    display: false, // Desactiva etiquetas
+                  },
+                }]
+            };
+            bcmChart = new Chart(bcm_ctx, {
+                type: "line",
+                data: dataBcmStat,
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            align: "center",
+                            color: "#363949",
+                            font: {
+                            weight: 500,
+                            size: 14,
+                            },
+                            padding: {
+                            top: 10,
+                            bottom: 10,
+                            },
+                            text: 'Historial de Volumen de Celda'
+                        },
+                        legend: {
+                            display: true,
+                            position: "bottom",
+                            labels: {
+                                font: {
+                                    weight: 500,
+                                    size: 11,
+                                },
+                                padding: 15,
+                                boxWidth: 30,
+                            },
+                            reverse: true,
+                        },
+                        datalabels:{
+                            color: '#363949',
+                            align: -45,
+                            font: {
+                                size: 11,
+                                weight: 500,
+                            },
+                            clip: false,
+                        },
+                        tooltip: {
+                            enabled: true,
+                            titleFont: {
+                                size: 11,
+                                weight: 600,
+                            },
+                            bodyFont: {
+                                size: 11,
+                                weight: 500,
+                            },
+                            footerFont: {
+                                size: 13,
+                                weight: 300,
+                            },
+                            callbacks: {  
+                                label: function(tooltipItem){
+                                    if(tooltipItem.datasetIndex == 0){
+                                        let data = tooltipItem.parsed.y;
+                                        return 'Volumen: ' + data + ' BCM'; 
+                                    }
+                                    else{return ""}
+                                },
+                                footer: function(tooltipItem){
+                                    if(tooltipItem[0].datasetIndex == 0){
+                                        let diag = tooltipItem[0].dataset.info[tooltipItem[0].dataIndex];
+                                        return 'Diagnostico:' + '\n' + diag;
+                                    }
+                                }
+                            },
+                        },
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            ticks: {
+                                display: true,
+                                font: {
+                                    weight: 500,
+                                    size: 11,
+                                }
+                            },
+                        },
+                        y: {
+                            grace: 0.15,
+                            ticks: {
+                                stepSize: 0.05,
+                                font: {
+                                    weight: 500,
+                                    size: 11,
+                                }
+                            },
+                        },
+                    },
+                }
+            });
+            historial_img = generarGrafico(bcmChart).replace('data:image/jpeg;base64,', '');
+            console.log("terminamos el query");
+        });
+    });
+})
 
 const coord_revision = {
-    x: 235,     y: 650,     // 270 y 300
-    width: 130, height: 130 // 100 y 100
+    x: 215,     y: 685,     // 270 y 300
+    width: 205, height: 120 // 100 y 100
 };
 
 const coord_tapadas = {
-    x: 45,     y: 375,
-    width: 160, height: 205
+    x: 45,     y: 325,
+    width: 160, height: 193
 };
 
 const coord_danadas = {
-    x: 230,     y: 375,
-    width: 160, height: 205
+    x: 225,     y: 325,
+    width: 160, height: 193
 };
 
 const coord_desgastadas = {
-    x: 410,     y: 375,
-    width: 155, height: 205
+    x: 405,     y: 325,
+    width: 165, height: 193
+};
+
+const coord_historial = {
+    x: 23,     y: 535,
+    width: 555, height: 185
 };
 
 app.get('/generarReporte', (req, res) => {
@@ -372,20 +518,27 @@ app.get('/generarReporte', (req, res) => {
         const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath); // Crea un archivo PDFdoc desde un archivo PDF existente
         await pdfdoc.initSecurityHandler(); // Habilita el security Handler para poder realizar cambios en el PDF
         const replacer = await PDFNet.ContentReplacer.create(); // Crea un objeto ContentReplacer para reemplazar texto en el PDF
-        const page = await pdfdoc.getPage(1); // Se obtiene la primera página del PDF        
+        const page = await pdfdoc.getPage(1); // Se obtiene la primera página del PDF
         const pageSet = await PDFNet.PageSet.createRange(1, 1);
         await replacer.addString('ANILOX', anilox);
         await replacer.addString('date', '2024-06-16');
         await replacer.addString('fabricante', fabricante);
-        await replacer.addString('revision', revision);
+        await replacer.addString('revision', "");
         await replacer.addString('tapadas', '');
         await replacer.addString('danadas', '');
         await replacer.addString('desgastadas', '');
+        await replacer.addString('historial_volumen', '');
 
         await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
         await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
         await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
-        await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas)
+        await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
+        await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
+
+        // const page2 = await pdfdoc.getPage(2);
+        // const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
+        // await addBase64ImageToPDF(pdfdoc, pageSet2, historial, coord_historial);
+
             .then(() => {                 
                 replacer.process(page);               
                 pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
@@ -430,3 +583,4 @@ app.get('/generarReporte', (req, res) => {
 app.listen(3000, () => {
     console.log('Servidor iniciado en http://localhost:3000');
 });
+

@@ -28,10 +28,10 @@ document.getElementById("login-form").addEventListener("submit", async(event) =>
 document.addEventListener('DOMContentLoaded', function() {
     var imagenesDeFondo = [
       '../assets/anilox1_2.jpeg',
-      '../assets/anilox2.jpeg',
+      '../assets/anilox2.jpg',
       '../assets/anilox3_2.jpg',
-      '../assets/anilox4.jpeg',
-      '../assets/anilox5.jpeg'
+      '../assets/anilox4.jpg',
+      '../assets/anilox5.jpg'
     ];
     
     var indiceAleatorio = Math.floor(Math.random() * imagenesDeFondo.length);

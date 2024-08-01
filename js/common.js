@@ -215,7 +215,6 @@ d.addEventListener("DOMContentLoaded",e=>{
     if(centerMenu !== null){
       centerMenu.classList.remove("hide");
     }
-
   }
   if(ls.getItem("stats") === "hide"){
     if(centerMenu !== null){
@@ -375,13 +374,13 @@ const searchAnilox = async(e)=>{
         }
       }),
       json = await res.json();
-      
+      json = json.result;
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
       
       let foundFlag;
 
       json.forEach(el=>{
-        if(el.result.id === searchId){
+        if(el.id === searchId){
           foundFlag = 1;
         }
       });

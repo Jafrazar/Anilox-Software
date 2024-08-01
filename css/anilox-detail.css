@@ -184,3 +184,64 @@
   font-weight: 400;
   font-size: 18px;
 }
+
+/* Modal Estimar Vida Util */
+
+#modal-content-eol-anilox{
+  width: 75rem;
+}
+
+#modal-content-eol-anilox .modal-body p{
+  margin: 0.5rem 1.5rem 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 22px;
+  text-align: center;
+}
+
+#modal-content-eol-anilox .modal-body #eol-graph-container{
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--color-primary);
+  height: 50vh;
+  display: none;
+  padding: 1rem 1.5rem 0 1rem;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes{
+  display: none;
+  justify-content: center;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table{
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--color-primary);
+  text-align: center;
+  width: 35%;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table thead tr th{
+  height: 3rem;
+  border-bottom: 1px solid var(--color-primary);
+  padding: 0.8rem 0;
+  color: var(--color-primary);
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table tbody tr td{
+  width: 15%;
+  height: 3rem;
+  border-bottom: 1px solid var(--color-primary);
+  color: var(--color-dark-variant);
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table tbody tr:last-child td{
+  border: none;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes .modal-eol-graph{
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--color-primary);
+  width: 15rem;
+  height: 17rem;
+  margin-right: 1rem;
+}

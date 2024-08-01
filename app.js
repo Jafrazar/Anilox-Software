@@ -4,10 +4,6 @@ module.exports = { path };
 
 const express = require("express");
 const nodemailer = require('nodemailer');
-const { anilloxAnalysis } = require("./utils/anillox-analysis");
-const { anilloxHistory } = require("./utils/anillox-history");
-const { clientInfo } = require("./utils/client-info");
-const { anilloxList } = require("./utils/anillox-list");
 const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
         tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
@@ -136,7 +132,7 @@ app.post('/api/borrar-anilox', borrarAnilox);
 app.post('/api/usuarios', tablaUsuarios);
 app.post('/api/clientes', tablaClientes);
 app.post('/api/licencias', tablaLicencias);
-app.post('api/pdf', generarPdf);
+app.post('/api/pdf', generarPdf);
 app.post('/rcvpass', async (req, res) => {
   
   let { email } = req.body;
@@ -164,136 +160,6 @@ app.post('/rcvpass', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: 'No se pudo enviar el correo electrónico.' });
-  }
-});
-
-app.get("/anillox-analysis", (req, res) => {
-  res.send(anilloxAnalysis);
-});
-
-app.get("/anillox-analysis/:Anilox", (req, res) => {
-  const Anilox = req.params.Anilox;
-  const anilox = anilloxAnalysis[Anilox];
-
-  if (anilox) {
-    res.send(anilox);
-  } else {
-    res
-      .status(404)
-      .send({ error: "No se encontró anilox para el ID proporcionado." });
-  }
-});
-
-app.get("/anillox-analysis/anilox/:numero", (req, res) => {
-  const algo = req.params.numero;
-  let contador = 0;
-
-  for (let i = 0; i < anilloxAnalysis.anilox.length; i++) {
-    if (anilloxAnalysis["anilox"][i].id == algo) {
-      contador++;
-      res.send(anilloxAnalysis["anilox"][i]);      
-    }    
-  }
-  if(contador == 0){
-    res.status(404).send({ error: "No se encontró anilox para el ID proporcionado." });
-  }
-});
-
-app.get("/anillox-list", (req, res) => {
-  res.send(anilloxList);
-});
-
-app.get("/anillox-list/:Anilox", (req, res) => {
-  const Anilox = req.params.Anilox;
-  const anilox = anilloxList[Anilox];
-
-  if (anilox) {
-    res.send(anilox);
-  } else {
-    res
-      .status(404)
-      .send({ error: "No se encontró anilox para el ID proporcionado." });
-  }
-});
-
-app.get("/anillox-list/anilox/:numero", (req, res) => {
-  const list = req.params.numero;
-  let contador = 0;
-
-  for (let i = 0; i < anilloxList.anilox.length; i++) {
-    if (anilloxAnalysis["anilox"][i].id == list) {
-      contador++;
-      res.send(anilloxList["anilox"][i]);      
-    }    
-  }
-  if(contador == 0){
-    res.status(404).send({ error: "No se encontró anilox para el ID proporcionado." });
-  }
-});
-
-app.get("/anillox-history", (req, res) => {
-  res.send(anilloxHistory);
-});
-
-app.get("/anillox-history/:numeroAnilox", (req, res) => {
-  const numeroAnilox = req.params.numeroAnilox;
-  const history = anilloxHistory[numeroAnilox];
-
-  if (history) {
-    res.send(history);
-  } else {
-    res
-      .status(404)
-      .send({ error: "No se encontró historial para el ID proporcionado." });
-  }
-});
-
-app.get("/anillox-history/:numeroAnilox/:id", (req, res) => {
-  const numeroAnilox = req.params.numeroAnilox;
-  const Anilox = anilloxHistory[numeroAnilox];
-  const hist = req.params.id;
-  const history = anilloxHistory[numeroAnilox][hist-1];
-
-  if (Anilox) {
-    if (history) {
-        res.send(history);
-    } else {
-      res
-        .status(404)
-        .send({ error: "No se encontró muestra para el Anilox proporcionado." });
-    }
-  } else {
-    res
-      .status(404)
-      .send({ error: "No se encontró historial para el ID proporcionado." });
-  }
-});
-
-app.get("/client-info", (req, res) => {
-  res.send(clientInfo);
-});
-
-app.get("/client-info/user", (req, res) => {
-  if (clientInfo.user) {
-    res.send(clientInfo.user);
-  } else {
-    res.status(404).send({ error: "No se encontró la propiedad 'user' en la información del cliente." });
-  }
-});
-
-app.get("/client-info/license", (req, res) => {
-  if (clientInfo.license) {
-    res.send(clientInfo.license);
-  } else {
-    res.status(404).send({ error: "No se encontró la propiedad 'license' en la información del cliente." });
-  }
-});
-
-app.get("/client-info/client", (req, res) => {
-  if (clientInfo.client) {
-    res.send(clientInfo.client);
-  } else {
-    res.status(404).send({ error: "No se encontró la propiedad 'client' en la información del cliente." });
   }
 });
 

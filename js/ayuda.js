@@ -14,12 +14,13 @@ const licenseData = async ()=>{
       json = await res.json();
 
     if(!res.ok) throw{status: res.status, statusText: res.statusText};
+    console.log("El json.result[0] es: ",json.result[0]);
 
     ss.setItem("licenseNumber",json.result[0].licenseNumber);
     ss.setItem("licenseHolder",json.result[0].licenseHolder);
     ss.setItem("usersUsed",json.result[0].usersUsed);
     ss.setItem("usersLimit",json.result[0].usersLimit);
-    // }
+    
     $licenseNumber.textContent = ss.getItem("licenseNumber");
     $licenseHolder.textContent = ss.getItem("licenseHolder");
     $userLimit.textContent = `${ss.getItem("usersUsed")} / ${ss.getItem("usersLimit")}`;
