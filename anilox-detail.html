@@ -49,6 +49,7 @@
           <div class="dropdown-content" id="drop-opciones">
             <a href="export-data.html">Exportar datos</a>
             <a id="estimar-vida">Estimar vida restante</a>
+            <a href="req-quotes.html">Solicitar cotización</a>
           </div>
         </div>
         <div class="dropdown">
@@ -62,7 +63,7 @@
       <!-- Final Menu -->
       <div class="top-bar">
         <div class="logo">
-          <img src="assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
+          <img src="./assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
         </div>
         <div class="title">
           <span class="material-icons-sharp" title="Código de ánilox">
@@ -107,6 +108,11 @@
             <a href="export-data.html">
               <span class="material-icons-sharp" title="Exportar Datos">
                 file_download
+              </span>
+            </a>
+            <a href="req-quotes.html">
+              <span class="material-icons-sharp" title="Solicitar Cotización">
+                request_quote
               </span>
             </a>
             <a href="ayuda.html">
@@ -177,15 +183,25 @@
             <!-- Final de Data Middle -->
             <div class="data-bottom">
               <div class="patron">
-                <img src="assets/anilox-placeholder.jpg" id="patron-image" alt="Patrón">
+                <img src="assets/anilox-placeholder.jpg" id="patron-image" alt="Patrón" title="Patrón">
               </div>
               <div class="last">
-                <img src="assets/anilox-placeholder.jpg" id="last-image" alt="Revisión">
+                <img src="assets/anilox-placeholder.jpg" id="last-image" alt="Última revisión" title="Última revisión">
               </div>
               <div class="analysis">
                 <span>
-                  <h3>Estado:</h3>
-                  <p id="data-status"></p>
+                  <span class="status-span">
+                    <h3>Estado Estructural:</h3>
+                    <h4 class="status-info" title="Estado calculado a partir de los porcentajes de desgaste, daño y limpieza">ⓘ</h4>
+                  </span>
+                  <p class="status-percentage" id="data-status"></p>
+                </span>
+                <span>
+                  <span class="status-span">
+                    <h3>Estado de Transferencia:</h3>
+                    <h4 class="status-info" title="Estado calculado a partir la reducción de volumen de celda">ⓘ</h4>
+                  </span>
+                    <p class="status-percentage" id="data-status"></p>                  
                 </span>
                 <span>
                   <h3>Diagnóstico:</h3>
@@ -252,7 +268,7 @@
             <p id="more-recorrido"></p>
           </span>
           <span>
-            <h3>Volumen de celda (cm3/m2):</h3>
+            <h3>Volumen de celda (BCM):</h3>
             <p id="more-volume"></p>
           </span>
           <span>
@@ -344,6 +360,20 @@
       </div>
     </div>
     <!-- Final estimar vida -->
+    <div class="modal" id="modal-alert-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-alert-box">
+            close
+          </span>
+          <h2>Información</h2>
+        </div>
+        <div class="modal-body">
+          <h3 id="alert-content"></h3>
+        </div>
+      </div>
+    </div>
+    <!-- Final Alert Box -->
     <!-- Common JS Script -->
     <script src="js/common.js"></script>
     <!-- Anilox Detail JS Script -->

@@ -45,6 +45,7 @@
           </button>
           <div class="dropdown-content" id="drop-opciones">
             <a href="export-data.html">Exportar datos</a>
+            <a href="req-quotes.html">Solicitar cotización</a>
           </div>
         </div>
         <div class="dropdown">
@@ -100,6 +101,11 @@
             <a href="export-data.html">
               <span class="material-icons-sharp" title="Exportar Datos">
                 file_download
+              </span>
+            </a>
+            <a href="req-quotes.html">
+              <span class="material-icons-sharp" title="Solicitar Cotización">
+                request_quote
               </span>
             </a>
             <a href="ayuda.html">
@@ -183,6 +189,11 @@
                     description
                   </span>
                 </td>
+                <td class="send">
+                  <span class="material-icons-sharp quote" title="Solicitar cotización" data-id="">
+                    request_quote
+                  </span>
+                </td>
                 <td class="trash">
                   <span class="material-icons-sharp delete" title="Eliminar ánilox" data-id="">
                     delete_forever
@@ -232,6 +243,81 @@
       </div>
     </div>
     <!-- Final modal pdf -->
+    <div class="modal" id="modal-alert-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-alert-box">
+            close
+          </span>
+          <h2>Información</h2>
+        </div>
+        <div class="modal-body">
+          <h3 id="alert-content"></h3>
+        </div>
+      </div>
+    </div>
+    <!-- Final Alert Box -->
+    <div class="modal" id="modal-quote-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-quote-box">
+            close
+          </span>
+          <h2>Confirmar</h2>
+        </div>
+        <div class="modal-body" id="modal-quote-box-body">
+          <div class="modal-body-question">
+            <h3>¿Cotizar un ánilox de las siguientes características?</h3>
+          </div>
+          <div class="quote-data">
+            <span>
+              <h3>Tipo: </h3>
+              <p id="quote-type"></p>
+            </span>
+            <span>
+              <h3>Ángulo:</h3>
+              <p id="quote-angle"></p>
+              <p>°</p>
+            </span>
+            <span>
+              <h3>Volumen: </h3>
+              <p id="quote-vol"></p>
+              <p>&nbsp;cm3/m2</p>
+            </span>
+            <span>
+              <h3>Lineatura: </h3>
+              <p id="quote-screen"></p>
+              <p>&nbsp;LPI</p>
+            </span>
+          </div>
+          <div class="quote-confirm">
+            <input type="button" value="Aceptar" id="send-quote" class="accept-btn">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Final Quote Box -->
+    <div class="modal" id="modal-delete-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-delete-box">
+            close
+          </span>
+          <h2>Confirmar</h2>
+        </div>
+        <div class="modal-body" id="modal-delete-body">
+          <div class="modal-body-question">
+            <h3>¿Eliminar el ánilox de código&nbsp;</h3>
+            <h3 id="delete-id"></h3>
+            <h3>&nbsp;permanentemente?</h3>
+          </div>
+          <div class="delete-confirm">
+            <input type="button" value="Aceptar" id="accept-delete" class="accept-btn">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Final Delete Box -->
     <!-- Common JS Script -->
     <script src="./js/common.js"></script>
     <!-- Listado JS Script -->

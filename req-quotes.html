@@ -5,19 +5,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE-edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Aplicación para facilitar la administración y seguimiento del estado de sus rodillos ánilox">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimineto del estado de sus rodillos ánilox">
     <meta name="theme-color", content="#134371">
-    <title>ANX Suite</title>
+    <title>Ánilox Manager</title>
     <!-- Favicon -->
     <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
     <!-- Manifest -->
-    <link rel="./manifest" crossorigin="use-credentials" href="./manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <!-- Material Icons CDN -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="./css/style.css">
-    <!-- Exportar Datos Stylesheet -->
-    <link rel="stylesheet" href="./css/export-data.css">
+    <!-- Request Quotes Stylesheet -->
+     <link rel="stylesheet" href="./css/req-quotes.css">
   </head>
   <body>
     <div class="container">
@@ -30,7 +30,6 @@
             <a id="buscar-anilox">Buscar ánilox</a>
             <a href="listado.html">Listado de ánilox</a>
             <a href="print-report.html">Imprimir reportes</a>
-            <a href="login.html" id="cerrar-sesion">Cerrar sesión</a>
           </div>
         </div>
         <div class="dropdown">
@@ -62,7 +61,7 @@
           <img src="./assets/logo-placeholder.svg" id="client-logo" alt="Client Logo">
         </div>
         <div class="title">
-          <h1>Exportar Datos</h1>
+          <h1>Solicitar Cotización</h1>
         </div>
         <div class="user">
           <p>Bienvenido, <b id="user-name"></b></p>
@@ -98,12 +97,12 @@
                 print
               </span>
             </a>
-            <a href="export-data.html" class="active">
+            <a href="export-data.html">
               <span class="material-icons-sharp" title="Exportar Datos">
                 file_download
               </span>
             </a>
-            <a href="req-quotes.html">
+            <a href="req-quotes.html" class="active">
               <span class="material-icons-sharp" title="Solicitar Cotización">
                 request_quote
               </span>
@@ -122,25 +121,131 @@
         </div>
         <!-- Final Accesos Rapidos -->
         <div class="right-content">
-          <div class="export">
-            <form class="export-data" autocomplete="off">
-              <div class="type-filter">
-                <label for="export-filter">Exportar por:</label>
-                <select name="filter" id="export-filter" autofocus required>
-                  <option>- - - - - - - - - - - -</option>
-                  <option value="by-id">Código de ánilox</option>
-                  <option value="by-brand">Fabricante</option>
-                  <option value="by-purchase">Fecha de compra</option>
-                </select>
-              </div>
-              <div class="export-render"></div>
-              <div class="submit">
-                <input type="submit" value="Exportar" id="export-submit" disabled>
-              </div>
-            </form>
+          <div class="lista-anilox">
+            <h3>Rodillos</h3>
+            <div class="table">
+              <table class="anilox-table">
+                <tbody></tbody>
+              </table>
+              <template id="anilox-template">
+                <tr>
+                  <td class="id"></td>
+                </tr>
+              </template>
+            </div>
           </div>
-          <!-- Final de Exportar Datos -->
+          <!-- Final de Lista Anilox -->
+          <div class="middle">
+            <div class="anilox-data">
+              <h3>Datos</h3>
+              <div id="specific-data">
+                <span>
+                  <h3>Tipo:</h3>
+                  <p id="specific-type"></p>
+                </span>
+                <span>
+                  <h3>Ángulo:</h3>
+                  <p id="specific-angle"></p>
+                  <p>°</p>
+                </span>
+                <span>
+                  <h3>Volumen:</h3>
+                  <p id="specific-vol"></p>
+                  <p>&nbsp;BCM</p>
+                </span>
+                <span>
+                  <h3>Lineatura:</h3>
+                  <p id="specific-screen"></p>
+                  <p>&nbsp;LPI</p>
+                </span>
+              </div>
+            </div>
+            <!-- Final de Anilox-Data -->
+            <div class="item-cantidad">
+              <h3>Cantidad</h3>
+              <div class="cantidad-input">
+                <span>
+                  <input type="text" id="anilox-quantity" autocomplete="off">
+                  <p>Rodillos</p>
+                </span>
+              </div>
+              <div id="quote-add">
+                <span class="material-icons-sharp" title="Añadir a solicitud" id="add-to-quote">
+                  forward
+                </span>
+              </div>
+            </div>
+            <!-- Final de Cantidad -->
+            <div id="quote-send">
+              <span class="material-icons-sharp" title="Enviar solicitud" id="request-quote">
+                check_circle
+              </span>
+            </div>
+            <!-- Final de Quote-Controls -->
+          </div>
+          <!-- Final de Middle -->
+          <div class="quote">
+            <h3>Lista a Cotizar</h3>
+            <div class="quote-list">
+              <div class="quote-header">
+                <div class="header-item">
+                  <h3>Item</h3>
+                </div>
+                <div class="header-quantity">
+                  <h3>Cantidad</h3>
+                </div>
+                <div class="header-info">
+                  <h3>Descripción</h3>
+                </div>
+              </div>
+              <!-- Final de quote header -->
+              <div class="quote-body"></div>
+              <!-- Final de quote-body -->
+              <template id="quote-template">
+                <div class="quote-item">
+                  <div class="item-number">
+                    <h3 class="specific-item-number"></h3>
+                  </div>
+                  <div class="item-quantity">
+                    <h3 class="specific-item-quantity"></h3>
+                  </div>
+                  <div class="item-first">
+                    <div class="item-type">
+                      <h3>Tipo:</h3>
+                      <p class="specific-item-type"></p>
+                    </div>
+                    <div class="item-angle">
+                      <h3>Ángulo:</h3>
+                      <p class="specific-item-angle"></p>
+                      <p>°</p>
+                    </div>
+                  </div>
+                  <div class="item-second">
+                    <div class="item-vol">
+                      <h3>Volumen:</h3>
+                      <p class="specific-item-vol"></p>
+                      <p>&nbsp;cm3/m2</p>
+                    </div>
+                    <div class="item-screen">
+                      <h3>Lineatura:</h3>
+                      <p class="specific-item-screen"></p>
+                      <p>&nbsp;LPI</p>
+                    </div>
+                  </div>
+                  <div class="item-remove">
+                    <span class="material-icons-sharp remove-from-quote" title="Retirar de solicitud">
+                      highlight_off
+                    </span>
+                  </div>
+                </div>
+              </template>
+              <!-- Final de quote template -->
+            </div>
+            <!-- Final de quote list -->
+          </div>
+          <!-- Final de Quote -->
         </div>
+        <!-- Final de Req-Quotes -->
       </main>
     </div>
     <!-- Final de .container -->
@@ -179,10 +284,10 @@
         </div>
       </div>
     </div>
-    <!-- Final Alert Box --> 
+    <!-- Final Alert Box -->
     <!-- Common JS Script -->
     <script src="./js/common.js"></script>
-    <!-- Exportar Datos JS Script -->
-    <script src="./js/export-data.js"></script>
+    <!-- Request Quotes JS Script -->
+     <script src="./js/req-quotes.js"></script>
   </body>
 </html>

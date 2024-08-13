@@ -4,6 +4,10 @@ const d = document,
       ls = localStorage,
       ss = sessionStorage;
 
+const $modalAlertBox = d.getElementById("modal-alert-box"),
+      $closeAlertBox = d.getElementById("close-alert-box"),
+      $alertContent = d.getElementById("alert-content");
+      
 // Service Worker
 
 // if('serviceWorker' in navigator){
@@ -286,7 +290,8 @@ const getUser = async()=>{
     else if(level === "3"){
       $level.textContent = "Administrador";
     }
-  } catch (err) {
+  } 
+  catch (err) {
     console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
@@ -314,7 +319,8 @@ const getClient = async()=>{
     }
 
     $clientLogo.src = ss.getItem("logo");
-  } catch (err) {
+  } 
+  catch (err) {
     console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
@@ -347,14 +353,14 @@ const showSearchAnilox = e=>{
   $modalSearchAnilox.style.display = "block";
 }
 
-const closeSearcAnilox = e=>{
+const closeSearchAnilox = e=>{
   e.stopPropagation();
   $modalSearchAnilox.style.display = "none";
 }
 
 $logOut.addEventListener("click",logOut);
 $searchAnilox.addEventListener("click",showSearchAnilox);
-$closeSearchAnilox.addEventListener("click",closeSearcAnilox);
+$closeSearchAnilox.addEventListener("click",closeSearchAnilox);
 
 // Search Anilox
 
@@ -389,7 +395,7 @@ const searchAnilox = async(e)=>{
         window.location.href = 'anilox-detail.html';
       }
       if(foundFlag !== 1){
-        alert("No se encontro ánilox con el código ingresado en su base de datos");
+        alert("No se encontró ánilox con el código ingresado en su base de datos");
       }
       $searchId.value = "";
     } catch (err) {
@@ -407,3 +413,13 @@ const searchAnilox = async(e)=>{
 }
 
 d.addEventListener("submit",searchAnilox);
+
+// Alert Box
+
+const closeAlertBox = (e)=>{
+  if(e.target === $closeAlertBox){
+    $modalAlertBox.style.display = "none";
+  }
+}
+
+d.addEventListener("click", closeAlertBox);

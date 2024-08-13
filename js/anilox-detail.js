@@ -70,7 +70,7 @@ Chart.defaults.font.family = 'Rajdhani';
 
 const getAnilox = async()=>{
   try {
-    $aniloxId.textContent = aniloxId;
+    $aniloxId.textContent = `${aniloxBrand} - ${aniloxId}`;
 
     let res1 = await fetch('api/listado', {
       method: 'POST',
@@ -121,7 +121,7 @@ const getAnilox = async()=>{
     $moreType.textContent = type;
     $morePurchase.textContent = purchase;
     $moreRecorrido.textContent = recorrido;
-    $moreVolume.textContent = volume;
+    $moreVolume.textContent = Math.round(volume * 10) / 10;
     $moreDepth.textContent = depth;
     $moreOpening.textContent = opening;
     $moreWall.textContent = wall;
@@ -622,8 +622,8 @@ const estimarVida = async(e)=>{
       }),
           json2 = await res2.json();
       let res3, json3;
-        json1 = json1.result;
-        json2 = json2.result;
+        json1 = json1.result; // analysis
+        json2 = json2.result; // listado
   
       if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
@@ -632,8 +632,8 @@ const estimarVida = async(e)=>{
           nomVol = json2[0].nomvol; // nomVol en cm3/m2
       let msg;
   // ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
-      if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${Math.round(((nomVol * 0.6) + Number.EPSILON) * 10) / 10}).`;}
-      else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;}
+      if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;} // FALTA UPDATEAR
+      else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;} // CUANDO ES MENOR A 3 actualizar eolData a 2000
       else {
         res3 = await fetch('/api/anilox-history', {
           method: 'POST',
@@ -643,7 +643,7 @@ const estimarVida = async(e)=>{
           body: JSON.stringify({id: aniloxId})
         }),
             json3 = await res3.json();
-            json3 = json3.result;
+            json3 = json3.result; // history
 
         if(!res3.ok) throw{status: res3.status, statusText: res3.statusText};
 
@@ -739,7 +739,7 @@ const estimarVida = async(e)=>{
                 clip: false,
                 formatter: function(value, context){
                   if(context.dataset.type === 'line'){
-                    if((value == percentVol[0] && ((percentDates[0] - json3.length) / 2) > 0) || (value == percentVol[1] && ((percentDates[1] - json3.length) / 2) > 0) || (value == percentVol[2] && ((percentDates[2] - json3.length) / 2) > 0) || (value == percentVol[3] && ((percentDates[3] - json3.length) / 2) > 0)) {
+                    if((value == Math.round((percentVol[0]/1.55) * 10) / 10 && ((percentDates[0] - json3.length) / 2) > 0) || (value == Math.round((percentVol[1]/1.55) * 10) / 10 && ((percentDates[1] - json3.length) / 2) > 0) || (value == Math.round((percentVol[2]/1.55) * 10) / 10 && ((percentDates[2] - json3.length) / 2) > 0) || (value == Math.round((percentVol[3]/1.55) * 10) / 10 && ((percentDates[3] - json3.length) / 2) > 0)) {
                       return value
                     }
                     else {
@@ -765,14 +765,14 @@ const estimarVida = async(e)=>{
                 callbacks: {
                   label: function(context){
                     let data = context.parsed.y;
-                    return 'Volumen: ' + data + ' cm3/m2';
+                    return 'Volumen: ' + data + ' BCM';
                   },
                   footer: function(tooltipItems){
                     let vol = tooltipItems[0].dataset.data[tooltipItems[0].dataIndex];
-                    if(vol == percentVol[0] && ((percentDates[0] - json3.length) / 2) > 0){return `Volumen de celda aprox. 90% del nominal (${Math.round(((nomVol * 0.9) + Number.EPSILON) * 10) / 10})`}
-                    if(vol == percentVol[1] && ((percentDates[1] - json3.length) / 2) > 0){return `Volumen de celda aprox. 80% del nominal (${Math.round(((nomVol * 0.8) + Number.EPSILON) * 10) / 10})`}
-                    if(vol == percentVol[2] && ((percentDates[2] - json3.length) / 2) > 0){return `Volumen de celda aprox. 70% del nominal (${Math.round(((nomVol * 0.7) + Number.EPSILON) * 10) / 10})`}
-                    if(vol == percentVol[3] && ((percentDates[3] - json3.length) / 2) > 0){return `Volumen de celda aprox. 60% del nominal (${Math.round(((nomVol * 0.6) + Number.EPSILON) * 10) / 10})`}
+                    if(vol == Math.round((percentVol[0]/1.55) * 10) / 10 && ((percentDates[0] - json3.length) / 2) > 0){return `Volumen de celda aprox. 90% del nominal (${(nomVol/1.55 * 0.9).toFixed(3)})`}
+                    if(vol == Math.round((percentVol[1]/1.55) * 10) / 10 && ((percentDates[1] - json3.length) / 2) > 0){return `Volumen de celda aprox. 80% del nominal (${(nomVol/1.55 * 0.8).toFixed(3)})`}
+                    if(vol == Math.round((percentVol[2]/1.55) * 10) / 10 && ((percentDates[2] - json3.length) / 2) > 0){return `Volumen de celda aprox. 70% del nominal (${(nomVol/1.55 * 0.7).toFixed(3)})`}
+                    if(vol == Math.round((percentVol[3]/1.55) * 10) / 10 && ((percentDates[3] - json3.length) / 2) > 0){return `Volumen de celda aprox. 60% del nominal (${(nomVol/1.55 * 0.6).toFixed(3)})`}
                   }
                 },
               },

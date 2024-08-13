@@ -45,6 +45,7 @@
           </button>
           <div class="dropdown-content" id="drop-opciones">
             <a href="export-data.html">Exportar datos</a>
+            <a href="req-quotes.html">Solicitar cotización</a>
           </div>
         </div>
         <div class="dropdown">
@@ -100,6 +101,11 @@
             <a href="export-data.html">
               <span class="material-icons-sharp" title="Exportar Datos">
                 file_download
+              </span>
+            </a>
+            <a href="req-quotes.html">
+              <span class="material-icons-sharp" title="Solicitar Cotización">
+                request_quote
               </span>
             </a>
             <a href="ayuda.html">
@@ -265,6 +271,19 @@
       </div>
     </div>
     <!-- Final de agregar recorrido -->
+    <div class="modal" id="modal-alert-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-alert-box">
+            close
+          </span>
+          <h2>Información</h2>
+        </div>
+        <div class="modal-body">
+          <h3 id="alert-content"></h3>
+        </div>
+      </div>
+    </div> 
     <!-- CSV Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Common JS Script -->

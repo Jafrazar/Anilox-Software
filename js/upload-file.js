@@ -315,6 +315,7 @@ const recorrido = async(e)=>{
           brand: saveBrand,
           recorrido: valRecorrido,
           volume: $volume.value,
+          screen: $screen.value,
           last: $date.value,
           patron: savePatron,
           revision: imagen,
@@ -322,32 +323,9 @@ const recorrido = async(e)=>{
         }),
       });
       let json2 = await res2.json();
-//-----CÓDIGO PARA GENERAR GRÁFICO Y GUARDARLO EN UN CANVA PARA LUEGO PONERLO EN EL REPORTE PDF-----//
-
-      // let res3 = await fetch('api/analysis', {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-type": "application/json; charset=UTF-8",
-      //   },
-      //   body: JSON.stringify({
-      //     id: saveId,
-      //     recorrido: valRecorrido,
-      //     volume: $volume.value,
-      //   }),
-      // });
-      // let json3 = await res3.json();
-      // let tapadas = parseFloat(json3[0].tapadas),
-      //   limpias = 100 - tapadas,
-      //   danadas = parseFloat(json3[0].danadas),
-      //   sinDano = 100 - danadas,
-      //   desgastadas = parseFloat(json3[0].desgastadas),
-      //   sinDesgaste = 100 - desgastadas;
-
-      // console.log("El valor de json en grafico es: ", json3);
-      // if(!res3.ok) throw{status: res.status, statusText: res.statusText};
-//------------------------------------
       $formExtra.submit();
-    } catch (err) {
+    } 
+    catch (err) {
       console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",

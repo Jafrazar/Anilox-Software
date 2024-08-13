@@ -18,6 +18,9 @@ const db = mysql.createPool({
   database: 'ANDERS'
 });
 
+const util = require('util');
+const queryDB = util.promisify(db.query).bind(db);
+
 db.getConnection((err) => {
   if (err) throw err;
   console.log('Conexión exitosa a MySQL');
@@ -162,15 +165,9 @@ function revisarCookie(req){
   }
 }
 
-let primeraVezAdmin = true; let primeraVezPublico = true;
 function soloAdmin(req, res, next) {
   const logueado = revisarCookie(req);
   if(logueado){
-    if(primeraVezAdmin) {
-      primeraVezAdmin = false;      
-      console.log("Solo admin: ",usuarios);
-      console.log("Logueado / SoloAdmin");
-    }
     return next();
   }
   else {
@@ -184,11 +181,6 @@ function soloPublico(req, res, next) {
     return res.redirect("/index");
   }
   if(!logueado){
-    if(primeraVezPublico) {
-      primeraVezPublico = false;
-      console.log("Solo publico: ",usuarios);
-      console.log("No logueado / SoloPublico");
-    }
     return next();
   }
 }
@@ -462,7 +454,7 @@ function analysis(IpPath, IrPath) {
 
 async function tablaAniloxList(req, res) {
   try {
-    let { id, brand, purchase, volume, depth, opening, wall, screen, angle, last, master, patron, revision, insertar, modificar, recorrido, nomvol } = req.body;
+    let { id, brand, purchase, volume, depth, opening, wall, screen, angle, last, master, patron, revision, insertar, modificar, recorrido, nomvol, mensaje } = req.body;
     let tipo = angle ? (angle > 50 && angle < 70 ? "Hexagonal" : "GTT") : "";  
     if (id) {
       if (id.startsWith("AA")) {
@@ -471,24 +463,38 @@ async function tablaAniloxList(req, res) {
         id = id.slice(0, 8);
       }
     }
+    if (mensaje == "getAniloxList") {
+      const SQL_quote = 'SELECT * FROM anilox_list WHERE empresa = ?';
+      const result = await queryDB(SQL_quote, [sesion_empresa]);
+      return res.status(200).send({ status: "Success", message: "Estado", result });
+    } 
+    else if (mensaje == "getAniloxData") {
+      const SQL_quote = 'SELECT * FROM anilox_list WHERE id = ? AND empresa = ?';
+      const result = await queryDB(SQL_quote, [id, sesion_empresa]);
+      return res.status(200).send({ status: "Success", message: "Estado", result });
+    }
+    else if(mensaje == "quote") {
+      const SQL_quote = 'SELECT * FROM anilox_list WHERE id = ?';
+      const result = await queryDB(SQL_quote, [id]);
+      return res.status(200).send({ status: "Success", message: "Estado", result });
+    }
+
     if(id && !brand) {
       const sql = 'SELECT * FROM anilox_list WHERE id=? and empresa=?';
-      db.query(sql, [id, sesion_empresa], (err, result) => {
-        if (err) throw err;
-        result.forEach(row => {
-          if(row.purchase) {
-            let date = new Date(row.purchase);
-            row.purchase = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
-          }
-        });
-        result.forEach(row => {
-          if(row.last) {
-            let date2 = new Date(row.last);
-            row.last = date2.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
-          }
-        });
-        return res.status(200).send({ status: "Success", message: "Estado", result });
+      const result = await queryDB(sql, [id, sesion_empresa]);
+      result.forEach(row => {
+        if(row.purchase) {
+          let date = new Date(row.purchase);
+          row.purchase = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
+        }
       });
+      result.forEach(row => {
+        if(row.last) {
+          let date2 = new Date(row.last);
+          row.last = date2.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
+        }
+      });
+      return res.status(200).send({ status: "Success", message: "Estado", result });
     }
     else if (id && brand && modificar) {  // Esto es cuando se ingresa el recorrido de un anilox existente
       console.log("yo modifico");
@@ -552,7 +558,7 @@ async function tablaAniloxList(req, res) {
           db.query(sqlVerificarHistory, [id], (err4, result4) => {
             if (err4) throw err4;
             console.log("Insertando historial. result.length = ", result4.length);
-            let aux = result4.length > 0 ? result4.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
+            let aux = result4.length > 0 ? result4.length + 1 : 1; // Si existe se suma 1 al id máximo, caso contrario id inicia en 1
             const sqlModificarHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, report, empresa) VALUES (?,?,?,?,?,?)';
             db.query(sqlModificarHistory, [id, aux, last, volume, "https://www.africau.edu/images/default/sample.pdf",sesion_empresa], (err5, result5) => {
               if (err5) throw err5;
@@ -616,22 +622,18 @@ async function tablaAniloxList(req, res) {
     }
     else {
       const sql = 'SELECT * FROM anilox_list WHERE empresa=?';
-      db.query(sql, [sesion_empresa], (err, result) => {
-        if (err) throw err;
-        result.forEach(row => {
-          if(row.purchase) {
-            let date = new Date(row.purchase);
-            row.purchase = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
-          }
-        });
-        result.forEach(row => {
-          if(row.last) {
-            let date2 = new Date(row.last);
-            row.last = date2.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
-          }
-        });
-        return res.status(200).send({ status: "Success", message: "Estado", result });
+      const result = await queryDB(sql, [sesion_empresa]);
+      result.forEach(row => {
+        if(row.purchase) {
+          let date = new Date(row.purchase);
+          row.purchase = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
+        }
+        if(row.last) {
+          let date2 = new Date(row.last);
+          row.last = date2.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
+        }
       });
+      return res.status(200).send({ status: "Success", message: "Estado", result });
     }
   }
   catch (error) {
@@ -655,7 +657,8 @@ async function tablaAniloxAnalysis(req, res) {
         });
         return res.status(200).send({ status: "Success", message: "Analisis", result });
       });
-    } else {
+    } 
+    else {
       const sql = 'SELECT * FROM anilox_analysis WHERE empresa=?';
       db.query(sql, [sesion_empresa], (err, result) => {
         if (err) throw err;
@@ -731,6 +734,48 @@ async function tablaAniloxHistory(req, res) {
   }
 }
 
+async function cotizaciones(req, res) {
+  try {
+    let { reqDate, req2, mensaje, type, nomvol, screen, angle } = req.body;
+    if(req2) {
+      const sql_q0 = 'SELECT * FROM solicitudes where tipo_solicitud = ?';
+      db.query(sql_q0, ["grouped"], (err, result) => {
+        if (err) throw err;
+        let aux2 = result.length > 0 ? result.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
+        for(let i = 0; i < req2.length; i++){
+          const sql_q1 = 'INSERT INTO solicitudes (tipo_solicitud, id, posicion, type, nomvol, screen, angle, amount, empresa, reqDate) VALUES (?,?,?,?,?,?,?,?,?,?)';
+          db.query(sql_q1, ["grouped", aux2, req2[i].id, req2[i].type, req2[i].nomvol, req2[i].screen, req2[i].angle, req2[i].amount, sesion_empresa, reqDate], (err, result) => {
+            if (err) throw err;
+          });
+        }
+        return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });        
+      });      
+    }
+    else if (mensaje = "send quote"){
+      const sql_q0 = 'SELECT * FROM solicitudes where tipo_solicitud = ?';
+      db.query(sql_q0, ["single"], (err, result) => {
+        if (err) throw err;
+        let aux3 = result.length > 0 ? result.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
+        const sql_q1 = 'INSERT INTO solicitudes (tipo_solicitud, id, posicion, type, nomvol, screen, angle, amount, empresa, reqDate) VALUES (?,?,?,?,?,?,?,?)';
+        db.query(sql_q1, ["single", aux3, 0, type, nomvol, screen, angle, 1, sesion_empresa, reqDate], (err, result) => {
+          if (err) throw err;
+          return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });
+        });
+      });
+    }
+    else {
+      const sql_q2 = 'SELECT * FROM solicitudes';
+      db.query(sql_q2, (err, result) => {
+        if (err) throw err;
+        return res.status(200).send({ status: "Success", message: "Estado", result });
+      });
+    }
+  } catch {
+    console.log(error);
+    return res.status(500).send({status: "Error", message: "Error al solicitar la cotización"});
+  }
+}
+
 async function borrarAnilox(req, res) {
   try {
     const { deleteID } = req.body;
@@ -794,130 +839,669 @@ async function tablaLicencias(req, res) {
   }
 }
 
-async function addBase64ImageToPDF(pdfPath, base64Image, options) {
-  await PDFNet.initialize();
 
-  const pdfDoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
-  await pdfDoc.initSecurityHandler();
-  const page = await pdfDoc.getPage(1);
-  const pageSet = await PDFNet.PageSet.createRange(1, 1);
+// -----------------Funciones para generar el reporte PDF ------------------------//
 
-  // Convertir la cadena base64 a buffer y escribirlo en un archivo temporal
-  const imageBuffer = Buffer.from(base64Image, 'base64');
-  const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); // Asegúrate de usar la extensión correcta
-  fs.writeFileSync(tempImagePath, imageBuffer);
+async function addBase64ImageToPDF(doc, pSet, base64Image, options) {    
+  const imageBuffer = Buffer.from(base64Image, 'base64'); // Convertir la cadena base64 a buffer 
+  const tempImagePath = path.join(os.tmpdir(), 'tempImage.jpg'); 
+  fs.writeFileSync(tempImagePath, imageBuffer); // Escribir la cadena en un archivo temporal 
 
-  // Cargar la imagen desde el archivo temporal
-  const pdfImage = await PDFNet.Image.createFromFile(pdfDoc, tempImagePath);
-
-  // Definir la posición y el tamaño de la imagen
-  const rect = await PDFNet.Rect.init(options.x, options.y, options.x + options.width, options.y + options.height);
+  const pdfImage = await PDFNet.Image.createFromFile(doc, tempImagePath); // Cargar la imagen desde el archivo temporal
 
   // Usar PDFNet.Stamper para colocar la imagen en el documento PDF
   const stamper = await PDFNet.Stamper.create(PDFNet.Stamper.SizeType.e_absolute_size, options.width, options.height);
   stamper.setAlignment(PDFNet.Stamper.HorizontalAlignment.e_horizontal_left, PDFNet.Stamper.VerticalAlignment.e_vertical_top);
   stamper.setPosition(options.x, options.y);
-  await stamper.stampImage(pdfDoc, pdfImage, pageSet);
-
-  // Guardar el documento PDF modificado
-  const outputPath = 'output.pdf';
-  await pdfDoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
-
-  // Opcional: Eliminar el archivo temporal de la imagen
-  fs.unlinkSync(tempImagePath);
+  try {
+      await stamper.stampImage(doc, pdfImage, pSet);
+  } catch (error) {
+      console.error('Error al estampar la imagen:', error);
+  }
+  fs.unlinkSync(tempImagePath); // Opcional: Eliminar el archivo temporal de la imagen 
 }
 
-async function generarPdf(req, res) {
+function calcularRectaTendencia(eolDates, volData) {
+  // Convertir fechas a valores numéricos (timestamp)
+  const x = eolDates.map(date => new Date(date).getTime());
+  const y = volData;
+
+  const n = x.length;
+  const sumX = x.reduce((a, b) => a + b, 0);
+  const sumY = y.reduce((a, b) => a + b, 0);
+  const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+  const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
+
+  const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const b = (sumY - m * sumX) / n;
+
+  // Calcular los puntos de la recta de tendencia
+  const tendencia = x.map(xi => ({
+    x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
+    y: m * xi + b
+  }));
+
+  return { tendencia, m, b };
+}
+
+function extenderFechas(eolDates, numPuntos) {
+  const fechasExtendidas = [...eolDates];
+  let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
+
+  for (let i = eolDates.length; i < numPuntos; i++) {
+    ultimaFecha.setMonth(ultimaFecha.getMonth() + 6);
+    fechasExtendidas.push(ultimaFecha.toISOString().split('T')[0]);
+  }
+
+  return fechasExtendidas;
+}
+
+async function generarPdf(req, res) {  
+  const canvas_bcm = createCanvas(800, 185);
+  const bcm_ctx = canvas_bcm.getContext('2d');
+  const canvas_EOL = createCanvas(800, 350);
+  const EOL_ctx = canvas_EOL.getContext('2d');
+  const coord_revision = {
+    x: 215,     y: 685,     
+    width: 205, height: 120 
+  };
+  
+  const coord_tapadas = {
+    x: 45,     y: 325,
+    width: 160, height: 193
+  };
+  
+  const coord_danadas = {
+    x: 225,     y: 325,
+    width: 160, height: 193
+  };
+  
+  const coord_desgastadas = {
+    x: 405,     y: 325,
+    width: 165, height: 193
+  };
+  
+  const coord_historial = {
+    x: 23,     y: 535,
+    width: 555, height: 185
+  };
+
+  const coord_graficaEOL = {
+    x: 23,     y: 40,
+    width: 555, height: 350
+  }
+
+  const coord_estadisticas = {
+    x: 130,     y: 410,
+    width: 250, height: 300
+  }
+
   try {
-    const { id, revision } = req.body;
-    const pdfPath = "./modelo_reporte_final.pdf";
-    const sql_PDF = 'SELECT * FROM anilox_list WHERE id=?';
-    db.query(sql_PDF,[anilox], (err, rows) => {
-      if (err) throw err;
-      let revisionPDF = rows[0].revision;
-      revisionPDF = revisionPDF.replace('data:image/jpeg;base64,', '');
-    });
-    const sql = 'SELECT * FROM anilox_history WHERE anilox=?';
-    db.query(sql, [id], (err, result) => {
-      if (err) throw err;
-      console.log("El result.length es: ", result.length);
-      if(result.length === 0){
-        return res.status(400).send({ status: "Error", message: "No se encontró el anilox con el id ingresado." });
-      }
-      else {
-        const coord_revision = {
-          x: 270,
-          y: 300,
-          width: 100,
-          height: 100
+    let { id, revision, last, brand, volume, screen } = req.body;
+    let tapadas, limpias, danadas, sinDano, desgastadas, sinDesgaste, tapadas_img, danadas_img, desgastadas_img, bcmChart, tipo, purchase, msg;
+    let volLabels = [], volData = [], diag = [], eolDates = [];
+    let sql_PDF = 'SELECT * FROM anilox_analysis WHERE id = ?'
+    db.query(sql_PDF, [id], (err, rows) => {
+        if (err) throw err;
+        tapadas = parseFloat(rows[0].tapadas),
+        limpias = 100 - tapadas,
+        danadas = parseFloat(rows[0].danadas),
+        sinDano = 100 - danadas,
+        desgastadas = parseFloat(rows[0].desgastadas),
+        sinDesgaste = 100 - desgastadas;
+        let next = new Date(rows[0].next);
+        next = next.toISOString().split('T')[0];
+        let estado = parseFloat(rows[0].estado) + '%';
+        let diagnostico = rows[0].diagnostico;
+        let recomendacion = rows[0].recomendacion;
+        let eolData = JSON.parse(rows[0].eol);
+        console.log(tapadas, limpias, danadas, sinDano, desgastadas, sinDesgaste);
+
+        dataCleanStat = {
+            labels: [
+                'Limpias',
+                'Tapadas',
+            ],
+            datasets: [{
+                data: [limpias, tapadas],
+                backgroundColor: [
+                'rgba(231,255,23,0.35)',
+                'rgba(255,76,163,0.35)',
+                ],
+                hoverOffset: 4,
+            }],
         };
-        //------------------------
-        const outputPath = path.join(__dirname, '/output.pdf');
-        const replaceText = async () => {
-            const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
-            await pdfdoc.initSecurityHandler();
-            const replacer = await PDFNet.ContentReplacer.create();
-            const page = await pdfdoc.getPage(1);
-
-            await replacer.addString('ANILOX', anilox);
-            await replacer.addString('date', '2024-06-16');
-            await replacer.addString('fabricante', 'Apex');
-            // await replacer.addString('tapadas', tapadas);
-            // await replacer.addString('danadas', danadas);
-            // await replacer.addString('desgastadas', desgastadas);
-
-            await replacer.process(page);
-
-            pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
-
-            addBase64ImageToPDF(outputPath, revision, coord_revision)
-                .then(() => {
-                    console.log('Imagen añadida al PDF con éxito');
-                    fs.readFile(outputPath, (err, data) => {
-                        if (err) {
-                            console.error('Error al leer el archivo PDF:', err);
-                            res.status(500).send('Error al procesar el archivo PDF');
-                            return;
+        
+        dataDamagedStat = {
+            labels: [
+                'Sin Daño',
+                'Dañadas',
+            ],
+            datasets: [{
+                data: [sinDano, danadas],
+                backgroundColor: [
+                'rgba(231,255,23,0.35)',
+                'rgba(255,76,163,0.35)',
+                ],
+                hoverOffset: 4,
+            }]
+        };
+        
+        dataWearStat = {
+            labels: [
+                'Sin Desgaste',
+                'Desgastadas',
+            ],
+            datasets: [{
+                data: [sinDesgaste, desgastadas],
+                backgroundColor: [
+                'rgba(231,255,23,0.35)',
+                'rgba(255,76,163,0.35)',
+                ],
+                hoverOffset: 4,
+            }]
+        };
+        
+        cleanGraphConfig = {
+            type: "doughnut",
+            data: dataCleanStat,
+            options: {
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                    },
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        align: "center",
+                        color: "#363949",
+                        font: {
+                            weight: 550,
+                            size: 20,
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                        },
+                        text: '% Celdas Tapadas'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                        labels: {
+                            font: {
+                                weight: 550,
+                                size: 14,
+                            },
+                            padding: 15,
+                            boxWidth: 35,
+                        },
+                        reverse: true,
+                    },
+                    datalabels:{
+                        color: '#363949',
+                        anchor: 'center',
+                        font: {
+                            size: 16,
+                            weight: 550,
+                        },
+                        formatter: function(value){
+                            return value + '%';
                         }
-                        // Convertir el contenido a Base64
-                        const base64PDF = data.toString('base64');
-                        // const sql2 = 'INSERT INTO anilox_history (id_anilox, fecha, pdf) VALUES (?,?,?)';
-                        // db.query(sql2,[anilox, new Date(), base64PDF], (err, rows) => {
-                        //     if (err) throw err;
-                        //     console.log('PDF convertido a Base64 y almacenado con éxito');
-                        // });
-                        res.send('PDF convertido a Base64 y almacenado con éxito');
-                    });                
-                })
-                .catch((error) => {
-                    console.error('Error al añadir imagen al PDF:', error);
-                    res.status(500).send('Error al añadir imagen al PDF');
-                });  
-        }    
+                    },
+                    tooltip: {
+                        enabled: true,
+                        titleFont: {
+                            size: 16,
+                            weight: 550,
+                        },
+                        bodyFont: {
+                            size: 14,
+                            weight: 550,
+                        },
+                        callbacks: {  
+                            label: function(context){
+                                let data = context.parsed;    
+                                return ' ' + data + '%';
+                            },
+                        },
+                    },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        };
+        
+        damagedGraphConfig = {
+            type: "doughnut",
+            data: dataDamagedStat,
+            options: {
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                    },
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        align: "center",
+                        color: "#363949",
+                        font: {
+                            weight: 550,
+                            size: 20,
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                        },
+                        text: '% Celdas Dañadas'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                        labels: {
+                            font: {
+                                weight: 550,
+                                size: 14,
+                            },
+                            padding: 15,
+                            boxWidth: 35,
+                        },
+                        reverse: true,
+                    },
+                    datalabels:{
+                        color: '#363949',
+                        anchor: 'center',
+                        font: {
+                            size: 16,
+                            weight: 550,
+                        },
+                        formatter: function(value){
+                            return value + '%';
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        titleFont: {
+                            size: 16,
+                            weight: 550,
+                        },
+                        bodyFont: {
+                            size: 14,
+                            weight: 550,
+                        },
+                        callbacks: {  
+                            label: function(context){
+                                let data = context.parsed;            
+                                return ' ' + data + '%';
+                            },
+                        },
+                    },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        };
+        
+        wearGraphConfig = {
+            type: "doughnut",
+            data: dataWearStat,
+            options: {
+                layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                },
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        align: "center",
+                        color: "#363949",
+                        font: {
+                            weight: 700,
+                            size: 20,
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                        },
+                        text: '% Celdas Desgastadas'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                        labels: {
+                            font: {            
+                                weight: 550,
+                                size: 14,
+                            },
+                            padding: 15,
+                            boxWidth: 35,
+                        },
+                        reverse: true,
+                    },
+                    datalabels:{
+                        color: '#363949',
+                        anchor: 'center',
+                        font: {
+                            size: 16,
+                            weight: 550,
+                        },
+                        formatter: function(value){
+                            return value + '%';
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        titleFont: {
+                            size: 16,
+                            weight: 550,
+                        },
+                        bodyFont: {
+                            size: 14,
+                            weight: 550,
+                        },
+                        callbacks: {  
+                            label: function(context){
+                                let data = context.parsed;
+                                return ' ' + data + '%';
+                            },
+                        },
+                    },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        };
+        
+        function generarGrafico(grafico) {
+            let buffer, buffer64;
+            if (grafico == bcmChart) {
+                buffer = canvas_bcm.toBuffer('image/png');
+            }
+            else {
+                let width = 220, height = 300;  
+                const canvas_PDF = createCanvas(width, height);
+                const ctx = canvas_PDF.getContext('2d');                    
+                new Chart(ctx, grafico); 
+                buffer = canvas_PDF.toBuffer('image/png'); 
+            }
+            buffer64 = buffer.toString('base64');
+            return buffer64;
+        }
 
-      PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
-          fs.readFile(outputPath, (err, data) => {
-              if (err) {
-                  res.statusCode = 500;
-                  res.send(err);
-              } else {
-                  res.setHeader('Content-Type', 'application/pdf');
-                  res.send(data);
-              }
-          })
-      }).catch(err => {
-          res.statusCode = 500;
-          res.send(err);
-      });
-        const sql2 = 'UPDATE anilox_history SET report=? WHERE id=?';
-        db.query(sql2, ["https://www.africau.edu/images/default/sample.pdf", result.length], (err2, result2) => {
-          if (err2) throw err2;
-          return res.status(200).send({ status: "Success", message: "PDF generado correctamente" });
+        tapadas_img = generarGrafico(cleanGraphConfig).replace('data:image/jpeg;base64,', '');
+        danadas_img = generarGrafico(damagedGraphConfig).replace('data:image/jpeg;base64,', '');
+        desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');    
+        
+        const sql2_PDF = 'SELECT * FROM anilox_list WHERE id=?';
+        db.query(sql2_PDF,[id], (err2, rows2) => {
+            if (err2) throw err2;
+            revision = rows2[0].revision;
+            revision = revision.replace('data:image/jpeg;base64,', '');
+            purchase = rows2[0].purchase;
+            tipo = rows2[0].type;            
+            let nomVol = rows2[0].nomvol;
+            const sql3_PDF = 'SELECT * FROM anilox_history WHERE anilox=?';
+            db.query(sql3_PDF,[id], (err3, rows3) => {
+                if (err3) throw err3;
+                for(let i = 0; i < rows3.length; i++){
+                    let date = new Date(rows3[i].date);
+                    volLabels[i] = date.toISOString().split('T')[0];
+                    volData[i] = Math.round(((rows3[i].volume)/1.55) * 10) / 10; 
+                    diag[i] = rows3[i].diagnostico;
+                    nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
+                    result.forEach(row => {
+                      if(row.date) {
+                        let date = new Date(row.date);
+                        row.date = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
+                      }
+                    });
+                    eolDates[i] = result[i].date;
+                }
+                const dataBcmStat = {
+                    labels: volLabels,
+                    datasets: [{
+                      label: 'Volumen medido (BCM)',
+                      data: volData,
+                      info: diag,
+                      fill: false,
+                      borderColor: 'rgba(0, 0, 255, 0.35)',
+                      tension: 0.1,
+                    },
+                    {
+                      label: 'Volumen Nominal (BCM)',
+                      data: nomData,
+                      fill: false,
+                      borderColor: 'rgba(255, 0, 0, 0.35)',
+                      tension: 0.1,
+                      pointRadius: 0,
+                      datalabels: {
+                        display: false, // Desactiva etiquetas
+                      },
+                    }]
+                };
+                bcmChart = new Chart(bcm_ctx, {
+                    type: "line",
+                    data: dataBcmStat,
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                align: "center",
+                                color: "#363949",
+                                font: {
+                                weight: 500,
+                                size: 14,
+                                },
+                                padding: {
+                                top: 10,
+                                bottom: 10,
+                                },
+                                text: 'Historial de Volumen de Celda'
+                            },
+                            legend: {
+                                display: true,
+                                position: "bottom",
+                                labels: {
+                                    font: {
+                                        weight: 500,
+                                        size: 11,
+                                    },
+                                    padding: 15,
+                                    boxWidth: 30,
+                                },
+                                reverse: true,
+                            },
+                            datalabels:{
+                                color: '#363949',
+                                align: -45,
+                                font: {
+                                    size: 11,
+                                    weight: 500,
+                                },
+                                clip: false,
+                            },
+                            tooltip: {
+                                enabled: true,
+                                titleFont: {
+                                    size: 11,
+                                    weight: 600,
+                                },
+                                bodyFont: {
+                                    size: 11,
+                                    weight: 500,
+                                },
+                                footerFont: {
+                                    size: 13,
+                                    weight: 300,
+                                },
+                                callbacks: {  
+                                    label: function(tooltipItem){
+                                        if(tooltipItem.datasetIndex == 0){
+                                            let data = tooltipItem.parsed.y;
+                                            return 'Volumen: ' + data + ' BCM'; 
+                                        }
+                                        else{return ""}
+                                    },
+                                    footer: function(tooltipItem){
+                                        if(tooltipItem[0].datasetIndex == 0){
+                                            let diag = tooltipItem[0].dataset.info[tooltipItem[0].dataIndex];
+                                            return 'Diagnostico:' + '\n' + diag;
+                                        }
+                                    }
+                                },
+                            },
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: {
+                                    display: true,
+                                    font: {
+                                        weight: 500,
+                                        size: 11,
+                                    }
+                                },
+                            },
+                            y: {
+                                grace: 0.15,
+                                ticks: {
+                                    stepSize: 0.05,
+                                    font: {
+                                        weight: 500,
+                                        size: 11,
+                                    }
+                                },
+                            },
+                        },
+                    }
+                });
+                historial_img = generarGrafico(bcmChart).replace('data:image/jpeg;base64,', '');
+
+                console.log("Datos de volumen: " + volData);
+                console.log("Fechas de EOL: " + eolDates);
+                const numPuntos = 2 * volData.length + 1; // 19 en este caso
+                const fechasExtendidas = extenderFechas(eolDates, numPuntos);
+                const { m, b } = calcularRectaTendencia(eolDates, volData);
+
+                if(rows3.length < 3) { eolData[0] = 2000; }
+                else if (parseFloat(rows[0].estado) < 60) { eolData[0] = 1000; }
+                else{
+                  eolData = calcularRectaTendencia(eolDates, volData);
+                }
+                  
+                const sql4_PDF = 'UPDATE anilox_analysis SET eol = ? WHERE id = ?';
+                db.query(sql4_PDF, [JSON.stringify(eolData), id], (err4, rows4) => {
+                  if (err4) throw err4;
+                  if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;}
+                  else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;}
+                  else {
+                    let percentVol = JSON.parse(rows[0].percent).values;
+                    let percentDates = JSON.parse(rows[0].percent).dates;
+  
+                    for(let i = 0; i < rows3.length; i++){
+                      let date = new Date(rows3[i].date);
+                      eolDates[i] = date.toISOString().split('T')[0];
+                      volData[i] = json3[i].volume;
+                    }
+                  }
+  
+                  console.log("terminamos el query");
+                  const outputPath = path.join(__dirname, '/output_with_image.pdf');
+                  const replaceText = async () => {
+                      const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
+                      await pdfdoc.initSecurityHandler();
+                      const replacer = await PDFNet.ContentReplacer.create();
+                      const page = await pdfdoc.getPage(1); 
+                      const pageSet = await PDFNet.PageSet.createRange(1, 1);
+                      const page2 = await pdfdoc.getPage(2);
+                      const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
+                      await replacer.addString('ANILOX', id);
+                      await replacer.addString('date', last);
+                      await replacer.addString('brand', brand);
+                      await replacer.addString('type', tipo);
+                      await replacer.addString('purchase', purchase);
+                      await replacer.addString('volume', volume);
+                      await replacer.addString('screen', screen);
+                      await replacer.addString('last', last);
+                      await replacer.addString('next', next);
+                      await replacer.addString('revision', '');
+                      await replacer.addString('tapadas', '');
+                      await replacer.addString('danadas', '');
+                      await replacer.addString('desgastadas', '');
+                      await replacer.addString('historial_volumen', '');
+                      await replacer.addString('grafico_eol', '');
+                      await replacer.addString('estadistica_eol', '');
+                      await replacer.addString('estado', estado);
+                      await replacer.addString('diagnostico', diagnostico);
+                      await replacer.addString('recomendacion', recomendacion);
+                      await replacer.addString('usuario', sesion_usuario);
+                      await replacer.addString('hoy', new Date().toLocaleDateString('es-ES'));
+
+                      await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
+  
+                      // await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL);
+                      // await addBase64ImageToPDF(pdfdoc, pageSet2, estadisticas_img, coord_estadisticas);        
+                          .then(() => {                 
+                              replacer.process(page);               
+                              pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
+                              fs.readFile(outputPath, (err, data) => {
+                                  if (err) {
+                                      console.error('Error al leer el archivo PDF:', err);
+                                      res.status(500).send('Error al procesar el archivo PDF');
+                                      return;
+                                  }
+                                  const base64PDF = data.toString('base64');
+                                  const sql5_PDF = 'INSERT INTO anilox_history (id_anilox, fecha, pdf) VALUES (?,?,?)';
+                                  db.query(sql5_PDF,[anilox, new Date(), base64PDF], (err, rows) => {
+                                      if (err) throw err;
+                                      console.log('PDF convertido a Base64 y almacenado con éxito');
+                                  });
+                                  // res.send('PDF convertido a Base64 y almacenado con éxito');
+                              });
+                          })
+                          .catch((error) => {
+                              console.error('Error al añadir imagen al PDF:', error);
+                              res.status(500).send('Error al añadir imagen al PDF');
+                          });
+                  }
+              
+                  PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+                      fs.readFile(outputPath, (err, data) => {
+                          if (err) {
+                              res.statusCode = 500;
+                              res.send(err);
+                          } else {
+                              res.setHeader('Content-Type', 'application/pdf');
+                              res.send(data);
+                          }
+                          // const sql2 = 'UPDATE anilox_history SET report=? WHERE id=?';
+                          // db.query(sql2, ["https://www.africau.edu/images/default/sample.pdf", result.length], (err2, result2) => {
+                          //     if (err2) throw err2;
+                          //     return res.status(200).send({ status: "Success", message: "PDF generado correctamente" });
+                          // });                        
+                      })
+                  }).catch(err => {
+                      res.statusCode = 500;
+                      res.send(err);
+                  });                                  
+                });
+
+                
+            });
         });
-      }
-
-      return res.status(200).send({ status: "Success", message: "Estado", result });
-    });
+    })    
+      
   } catch {
     console.log(error);
     return res.status(500).send({status: "Error", message: "Error al obtener los datos del cliente"});
@@ -925,4 +1509,4 @@ async function generarPdf(req, res) {
 }
 
 module.exports = { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
-                   tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf };
+                   cotizaciones, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf };

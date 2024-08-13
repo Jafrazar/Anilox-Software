@@ -6,6 +6,24 @@ const $modalPdf = d.getElementById("modal-pdf"),
       $masterPdf = d.getElementById("master-pdf"),
       $closeModalPdf = d.getElementById("close-modal-pdf");
 
+const $modalQuoteBox = d.getElementById("modal-quote-box"),
+      $modalQuoteBoxBody = d.getElementById("modal-quote-box-body"),
+      $closeQuoteBox = d.getElementById("close-quote-box"),
+      $sendQuote = d.getElementById("send-quote"),
+      $quoteType = d.getElementById("quote-type"),
+      $quoteAngle = d.getElementById("quote-angle"),
+      $quoteVol = d.getElementById("quote-vol"),
+      $quoteScreen = d.getElementById("quote-screen");
+
+// const $modalDeleteBox = d.getElementById("modal-delete-box"),
+//       $modalDeleteBody = d.getElementById("modal-delete-body"),
+//       $closeDeleteBox = d.getElementById("close-delete-box"),
+//       $acceptDelete = d.getElementById("accept-delete"),
+//       $deleteId = d.getElementById("delete-id");
+
+let quoteId, quoteType, quoteNomVol, quoteScreen, quoteAngle;
+let deleteId;
+
 const getData = (json, id)=>{
   return json.filter(el => el.id === id);
 }
@@ -62,8 +80,9 @@ const getAll = async ()=>{
       $template.querySelector(".purchase-date").textContent = el.purchase;
       $template.querySelector(".volume").textContent = el.volume;
       $template.querySelector(".last-date").textContent = el.last;
-      $template.querySelector(".master").dataset.base64 = el.master;
       $template.querySelector(".next-date").textContent = el.next;
+      $template.querySelector(".master").dataset.base64 = el.master;
+      $template.querySelector(".quote").dataset.id = el.id;
       $template.querySelector(".delete").dataset.id = el.id;
       
       if((Date.now() - Date.parse(String(el.next))) >= 0 && (Date.now() - Date.parse(String(el.next))) <= 15778800000){
@@ -131,8 +150,7 @@ const showModalPdf = e=>{
 
 const deleteAnilox = async(e)=>{
   if(e.target.matches(".delete")){
-    let level = ss.getItem("level");
-    if(level !== "3"){
+    if(ss.getItem("level") !== "3"){
       alert("No se encuentra autorizado para realizar esta operación");
       return;
     }
@@ -156,14 +174,108 @@ const deleteAnilox = async(e)=>{
         });
         if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
         location.reload();
-      } catch (err) {
+      } 
+      catch (err) {
+        console.log(err);
         let errorCode = err.status || "2316",
             errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
             message1 = "Error " + errorCode + ": ",
             message2 = errorStatus;
-        alert(`${message1}: ${message2}`);
+            $alertContent.textContent = `${message1}: ${message2}`;
+            $modalAlertBox.style.display = "block";
       }
     }
+  }
+}
+
+const quote = async(e) => {
+  if (e.target.matches(".quote")) {
+    try {
+      quoteId = e.target.dataset.id;
+      let res1 = await fetch('/api/listado', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({id: quoteId, mensaje: "quote"})
+      }),
+          json1 = await res1.json();
+          
+      // let res = await fetch(`http://anilox-manager:3000/anilox/${quoteId}`),
+      // json = await res.json();
+      if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
+      quoteType = json1[0].type;
+      quoteNomVol = json1[0].nomvol;
+      quoteScreen = json1[0].screen;
+      quoteAngle = json1[0].angle;
+      $quoteType.textContent = quoteType;
+      $quoteAngle.textContent = quoteAngle;
+      $quoteVol.textContent = quoteNomVol;
+      $quoteScreen.textContent = quoteScreen;
+      $modalQuoteBox.style.display = "block";
+    } 
+    catch (err) {
+      console.log(err);
+      let errorCode = err.status || "2316",
+          errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
+          message1 = "Error " + errorCode + ": ",
+          message2 = errorStatus;
+      $modalQuoteBoxBody.insertAdjacentHTML("afterend",`<p><b>${message1}</b>${message2}</p>`);
+      setTimeout(()=>{
+        $modalQuoteBoxBody.nextElementSibling.remove();
+      }, 2000);
+    }
+  }
+
+  if(e.target === $sendQuote){
+    try {
+      let options = {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({
+          type: quoteType,
+          nomvol: quoteNomVol,
+          screen: quoteScreen,
+          angle: quoteAngle,
+          reqDate: (new Date(Date.now()).toJSON()).slice(0,10),
+          mensaje: "send quote"
+        }),
+      },
+          res1 = await fetch('api/request-quotes', options);          
+          if(res1.ok){
+            $modalQuoteBox.style.display = "none";
+            quoteId = undefined;
+            quoteType = undefined;
+            quoteNomVol = undefined;
+            quoteScreen = undefined;
+            quoteAngle = undefined;
+            $alertContent.textContent = `Solicitud registrada exitosamente.`;
+            $modalAlertBox.style.display = "block";
+          }
+          if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
+    } 
+    catch (err) {
+      console.log(err);
+      let errorCode = err.status || "2316",
+          errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
+          message1 = "Error " + errorCode + ": ",
+          message2 = errorStatus;
+      $modalQuoteBoxBody.insertAdjacentHTML("afterend",`<p><b>${message1}</b>${message2}</p>`);
+      setTimeout(()=>{
+        $modalQuoteBoxBody.nextElementSibling.remove();
+      }, 2000);
+    }
+  }
+
+  if(e.target === $closeQuoteBox){
+    $modalQuoteBox.style.display = "none";
+    quoteNomVol = undefined;
+    quoteType = undefined;
+    quoteNomVol = undefined;
+    quoteScreen = undefined;
+    quoteAngle = undefined;
   }
 }
 
@@ -171,3 +283,4 @@ d.addEventListener("DOMContentLoaded",getAll);
 d.addEventListener("click", showModalPdf);
 d.addEventListener("click",load);
 d.addEventListener("click",deleteAnilox);
+d.addEventListener("click",quote);

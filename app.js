@@ -4,7 +4,7 @@ module.exports = { path };
 
 const express = require("express");
 const nodemailer = require('nodemailer');
-const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
+const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList, cotizaciones,
         tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
 const app = express();
@@ -114,6 +114,14 @@ app.get('/upload-file.html', soloAdmin, function(req, res) {
   res.sendFile(path.join(__dirname, 'upload-file.html'));
 });
 
+app.get('/req-quotes', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'req-quotes.html'));
+});
+
+app.get('/req-quotes.html', soloAdmin, function(req, res) {
+  res.sendFile(path.join(__dirname, 'req-quotes.html'));
+});
+
 // Rutas
 app.use('/', express.static(path.join(__dirname, '')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
@@ -128,6 +136,7 @@ app.post('/api/registro_licencia', registro_licencia);
 app.post('/api/analysis', tablaAniloxAnalysis);
 app.post('/api/listado', tablaAniloxList);
 app.post('/api/anilox-history', tablaAniloxHistory);
+app.post('/api/request-quotes', cotizaciones);
 app.post('/api/borrar-anilox', borrarAnilox);
 app.post('/api/usuarios', tablaUsuarios);
 app.post('/api/clientes', tablaClientes);
