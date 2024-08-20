@@ -245,3 +245,13 @@
   height: 17rem;
   margin-right: 1rem;
 }
+
+/* Right */
+.status-span {
+  display: block;
+  text-align: center;
+}
+.status-span h3, .status-info {
+  font-size: 20px;
+  display: inline;
+}

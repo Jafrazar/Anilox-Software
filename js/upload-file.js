@@ -99,7 +99,7 @@ const closeModal = e=>{
 
 const submit = async(e)=>{
   e.preventDefault();
-  if(e.target === $form){
+  if(e.target === $form){ // Formulario inicial (carga de csv e imagen)
     if($image.src.includes("anilox-placeholder.jpg")){
       alert("Debe seleccionar una imagen de ánilox para poder importar los datos");
       return;
@@ -118,7 +118,7 @@ const submit = async(e)=>{
     // }
     
     try {
-      let res = await fetch("/api/listado", {
+      let res = await fetch("/api/listado", { // Ejecuta la línea 577 de autenticacion.js (Condición else{})
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -148,16 +148,17 @@ const submit = async(e)=>{
 
       if(alreadyExists === 1){
         if(Date.parse(e.target.date.value) > Date.parse(saveLast)){
-          $modalExtraAnilox.style.display = "block";
+          $modalExtraAnilox.style.display = "block"; // Si el anilox ya existe se muestra el <div> "Ingrese el recorrido del anilox". Dentro está $formExtra
         }
         else{
           alert("No se permite importar revisiones con fecha anterior a la última registrada");
         }
       }
       if(alreadyExists === 0){
-        $modalNewAnilox.style.display = "block";
+        $modalNewAnilox.style.display = "block"; // Si el anilox no existe, se muestra el <div> "Nuevo rodillo anilox". Dentro de este div está $formNew
       }
-    } catch (err) {
+    } 
+    catch (err) {
       console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
@@ -170,10 +171,9 @@ const submit = async(e)=>{
     }
   }
 
-  if(e.target === $formNew){
-    try {
-      
-      const imagen = await toBase64(image);
+  if(e.target === $formNew){  // $formNew carga al ingresar un nuevo anilox: "Ingresar fabricante, fecha de compra, volumen nominal y reporte de fábrica"
+    try {      
+      const imagen = await toBase64(image); // Recoge la imagen y pdf cargadas en el formulario inicial ($form)
       const pdf = await toBase64(master);
 
       let options = {
@@ -186,25 +186,26 @@ const submit = async(e)=>{
           brand: e.target.brand.value,
           purchase: e.target.purchase.value,
           volume: $volume.value,
+          nomvol: e.target.nomvol.value,
           depth: $depth.value,
           opening: $opening.value,
           wall: $wall.value,
           screen: $screen.value,
           angle: $angle.value,
           last: $date.value,
-          master: pdf,  // master: pdf
-          patron: imagen, // patron: imagen
+          master: pdf,  
+          patron: imagen,
           insertar: 1,
         }),
       },
-          // res = await fetch("/anillox-list/anilox", options);
-          res = await fetch("api/listado", options);
+        res = await fetch("api/listado", options); // Se ejecuta else if(insertar) ni bien se da submit al formulario de nuevo anilox
 
-        let json = await res.json();
-        json = json.result;
+      let json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-    } catch (err) {
+      console.log("Se acaba de insertar un nuevo registro: ", json);
+    }
+    catch (err) {
       console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
@@ -218,94 +219,49 @@ const submit = async(e)=>{
   }
 }
 
-const recorrido = async(e)=>{
-  if(e.target === $extraSkip || e.target === $extraSubmit){
+const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
+  if(e.target === $extraSkip || e.target === $extraSubmit){ // Se dispara al hacer click en el botón de "Omitir" o "Importar" del modal-extra-anilox
     try {
-      const imagen = await toBase64(image);
+      const imagen = await toBase64(image); // Solo guarda la imagen del formulario inicial ($form)
       let valRecorrido;
       if(e.target === $extraSkip){
         valRecorrido = 0;
       }
       else if(e.target === $extraSubmit){
         if($extraRecorrido.validity.patternMismatch){
-          alert("Debe ingresar un número");
+          alert("Debe ingresar un número"); 
           return;
         }
-        if($extraRecorrido.value === ""){
+        if($extraRecorrido.value === ""){ // Si no se ingresa un recorrido, se toma el valor 0
           valRecorrido = 0;
         } else {
           valRecorrido = $extraRecorrido.value;
         }
       }
-      // let options = {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-type": "application/json; charset=UTF-8",
-      //   },
-      //   body: JSON.stringify({
-      //     id: saveId,
-      //     brand: saveBrand,
-      //     type: saveType,
-      //     purchase: savePurchase,
-      //     recorrido: valRecorrido,
-      //     volume: $volume.value,
-      //     depth: $depth.value,
-      //     opening: $opening.value,
-      //     wall: $wall.value,
-      //     screen: $screen.value,
-      //     angle: $angle.value,
-      //     last: $date.value,
-      //     master: saveMaster,
-      //     patron: savePatron,
-      //     revision: imagen,
-      //     modificar: 1,
-      //   }),
-      // },
-      let res = await fetch('api/listado', {
-            method: "POST",
-            headers: {
-              "Content-type": "application/json; charset=UTF-8",
-            },
-            body: JSON.stringify({
-              id: saveId,
-              brand: saveBrand,
-              recorrido: valRecorrido,
-              volume: $volume.value,
-              last: $date.value,
-              patron: savePatron,
-              revision: imagen,
-              modificar: 1,
-            }),
-          });
+
+      let res = await fetch('api/listado', {  // Se ejecuta una vez que se de submit al recorrido, se envían los datos y el mensaje modificar=1
+          method: "POST",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          body: JSON.stringify({
+            id: saveId,
+            brand: saveBrand,
+            recorrido: valRecorrido,
+            volume: $volume.value,
+            last: $date.value,
+            patron: savePatron,
+            revision: imagen,
+            modificar: 1,
+          }),
+      });
       let json = await res.json();
-      json = json.result;
+
       console.log("El valor de json en modificar es: ", json);
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
-      // // CÓDIGO PARA INSERTAR UNA NUEVA REVISION
-      // let res2 = await fetch('api/listado', {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-type": "application/json; charset=UTF-8",
-      //   },
-      //   body: JSON.stringify({
-      //     id: saveId,
-      //     brand: saveBrand,
-      //     recorrido: valRecorrido,
-      //     volume: $volume.value,
-      //     last: $date.value,
-      //     patron: savePatron,
-      //     revision: imagen,
-      //     insertar: 1,
-      //   }),
-      // });
-      // if(!res2.ok) throw{status: res.status, statusText: res.statusText};
-      // let json2 = await res2.json();
-      // json2 = json2.result;      
-      // console.log("El valor de json2 en insertar es: ", json2);
-
 // --------CÓDIGO PARA GENERAR PDF-----
-      let res2 = await fetch('api/pdf', {
+      let res2 = await fetch('api/pdf', { // Se ejecuta después del procesamiento de imágenes
         method: "POST",
         headers: {
           "Content-type": "application/json; charset=UTF-8",
@@ -321,9 +277,12 @@ const recorrido = async(e)=>{
           revision: imagen,
           insertar: 1,
         }),
-      });
+      });   
       let json2 = await res2.json();
-      $formExtra.submit();
+      json2 = json2.result;
+
+      if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};  
+      $formExtra.submit();  // Envia el formulario de recorrido
     } 
     catch (err) {
       console.log(err);

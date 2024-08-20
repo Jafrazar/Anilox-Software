@@ -80,7 +80,8 @@ const getAniloxData = async(e)=>{
       $specificAngle.textContent = `${json1[0].angle}`;
       $specificVol.textContent = `${(json1[0].nomvol/1.55).toFixed(2)}`;
       $specificScreen.textContent = `${json1[0].screen}`;
-    } catch (err) {
+    } 
+    catch (err) {
       console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
@@ -166,9 +167,10 @@ const requestQuote = async(e)=>{
           setTimeout(()=>{
             $quoteBody.replaceChildren();
           }, 3000);
-        };
+        }
         if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
-      } catch (err) {
+      } 
+      catch (err) {
         console.log(err);
         let errorCode = err.status || "2316",
             errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",

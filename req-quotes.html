@@ -43,6 +43,7 @@
           <button class="dropbtn">Opciones
           </button>
           <div class="dropdown-content" id="drop-opciones">
+            <a id="open-config-units">Configurar Unidades</a>
             <a href="export-data.html">Exportar datos</a>
             <a href="req-quotes.html">Solicitar cotización</a>
           </div>
@@ -62,6 +63,10 @@
         </div>
         <div class="title">
           <h1>Solicitar Cotización</h1>
+        </div>
+        <div class="license">
+          <small>Licencia:</small>
+          <p><b id="days-left"></b> días restantes</p>
         </div>
         <div class="user">
           <p>Bienvenido, <b id="user-name"></b></p>
@@ -285,6 +290,41 @@
       </div>
     </div>
     <!-- Final Alert Box -->
+    <div class="modal" id="modal-config-units">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-config-units">
+            close
+          </span>
+          <h2>Configurar Unidades</h2>
+        </div>
+        <div class="modal-body">
+          <span>
+            <h3>Volumen de celda:</h3>
+            <label class="container-radial">
+              <input type="radio" name="volume-radio" id="unit-BCM" checked="checked">BCM
+              <span class="radial"></span>
+            </label>
+            <label class="container-radial">
+              <input type="radio" name="volume-radio" id="unit-cm3m2">cm3/m2
+              <span class="radial"></span>
+            </label>
+          </span>
+          <span>
+            <h3>Lineatura:</h3>
+            <label class="container-radial">
+              <input type="radio" name="screen-radio" id="unit-LPI" checked="checked">LPI
+              <span class="radial"></span>
+            </label>
+            <label class="container-radial">
+              <input type="radio" name="screen-radio" id="unit-LPCM">LPCM
+              <span class="radial"></span>
+            </label>
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Final Unit Config -->
     <!-- Common JS Script -->
     <script src="./js/common.js"></script>
     <!-- Request Quotes JS Script -->

@@ -44,6 +44,7 @@ const $cleanGraph = d.getElementById("clean-graph"),
       $imagePatron = d.getElementById("patron-image"),
       $imageLast = d.getElementById("last-image"),
       $dataStatus = d.getElementById("data-status"),
+      $dataStatusTransfer = d.getElementById("data-status-transfer"),
       $dataDiag = d.getElementById("data-diag"),
       $dataAct = d.getElementById("data-act");
 
