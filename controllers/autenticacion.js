@@ -500,13 +500,11 @@ async function tablaAniloxList(req, res) {
       const sqlObtenerPatron = 'SELECT patron FROM anilox_list WHERE id=?';
       db.query(sqlObtenerPatron, [id], (err, result) => {
         if (err) throw err;
-        patron = result[0].patron;
-        
+        patron = result[0].patron;        
         const sqlModificarLista = 'UPDATE anilox_list SET recorrido=?, volume=?, last=?, revision=? WHERE id=?';
         db.query(sqlModificarLista, [recorrido, volume, last, revision, id], async (errA, resultA) => {
           if (errA) throw errA;
           console.log("id: ", id, "volume: ", volume, "last: ", last, "recorrido: ", recorrido);
-
           const res_analysis = await analysis(patron, revision); // Luego ejecuta el analysis de la imagen
           const { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion } = res_analysis;          
 
@@ -520,16 +518,12 @@ async function tablaAniloxList(req, res) {
             db.query(sqlVerifyHistory, [id], (errC, resultC) => {
               if (errC) throw errC;
               let aux = resultC.length > 0 ? resultC.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
-              // Se inserta una fila en anilox_history con los valores de id, date, volume, report y empresa
-              const sqlModifyHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, diagnostico, report, empresa) VALUES (?,?,?,?,?,?,?)';
-              db.query(sqlModifyHistory, [id, aux, last, volume, diagnostico,"https://www.africau.edu/images/default/sample.pdf", sesion_empresa], (errD, resultD) => {
-                if (errD) throw errD;
-                const sqlInsert = 'INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)';
-                db.query(sqlInsert, [id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (errE, resultE) => {
-                  if (errE) throw errE;
-                  console.log("Llegamos al final");
-                  return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
-                });
+              const sqlCombined = `
+                INSERT INTO anilox_history (anilox, id, date, volume, diagnostico, report, empresa) VALUES (?,?,?,?,?,?,?);
+                INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)`;                       
+              db.query(sqlCombined, [id, aux, last, volume, diagnostico, "https://www.africau.edu/images/default/sample.pdf", sesion_empresa, id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (err, result) => {
+                if (err) throw err;
+                return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
               });
             });
           });
@@ -1324,6 +1318,17 @@ async function generarPdf(req, res) {
                 const fechasExtendidas = extenderFechas(eolDates, numPuntos);
                 const { m, b } = calcularRectaTendencia(eolDates, volData);
 
+                // Calcular los puntos de tendencia para las fechas extendidas
+                const puntosTendenciaExtendida = fechasExtendidas.map(fecha => {
+                  const xi = new Date(fecha).getTime();
+                  return {
+                      x: fecha,
+                      y: (m * xi + b).toFixed(3)
+                  };
+                });
+                console.log(puntosTendenciaExtendida);
+                
+
                 if(rows3.length < 3) { eolData[0] = 2000; }
                 else if (parseFloat(rows[0].estado) < 60) { eolData[0] = 1000; }
                 else{
@@ -1346,7 +1351,6 @@ async function generarPdf(req, res) {
                     }
                   }
   
-                  console.log("terminamos el query");
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
                   const replaceText = async () => {
                       const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
@@ -1435,7 +1439,8 @@ async function generarPdf(req, res) {
         });
     })    
       
-  } catch {
+  } 
+  catch {
     console.log(error);
     return res.status(500).send({status: "Error", message: "Error al obtener los datos del cliente"});
   }
