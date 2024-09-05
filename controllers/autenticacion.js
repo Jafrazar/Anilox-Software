@@ -12,7 +12,7 @@ const fs = require('fs');
 const os = require('os');
 
 const db = mysql.createPool({
-  host: 'database-1.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
+  host: 'anxsuite.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
   user: 'admin',
   password: '104-55Fppl2',
   database: 'ANDERS'
@@ -1326,8 +1326,7 @@ async function generarPdf(req, res) {
                       y: (m * xi + b).toFixed(3)
                   };
                 });
-                console.log(puntosTendenciaExtendida);
-                
+                console.log(puntosTendenciaExtendida);                
 
                 if(rows3.length < 3) { eolData[0] = 2000; }
                 else if (parseFloat(rows[0].estado) < 60) { eolData[0] = 1000; }

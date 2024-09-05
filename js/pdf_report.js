@@ -11,7 +11,7 @@ const mysql = require('mysql');
 const canvas_bcm = createCanvas(800, 185);
 const bcm_ctx = canvas_bcm.getContext('2d');
 const db = mysql.createPool({
-    host: 'database-1.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
+    host: 'anxsuite.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
     user: 'admin',
     password: '104-55Fppl2',
     database: 'ANDERS'
