@@ -1185,7 +1185,7 @@ async function generarPdf(req, res) {
                     volData[i] = Math.round(((rows3[i].volume)/1.55) * 10) / 10; 
                     diag[i] = rows3[i].diagnostico;
                     nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
-                    result.forEach(row => {
+                    rows3.forEach(row => {
                       if(row.date) {
                         let date = new Date(row.date);
                         row.date = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
