@@ -1348,7 +1348,7 @@ async function generarPdf(req, res) {
                     for(let i = 0; i < rows3.length; i++){
                       let date = new Date(rows3[i].date);
                       eolDates[i] = date.toISOString().split('T')[0];
-                      volData[i] = json3[i].volume;
+                      volData[i] = rows3[i].volume;
                     }
                   }
   
