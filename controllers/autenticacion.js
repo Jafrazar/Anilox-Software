@@ -1333,7 +1333,7 @@ async function generarPdf(req, res) {
                 if(rows3.length < 3) { eolData[0] = 2000; }
                 else if (parseFloat(rows[0].estado) < 60) { eolData[0] = 1000; }
                 else{
-                  eolData = calcularRectaTendencia(eolDates, volData);
+                  eolData = calcularRectaTendencia(eolDates, volData).tendencia.map(point => point.y);
                 }
                   
                 const sql4_PDF = 'UPDATE anilox_analysis SET eol = ? WHERE id = ?';
@@ -1342,8 +1342,8 @@ async function generarPdf(req, res) {
                   if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;}
                   else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;}
                   else {
-                    let percentVol = JSON.parse(rows4.percent).values;
-                    let percentDates = JSON.parse(rows4.percent).dates;
+                    let percentVol = JSON.parse(rows4[0].percent).values;
+                    let percentDates = JSON.parse(rows4[0].percent).dates;
   
                     for(let i = 0; i < rows3.length; i++){
                       let date = new Date(rows3[i].date);
