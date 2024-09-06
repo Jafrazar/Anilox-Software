@@ -1422,7 +1422,7 @@ async function generarPdf(req, res) {
                           });
                   }
                   console.log("antes de PDFNet.runWithCleanup");
-                  PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+                  PDFNet.runWithCleanup(replaceText, "demo:1725654805251:7e513ca80300000000e48c69b280fcaf066989298dcc1103b038f2af54").then(() => {
                       console.log("PDF generado con éxito");
                       fs.readFile(outputPath, (err, data) => {
                           if (err) {
