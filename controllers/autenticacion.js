@@ -1333,9 +1333,7 @@ async function generarPdf(req, res) {
                 if(rows3.length < 3) { eolData[0] = 2000; }
                 else if (parseFloat(rows[0].estado) < 60) { eolData[0] = 1000; }
                 else{
-                  console.log("a");
                   eolData = calcularRectaTendencia(eolDates, volData).tendencia.map(point => parseFloat(point.y.toFixed(3)));
-                  console.log("b");
                 }
                   
                 const sql4_PDF = 'UPDATE anilox_analysis SET eol = ? WHERE id = ?';
@@ -1346,18 +1344,18 @@ async function generarPdf(req, res) {
                   else {
                     // let percentVol = JSON.parse(rows4[0].percent).values;
                     // let percentDates = JSON.parse(rows4[0].percent).dates;
-                    console.log("c");
                     for(let i = 0; i < rows3.length; i++){
                       let date = new Date(rows3[i].date);
                       eolDates[i] = date.toISOString().split('T')[0];
                       volData[i] = rows3[i].volume;
                     }
-                    console.log("d");
                   }
   
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
                   const replaceText = async () => {
+                      console.log("Se inició el proceso de reemplazo de texto");
                       const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
+                      console.log("Se creó el documento PDF");
                       await pdfdoc.initSecurityHandler();
                       const replacer = await PDFNet.ContentReplacer.create();
                       const page = await pdfdoc.getPage(1); 
