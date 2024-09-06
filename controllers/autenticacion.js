@@ -1352,93 +1352,92 @@ async function generarPdf(req, res) {
                   }
   
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
-                  console.log("Se inició el proceso de reemplazo de texto");
-                  return res.status(200).send({ status: "Success", message: "Estado", rows3 });
-                  // const replaceText = async () => {
-                      
-                  //     const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
-                  //     console.log("Se creó el documento PDF");
-                  //     await pdfdoc.initSecurityHandler();
-                  //     const replacer = await PDFNet.ContentReplacer.create();
-                  //     const page = await pdfdoc.getPage(1); 
-                  //     const pageSet = await PDFNet.PageSet.createRange(1, 1);
-                  //     const page2 = await pdfdoc.getPage(2);
-                  //     const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
-                  //     await replacer.addString('ANILOX', id);
-                  //     await replacer.addString('date', last);
-                  //     await replacer.addString('brand', brand);
-                  //     await replacer.addString('type', tipo);
-                  //     await replacer.addString('purchase', purchase);
-                  //     await replacer.addString('volume', volume);
-                  //     await replacer.addString('screen', screen);
-                  //     await replacer.addString('last', last);
-                  //     await replacer.addString('next', next);
-                  //     await replacer.addString('revision', '');
-                  //     await replacer.addString('tapadas', '');
-                  //     await replacer.addString('danadas', '');
-                  //     await replacer.addString('desgastadas', '');
-                  //     await replacer.addString('historial_volumen', '');
-                  //     await replacer.addString('grafico_eol', '');
-                  //     await replacer.addString('estadistica_eol', '');
-                  //     await replacer.addString('estado', estado);
-                  //     await replacer.addString('diagnostico', diagnostico);
-                  //     await replacer.addString('recomendacion', recomendacion);
-                  //     await replacer.addString('usuario', sesion_usuario);
-                  //     await replacer.addString('hoy', new Date().toLocaleDateString('es-ES'));
+                  const replaceText = async () => {                      
+                      console.log("Se inició el proceso de reemplazo de texto");
+                      return res.status(200).send({ status: "Success", message: "Estado", rows3 });
+                      const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
+                      console.log("Se creó el documento PDF");
+                      await pdfdoc.initSecurityHandler();
+                      const replacer = await PDFNet.ContentReplacer.create();
+                      const page = await pdfdoc.getPage(1); 
+                      const pageSet = await PDFNet.PageSet.createRange(1, 1);
+                      const page2 = await pdfdoc.getPage(2);
+                      const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
+                      await replacer.addString('ANILOX', id);
+                      await replacer.addString('date', last);
+                      await replacer.addString('brand', brand);
+                      await replacer.addString('type', tipo);
+                      await replacer.addString('purchase', purchase);
+                      await replacer.addString('volume', volume);
+                      await replacer.addString('screen', screen);
+                      await replacer.addString('last', last);
+                      await replacer.addString('next', next);
+                      await replacer.addString('revision', '');
+                      await replacer.addString('tapadas', '');
+                      await replacer.addString('danadas', '');
+                      await replacer.addString('desgastadas', '');
+                      await replacer.addString('historial_volumen', '');
+                      await replacer.addString('grafico_eol', '');
+                      await replacer.addString('estadistica_eol', '');
+                      await replacer.addString('estado', estado);
+                      await replacer.addString('diagnostico', diagnostico);
+                      await replacer.addString('recomendacion', recomendacion);
+                      await replacer.addString('usuario', sesion_usuario);
+                      await replacer.addString('hoy', new Date().toLocaleDateString('es-ES'));
 
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
+                      await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
   
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet2, estadisticas_img, coord_estadisticas)        
-                  //         .then(() => {                 
-                  //             replacer.process(page);
-                  //             replacer.process(page2);            
-                  //             pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
-                  //             fs.readFile(outputPath, (err, data) => {
-                  //                 if (err) {
-                  //                     console.error('Error al leer el archivo PDF:', err);
-                  //                     res.status(500).send('Error al procesar el archivo PDF');
-                  //                     return;
-                  //                 }
-                  //                 const base64PDF = data.toString('base64');
-                  //                 const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
-                  //                 db.query(SQL5_PDF, [id], (err, rows) => {
-                  //                     if (err) throw err;
-                  //                     if (rows.length > 0) {
-                  //                         const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
-                  //                         db.query(SQL6_PDF, [base64PDF, id, rows.length], (err, rows) => {
-                  //                             if (err) throw err;
-                  //                             console.log('PDF convertido a Base64 y almacenado con éxito');
-                  //                         });
-                  //                     }
-                  //                 });
-                  //             });
-                  //         })
-                  //         .catch((error) => {
-                  //             console.error('Error al añadir imagen al PDF:', error);
-                  //             res.status(500).send('Error al añadir imagen al PDF');
-                  //         });
-                  // }
-                  // console.log("antes de PDFNet.runWithCleanup");
-                  // PDFNet.runWithCleanup(replaceText, "demo:1725654805251:7e513ca80300000000e48c69b280fcaf066989298dcc1103b038f2af54").then(() => {
-                  //     console.log("PDF generado con éxito");
-                  //     fs.readFile(outputPath, (err, data) => {
-                  //         if (err) {
-                  //             res.statusCode = 500;
-                  //             res.send(err);
-                  //         } else {
-                  //             res.setHeader('Content-Type', 'application/pdf');
-                  //             res.send(data);
-                  //         }                   
-                  //     })
-                  // }).catch(err => {
-                  //     res.statusCode = 500;
-                  //     res.send(err);
-                  // });                                  
+                      await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL);
+                      await addBase64ImageToPDF(pdfdoc, pageSet2, estadisticas_img, coord_estadisticas)        
+                          .then(() => {                 
+                              replacer.process(page);
+                              replacer.process(page2);            
+                              pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
+                              fs.readFile(outputPath, (err, data) => {
+                                  if (err) {
+                                      console.error('Error al leer el archivo PDF:', err);
+                                      res.status(500).send('Error al procesar el archivo PDF');
+                                      return;
+                                  }
+                                  const base64PDF = data.toString('base64');
+                                  const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
+                                  db.query(SQL5_PDF, [id], (err, rows) => {
+                                      if (err) throw err;
+                                      if (rows.length > 0) {
+                                          const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
+                                          db.query(SQL6_PDF, [base64PDF, id, rows.length], (err, rows) => {
+                                              if (err) throw err;
+                                              console.log('PDF convertido a Base64 y almacenado con éxito');
+                                          });
+                                      }
+                                  });
+                              });
+                          })
+                          .catch((error) => {
+                              console.error('Error al añadir imagen al PDF:', error);
+                              res.status(500).send('Error al añadir imagen al PDF');
+                          });
+                  }
+                  console.log("antes de PDFNet.runWithCleanup");
+                  PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+                      console.log("PDF generado con éxito");
+                      fs.readFile(outputPath, (err, data) => {
+                          if (err) {
+                              res.statusCode = 500;
+                              res.send(err);
+                          } else {
+                              res.setHeader('Content-Type', 'application/pdf');
+                              res.send(data);
+                          }                   
+                      })
+                  }).catch(err => {
+                      res.statusCode = 500;
+                      res.send(err);
+                  });                                  
                 });                
             });
         });
