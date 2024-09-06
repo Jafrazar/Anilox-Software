@@ -1354,6 +1354,7 @@ async function generarPdf(req, res) {
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
                   const replaceText = async () => {
                       console.log("Se inició el proceso de reemplazo de texto");
+                      return res.status(200).send({ status: "Success", message: "Estado", rows3 });
                       const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
                       console.log("Se creó el documento PDF");
                       await pdfdoc.initSecurityHandler();
