@@ -1421,8 +1421,9 @@ async function generarPdf(req, res) {
                               res.status(500).send('Error al añadir imagen al PDF');
                           });
                   }
-              
+                  console.log("antes de PDFNet.runWithCleanup");
                   PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+                      console.log("PDF generado con éxito");
                       fs.readFile(outputPath, (err, data) => {
                           if (err) {
                               res.statusCode = 500;
