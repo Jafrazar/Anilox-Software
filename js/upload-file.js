@@ -280,6 +280,7 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
       });   
       let json2 = await res2.json();
       json2 = json2.result;
+      console.log("json2 es igual a: ", json2);
 
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};  
       $formExtra.submit();  // Envia el formulario de recorrido
