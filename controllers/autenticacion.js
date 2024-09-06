@@ -1333,7 +1333,7 @@ async function generarPdf(req, res) {
                 if(rows3.length < 3) { eolData[0] = 2000; }
                 else if (parseFloat(rows[0].estado) < 60) { eolData[0] = 1000; }
                 else{
-                  eolData = calcularRectaTendencia(eolDates, volData).tendencia.map(point => point.y);
+                  eolData = calcularRectaTendencia(eolDates, volData).tendencia.map(point => parseFloat(point.y.toFixed(3)));
                 }
                   
                 const sql4_PDF = 'UPDATE anilox_analysis SET eol = ? WHERE id = ?';
