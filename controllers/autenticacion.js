@@ -1191,7 +1191,7 @@ async function generarPdf(req, res) {
                         row.date = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
                       }
                     });
-                    eolDates[i] = result[i].date;
+                    eolDates[i] = rows3[i].date;
                 }
                 const dataBcmStat = {
                     labels: volLabels,
