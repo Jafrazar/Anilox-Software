@@ -257,7 +257,6 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
       });
       let json = await res.json();
 
-      console.log("El valor de json en modificar es: ", json);
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
 // --------CÓDIGO PARA GENERAR PDF-----

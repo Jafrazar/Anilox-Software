@@ -1338,7 +1338,10 @@ async function generarPdf(req, res) {
                   
                 const sql4_PDF = 'UPDATE anilox_analysis SET eol = ? WHERE id = ?';
                 db.query(sql4_PDF, [JSON.stringify(eolData), id], (err4, rows4) => {
-                  if (err4) throw err4;
+                  if (err4) {
+                    console.error("Error en la consulta SQL:", err4);
+                    return res.status(500).send({ status: "Error", message: "Error en la consulta SQL" });
+                  }
                   if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;}
                   else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;}
                   else {
@@ -1352,9 +1355,9 @@ async function generarPdf(req, res) {
                   }
   
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
-                  const replaceText = async () => {                      
+                  const replaceText = async () => {
+                    try{                      
                       console.log("Se inició el proceso de reemplazo de texto");
-                      return res.status(200).send({ status: "Success", message: "PDF generado", result: rows3 });
                       const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
                       console.log("Se creó el documento PDF");
                       await pdfdoc.initSecurityHandler();
@@ -1400,8 +1403,7 @@ async function generarPdf(req, res) {
                               fs.readFile(outputPath, (err, data) => {
                                   if (err) {
                                       console.error('Error al leer el archivo PDF:', err);
-                                      res.status(500).send('Error al procesar el archivo PDF');
-                                      return;
+                                      return res.status(500).send('Error al procesar el archivo PDF');                                      
                                   }
                                   const base64PDF = data.toString('base64');
                                   const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
@@ -1421,9 +1423,15 @@ async function generarPdf(req, res) {
                               console.error('Error al añadir imagen al PDF:', error);
                               res.status(500).send('Error al añadir imagen al PDF');
                           });
+                    }
+                    catch (error) {
+                      console.error('Error al reemplazar el texto en el PDF:', error);
+                      res.status(500).send('Error al reemplazar el texto en el PDF');
+                    }      
                   }
                   console.log("antes de PDFNet.runWithCleanup");
-                  PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+                  try{
+                    PDFNet.runWithCleanup(replaceText).then(() => {
                       console.log("PDF generado con éxito");
                       fs.readFile(outputPath, (err, data) => {
                           if (err) {
@@ -1434,10 +1442,15 @@ async function generarPdf(req, res) {
                               res.send(data);
                           }                   
                       })
-                  }).catch(err => {
-                      res.statusCode = 500;
-                      res.send(err);
-                  });                                  
+                    }).catch(err => {
+                        res.statusCode = 500;
+                        res.send(err);
+                    }); 
+                  }
+                  catch (error) {
+                    console.log("Error en PDFNet.runWithCleanup: ",error);
+                    return res.status(500).send({status: "Error", message: "Error al generar el PDF"});
+                  }                         
                 });                
             });
         });
