@@ -1438,8 +1438,9 @@ async function generarPdf(req, res) {
                               res.statusCode = 500;
                               res.send(err);
                           } else {
-                              res.setHeader('Content-Type', 'application/pdf');
-                              res.send(data);
+                            return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3 });
+                              // res.setHeader('Content-Type', 'application/pdf');
+                              // res.send(data);
                           }                   
                       })
                     }).catch(err => {
@@ -1450,7 +1451,7 @@ async function generarPdf(req, res) {
                   catch (error) {
                     console.log("Error en PDFNet.runWithCleanup: ",error);
                     return res.status(500).send({status: "Error", message: "Error al generar el PDF"});
-                  }                         
+                  }                      
                 });                
             });
         });
