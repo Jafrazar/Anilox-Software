@@ -1354,7 +1354,7 @@ async function generarPdf(req, res) {
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
                   const replaceText = async () => {                      
                       console.log("Se inició el proceso de reemplazo de texto");
-                      return res.status(200).send({ status: "Success", message: "Estado", rows3 });
+                      return res.status(200).send({ status: "Success", message: "PDF generado", result: rows3 });
                       const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
                       console.log("Se creó el documento PDF");
                       await pdfdoc.initSecurityHandler();
@@ -1445,8 +1445,8 @@ async function generarPdf(req, res) {
       
   } 
   catch {
-    console.log(error);
-    return res.status(500).send({status: "Error", message: "Error al obtener los datos del cliente"});
+    console.log("Error al generar el PDF: ",error);
+    return res.status(500).send({status: "Error", message: "Error al generar el PDF"});
   }
 }
 

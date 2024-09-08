@@ -277,7 +277,8 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
           revision: imagen,
           insertar: 1,
         }),
-      });   
+      });
+      console.log("res2 es igual a: ", res2);
       let json2 = await res2.json();
       json2 = json2.result;
       console.log("json2 es igual a: ", json2);
