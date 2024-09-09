@@ -458,6 +458,8 @@ const getDaysLeft = async()=>{
     expirationDate = ss.getItem("expiration");
   }
   let today = (new Date().toISOString()).slice(0,10);
+  console.log("today: ",today);
+  console.log("Date.parse(expirationDate): ", Date.parse(expirationDate));
   let days = Math.floor((Math.abs(Date.parse(expirationDate) - Date.parse(today)) /1000) / 86400);
   $daysLeft.textContent = days;
 }
