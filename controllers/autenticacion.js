@@ -1355,6 +1355,8 @@ async function generarPdf(req, res) {
                   }
   
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
+                  console.log("Mambru se fue a la guerra");
+                  return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3 });
                   const replaceText = async () => {
                     try{                      
                       console.log("Se inició el proceso de reemplazo de texto");
@@ -1438,9 +1440,8 @@ async function generarPdf(req, res) {
                               res.statusCode = 500;
                               res.send(err);
                           } else {
-                            return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3 });
-                              // res.setHeader('Content-Type', 'application/pdf');
-                              // res.send(data);
+                              res.setHeader('Content-Type', 'application/pdf');
+                              res.send(data);
                           }                   
                       })
                     }).catch(err => {
