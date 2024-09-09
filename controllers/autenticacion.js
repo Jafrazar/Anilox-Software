@@ -1356,7 +1356,7 @@ async function generarPdf(req, res) {
   
                   const outputPath = path.join(__dirname, '/output_with_image.pdf');
                   console.log("Mambru se fue a la guerra");
-                  return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3 });
+                  return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });
                   const replaceText = async () => {
                     try{                      
                       console.log("Se inició el proceso de reemplazo de texto");
