@@ -441,9 +441,8 @@ const getDaysLeft = async()=>{
         json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-      console.log("json[0].expiration: ",json[0].expiration);
-      ss.setItem("expiration", json[0].expiration);
-      expirationDate = json[0].expiration;
+      ss.setItem("expiration", json.result[0].expiration);
+      expirationDate = json.result[0].expiration;
     } 
     catch (err) {
       console.log(err);
