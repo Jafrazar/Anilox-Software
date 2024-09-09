@@ -430,7 +430,7 @@ const $daysLeft = d.getElementById("days-left");
 
 const getDaysLeft = async()=>{
   let expirationDate;
-  if(ss.getItem("expiration") === null){
+  if(ss.getItem("expiration") !== null){
     try {
       let res = await fetch("/api/licencias", {
         method: 'POST',
@@ -441,7 +441,7 @@ const getDaysLeft = async()=>{
         json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-      console.log(json);
+      console.log("json[0].expiration: ",json[0].expiration);
       ss.setItem("expiration", json[0].expiration);
       expirationDate = json[0].expiration;
     } 
