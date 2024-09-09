@@ -277,8 +277,8 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
           insertar: 1,
         }),
       });
-      console.log("res2 es igual a: ", res2);
       let json2 = await res2.json();
+      console.log("res2.json es igual a: ", json2);
       json2 = json2.result;
       console.log("json2 es igual a: ", json2);
 

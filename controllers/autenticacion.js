@@ -760,8 +760,8 @@ async function tablaClientes(req, res) {
 
 async function tablaLicencias(req, res) {
   try {
-    const sql = 'SELECT * FROM licencias';
-    db.query(sql, (err, result) => {
+    const sql = 'SELECT * FROM licencias WHERE licenseHolder = ?';
+    db.query(sql, [sesion_empresa], (err, result) => {
       if (err) throw err;
       return res.status(200).send({ status: "Success", message: "Estado", result });
     });

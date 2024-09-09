@@ -24,7 +24,8 @@ const licenseData = async ()=>{
     $licenseNumber.textContent = ss.getItem("licenseNumber");
     $licenseHolder.textContent = ss.getItem("licenseHolder");
     $userLimit.textContent = `${ss.getItem("usersUsed")} / ${ss.getItem("usersLimit")}`;
-  } catch (err) {
+  } 
+  catch (err) {
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
