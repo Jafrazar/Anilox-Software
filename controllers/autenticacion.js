@@ -1431,7 +1431,7 @@ async function generarPdf(req, res) {
                   }
                   console.log("antes de PDFNet.runWithCleanup");
                   try{
-                    PDFNet.runWithCleanup(replaceText).then(() => {
+                    PDFNet.runWithCleanup(replaceText, "demo:1725654805251:7e513ca80300000000e48c69b280fcaf066989298dcc1103b038f2af54").then(() => {
                       console.log("PDF generado con éxito");
                       fs.readFile(outputPath, (err, data) => {
                           if (err) {
