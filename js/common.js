@@ -441,10 +441,12 @@ const getDaysLeft = async()=>{
         json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-    
+      console.log(json);
       ss.setItem("expiration", json[0].expiration);
       expirationDate = json[0].expiration;
-    } catch (err) {
+    } 
+    catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",

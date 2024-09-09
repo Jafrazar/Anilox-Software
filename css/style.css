@@ -402,6 +402,20 @@ b{
   margin-left: 1.5rem;
 }
 
+.top-bar .license{
+  flex: 0 0 10rem;
+  text-align: left;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.top-bar .license small{
+  font-size: 14px;
+  color: var(--color-info-dark);
+}
+
 .top-bar .user{
   flex: 0 0 15rem;
   display: flex;
@@ -456,4 +470,43 @@ b{
   border-radius: 1.5rem;
   margin-top: 1rem;
   cursor: pointer;
+}
+
+/* Radial inputs */
+
+.modal .container-radial{
+  display: block;
+  position: relative;
+  padding-left: 3.5rem;
+  cursor: pointer;
+  font-size: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select:none;
+}
+
+.modal .container-radial input{
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.modal .container-radial .radial{
+  position: absolute;
+  left: 1rem;
+  height: 25px;
+  width: 25px;
+  background: #eee;
+  border-radius: 50%;
+}
+
+.modal .container-radial:hover input ~ .radial{
+  background: #ccc;
+}
+
+.modal .container-radial input:checked ~ .radial{
+  background: var(--color-primary);
 }
