@@ -27,10 +27,10 @@ document.getElementById("login-form").addEventListener("submit", async(event) =>
 
 document.addEventListener('DOMContentLoaded', function() {
     var imagenesDeFondo = [
-      '../assets/anilox1_2.jpeg',
-      '../assets/anilox2.jpg',
-      '../assets/anilox3_2.jpg',
-      '../assets/anilox4.jpg',
+    //   '../assets/anilox1_2.jpeg',
+    //   '../assets/anilox2.jpg',
+    //   '../assets/anilox3_2.jpg',
+    //   '../assets/anilox4.jpg',
       '../assets/anilox5.jpg'
     ];
     
