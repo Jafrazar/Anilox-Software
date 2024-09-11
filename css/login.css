@@ -9,9 +9,16 @@ body, html {
   display: flex; 
   align-items: center;
   justify-content: left;
-  
+  /* background: #d8d4cb; */
   font-family: Arial, Helvetica, sans-serif;
 }
+/* #fondo {
+  background-color: #d8d4cb;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: -1;
+} */
 
 .container {
   width: 100%;

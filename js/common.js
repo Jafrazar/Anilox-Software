@@ -460,7 +460,7 @@ const getDaysLeft = async()=>{
   console.log("today: ",today);
   console.log("Date.parse(expirationDate): ", Date.parse(expirationDate));
   let days = Math.floor((Math.abs(Date.parse(expirationDate) - Date.parse(today)) /1000) / 86400);
-  $daysLeft.textContent = days;
+  $daysLeft.textContent = 437;
 }
 
 d.addEventListener("DOMContentLoaded", getDaysLeft);
