@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.body.style.backgroundImage = 'url(' + imagenSeleccionada + ')';
     document.body.style.backgroundSize = 'cover' // Asegura que el fondo cubra toda el área sin redimensionarse con el zoom
-    // document.body.style.backgroundPosition = 'center center'; // Centra el fondo
-    document.body.style.backgroundAttachment = 'fixed';
+    document.body.style.backgroundPosition = 'center center'; // Centra el fondo
+    // document.body.style.backgroundAttachment = 'fixed';
     document.body.style.backgroundRepeat = 'no-repeat'; // Evita que el fondo se repita
 
     var logoBlanco = '../assets/LogoANXSuite_blanco.png'; 
