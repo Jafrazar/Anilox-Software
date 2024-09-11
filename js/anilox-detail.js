@@ -628,9 +628,13 @@ const estimarVida = async(e)=>{
   
       if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
-      console.log()
-      let eolData = JSON.parse(json1[0].eol),
-          nomVol = json2[0].nomvol; // nomVol en cm3/m2
+      
+      let eolData=[], nomVol = json2[0].nomvol; // nomVol en cm3/m2;
+      if(!json1[0].eol || json1[0].eol == null) {
+        eolData[0] = 2000;
+      }
+      else{ eolData = JSON.parse(json1[0].eol) }
+          
       let msg;
   // ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
       if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;} // FALTA UPDATEAR
@@ -818,7 +822,7 @@ const estimarVida = async(e)=>{
           }
           else {
             tableData[i].volumePercent = (90 - (i * 10));
-            tableData[i].volumeEstimated = percentVol[i];
+            tableData[i].volumeEstimated = (percentVol[i] / 1.55).toFixed(3);
             tableData[i].timeRemainingEstimated = ((percentDates[i] - json3.length) / 2);
           }
         }
