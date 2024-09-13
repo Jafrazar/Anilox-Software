@@ -830,20 +830,59 @@ function extenderFechas(eolDates, numPuntos) {
 function encontrarValoresCercanosMenores(arr, objetivos) {
   return objetivos.map(objetivo => {
     return arr.reduce((prev, curr) => {
-      if (curr < objetivo && (prev >= objetivo || Math.abs(curr - objetivo) < Math.abs(prev - objetivo))) {
+      if (curr <= objetivo && (prev >= objetivo || Math.abs(curr - objetivo) < Math.abs(prev - objetivo))) {
         return curr;
       }
       return prev;
     }, Number.MAX_VALUE);
   });
 }
-
 // const valores = [4.996, 4.805, 4.614, 4.423, 4.232, 4.041, 3.85, 3.659, 3.468, 3.277, 3.086, 2.895];
 // const objetivos = [4.5, 4.0, 3.5, 3.0];
 
 // const valoresCercanosMenores = encontrarValoresCercanosMenores(valores, objetivos);
 // console.log(valoresCercanosMenores);
 // Salida esperada: [4.423, 3.85, 3.468, 2.895]
+
+function generarRectaTendencia(eolDates, volData, limite) {
+  // Convertir fechas a valores numéricos (timestamp)
+  const x = eolDates.map(date => new Date(date).getTime());
+  const y = volData;
+
+  const n = x.length;
+  const sumX = x.reduce((a, b) => a + b, 0);
+  const sumY = y.reduce((a, b) => a + b, 0);
+  const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+  const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
+
+  const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const b = (sumY - m * sumX) / n;
+
+  // Calcular los puntos de la recta de tendencia en las fechas originales
+  const tendencia = x.map(xi => ({
+    x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
+    y: m * xi + b
+  }));
+
+  // Generar puntos en fechas futuras hasta que el valor sea menor o igual al límite
+  let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
+  let ultimoValor = tendencia[tendencia.length - 1].y;
+  let b2 = b > 100 ? 3 : 6;
+
+  if(m < -0.000000000005 ){
+    while (ultimoValor > limite) {
+      ultimaFecha.setMonth(ultimaFecha.getMonth() + b2); // Incrementar la fecha en 6 meses o 3 meses dependiendo de la intersección
+      const nuevaFecha = ultimaFecha.getTime();
+      ultimoValor = m * nuevaFecha + b;
+      tendencia.push({
+        x: ultimaFecha.toISOString().split('T')[0],
+        y: ultimoValor
+      });
+    }
+  }
+
+  return { tendencia, m, b };
+}
 
 function encontrarPosiciones(arr, valoresCercanos) {
   return valoresCercanos.map(valorCercano => {
@@ -853,7 +892,7 @@ function encontrarPosiciones(arr, valoresCercanos) {
 }
 
 function generarPdf(req, res) {  
-  const pdfPath = path.join(__dirname, '/modelo_reporte_final4.pdf');  
+  let pdfPath = path.join(__dirname, '/modelo_reporte_final5.pdf');  
   const canvas_bcm = createCanvas(800, 185);
   const bcm_ctx = canvas_bcm.getContext('2d'); // Se crea un canva para el gráfico de BCM
   const canvas_EOL = createCanvas(800, 350);
@@ -884,7 +923,7 @@ function generarPdf(req, res) {
   };
 
   const coord_graficaEOL = {
-    x: 23,     y: 40,
+    x: 23,     y: 45,
     width: 555, height: 350
   }
 
@@ -1346,38 +1385,45 @@ function generarPdf(req, res) {
 
                 console.log("Datos de volumen: " + volData);
                 console.log("Fechas de EOL: " + eolDates);
-                const numPuntos = 2 * volData.length + 1; // 19 en este caso
+                const numPuntos = 2 * volData.length + 1;
                 const fechasExtendidas = extenderFechas(eolDates, numPuntos);
-                const { m, b } = calcularRectaTendencia(eolDates, volData);
-
+                
+                // const { m, b } = calcularRectaTendencia(eolDates, volData);
                 // Calcular los puntos de tendencia para las fechas extendidas
-                const puntosTendenciaExtendida = fechasExtendidas.map(fecha => {
-                  const xi = new Date(fecha).getTime();
-                  return {
-                      x: fecha,
-                      y: (m * xi + b).toFixed(3)
-                  };
-                });
-
+                console.log("eolData: " + eolData);
+                console.log("eolData[0]: " + eolData[0]);
                 let percentVol=[], percentDates=[];
                 if(rows3.length < 3) { 
                   eolData[0] = 2000;
-                  msg = `No se cuenta suficientes datos para realizar una estimación.`;
+                  msg = `No se cuenta con suficientes datos para realizar una estimación.`;
+                  pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');                  
                 }
                 else if (parseFloat(rows[0].estado) < 60) { 
                   eolData[0] = 1000;
                   msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;
+                  pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');
                 }
                 else{
-                  eolData = calcularRectaTendencia(eolDates, volData).tendencia.map(point => parseFloat(point.y.toFixed(3)));
-                  percentVol = encontrarValoresCercanosMenores(eolData, [nomVol * 0.9, nomVol * 0.8, nomVol * 0.7, nomVol * 0.6]);
-                  percentDates = encontrarPosiciones(eolData, percentVol);
-                  
-                  for(let i = 0; i < rows3.length; i++){
-                    let date = new Date(rows3[i].date);
-                    eolDates[i] = date.toISOString().split('T')[0];
-                    volData[i] = rows3[i].volume;
+                  // eolData = calcularRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
+                  const { m, b } = generarRectaTendencia(eolDates, volData, (0.6*nomVol)/1.55);
+                  if(m >= -0.000000000005) {
+                    eolData[0] = 2000;
+                    msg = `No se cuenta con suficientes datos para realizar una estimación.`;
+                    pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');
+                    percentVol ="";
+                    percertDates="";
                   }
+                  else{
+                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
+                    percentVol = encontrarValoresCercanosMenores(eolData, [nomVol * 0.9, nomVol * 0.8, nomVol * 0.7, nomVol * 0.6]);
+                    percentDates = encontrarPosiciones(eolData, percentVol);
+                    
+                    for(let i = 0; i < rows3.length; i++){
+                      let date = new Date(rows3[i].date);
+                      eolDates[i] = date.toISOString().split('T')[0];
+                      volData[i] = rows3[i].volume;
+                    }
+                  }                  
                 }
 
                 const percentData = {
@@ -1513,114 +1559,137 @@ function generarPdf(req, res) {
                   let eol_img = generarGrafico(eolGraph).replace('data:image/jpeg;base64,', '');
   
                   const outputPath = path.join(__dirname, '/output.pdf');
-                  return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });
-                  // const replaceText = async () => {
-                  //   try{                      
-                  //     console.log("Se inició el proceso de reemplazo de texto");
-                  //     const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
-                  //     console.log("Se creó el documento PDF");
-                  //     await pdfdoc.initSecurityHandler();
-                  //     const replacer = await PDFNet.ContentReplacer.create();
-                  //     const page = await pdfdoc.getPage(1); 
-                  //     const pageSet = await PDFNet.PageSet.createRange(1, 1);
-                  //     const page2 = await pdfdoc.getPage(2);
-                  //     const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
-                  //     await replacer.addString('ANILOX', id);
-                  //     await replacer.addString('date', last);
-                  //     await replacer.addString('brand', brand);
-                  //     await replacer.addString('type', tipo);
-                  //     await replacer.addString('purchase', purchase);
-                  //     await replacer.addString('volume', volume);
-                  //     await replacer.addString('screen', screen);
-                  //     await replacer.addString('last', last);
-                  //     await replacer.addString('next', next);
-                  //     await replacer.addString('revision', '');
-                  //     await replacer.addString('tapadas', '');
-                  //     await replacer.addString('danadas', '');
-                  //     await replacer.addString('desgastadas', '');
-                  //     await replacer.addString('historial_volumen', '');
-                  //     await replacer.addString('grafico_eol', '');
-                  //     await replacer.addString('eol_80', '');
-                  //     await replacer.addString('anio_80', '');
-                  //     await replacer.addString('eol_70', '');
-                  //     await replacer.addString('anio_70', '');
-                  //     await replacer.addString('eol_60', '');
-                  //     await replacer.addString('anio_60', '');
-                  //     await replacer.addString('estado', estado);
-                  //     await replacer.addString('diagnostico', diagnostico);
-                  //     await replacer.addString('recomendacion', recomendacion);
-                  //     await replacer.addString('usuario', sesion_usuario);
-                  //     await replacer.addString('hoy', new Date().toLocaleDateString('es-ES'));
+                  // return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });                  
+                  const replaceText = async () => {
+                    try{                      
+                      console.log("Se inició el proceso de reemplazo de texto");
+                      const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
+                      await pdfdoc.initSecurityHandler();
+                      const replacer = await PDFNet.ContentReplacer.create();
+                      const page = await pdfdoc.getPage(1); 
+                      const pageSet = await PDFNet.PageSet.createRange(1, 1);
+                      const page2 = await pdfdoc.getPage(2);
+                      const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
+                      await replacer.addString('ANILOX', id);
+                      await replacer.addString('date', last);
+                      await replacer.addString('brand', brand);
+                      await replacer.addString('type', tipo);
+                      await replacer.addString('purchase', purchase);
+                      await replacer.addString('volume', volume);
+                      await replacer.addString('screen', screen);
+                      await replacer.addString('last', last);
+                      await replacer.addString('next', next);
+                      await replacer.addString('revision', '');
+                      await replacer.addString('tapadas', '');
+                      await replacer.addString('danadas', '');
+                      await replacer.addString('desgastadas', '');
+                      await replacer.addString('historial_volumen', '');
+                      await replacer.addString('grafico_eol', '');
+                      await replacer.addString('estado', estado);
+                      await replacer.addString('diagnostico', diagnostico);
+                      await replacer.addString('recomendacion', recomendacion);
+                      await replacer.addString('usuario', sesion_usuario);
+                      await replacer.addString('hoy', new Date().toLocaleDateString('es-ES'));
 
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
-  
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL);
-                  //     await addBase64ImageToPDF(pdfdoc, pageSet2, eol_80, ticas)        
-                  //         .then(() => {                 
-                  //             replacer.process(page);
-                  //             replacer.process(page2);            
-                  //             pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
-                  //             fs.readFile(outputPath, (err, data) => {
-                  //                 if (err) {
-                  //                     console.error('Error al leer el archivo PDF:', err);
-                  //                     return res.status(500).send('Error al procesar el archivo PDF');                                      
-                  //                 }
-                  //                 const base64PDF = data.toString('base64');
-                  //                 const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
-                  //                 db.query(SQL5_PDF, [id], (err, rows) => {
-                  //                     if (err) throw err;
-                  //                     if (rows.length > 0) {
-                  //                         const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
-                  //                         db.query(SQL6_PDF, [base64PDF, id, rows.length], (err, rows) => {
-                  //                             if (err) throw err;
-                  //                             console.log('PDF convertido a Base64 y almacenado con éxito');
-                  //                         });
-                  //                     }
-                  //                 });
-                  //             });
-                  //         })
-                  //         .catch((error) => {
-                  //             console.error('Error al añadir imagen al PDF:', error);
-                  //             res.status(500).send('Error al añadir imagen al PDF');
-                  //         });
-                  //   }
-                  //   catch (error) {
-                  //     console.error('Error al reemplazar el texto en el PDF:', error);
-                  //     res.status(500).send('Error al reemplazar el texto en el PDF');
-                  //   }      
-                  // }
-                  // console.log("antes de PDFNet.runWithCleanup");
-                  // try{
-                  //   PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
-                  //     console.log("PDF generado con éxito");
-                  //     fs.readFile(outputPath, (err, data) => {
-                  //         if (err) {
-                  //             res.statusCode = 500;
-                  //             res.send(err);
-                  //         } else {                              
-                  //             return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });
-                  //             // res.setHeader('Content-Type', 'application/pdf');
-                  //             // res.send(data);
-                  //         }                   
-                  //     })
-                  //   }).catch(err => {
-                  //       res.statusCode = 500;
-                  //       res.send(err);
-                  //   }); 
-                  // }
-                  // catch (error) {
-                  //   console.log("Error en PDFNet.runWithCleanup: ",error);
-                  //   return res.status(500).send({status: "Error", message: "Error al generar el PDF"});
-                  // }                  
+                      await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, danadas_img, coord_danadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
+                      await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
+
+                      if( pdfPath == path.join(__dirname, '/modelo_reporte_final_alt.pdf') ) { 
+                        await replacer.addString('grafico_eol', msg);
+                        await replacer.process(page);
+                        await replacer.process(page2);            
+                        await pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized).then(() => {
+                          console.log('PDF alterno generado con éxito');
+                          fs.readFile(outputPath, (err_f, data) => {
+                            if (err_f) {
+                              console.error('Error al leer el archivo PDF:', err_f);
+                              return res.status(500).send('Error al procesar el archivo PDF');
+                            }
+                            const base64PDF = `data:application/pdf;base64,${data.toString('base64')}`;
+                            const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
+                            db.query(SQL5_PDF, [id], (err_g, rows_g) => {
+                              if (rows_g.length > 0) {
+                                const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
+                                db.query(SQL6_PDF, [base64PDF, id, rows_g.length], (err_h, rows_h) => {
+                                  console.log('PDF convertido a Base64 y almacenado con éxito');
+                                });
+                              }
+                            });
+                          });   
+                        }).catch((error) => {
+                          console.error('Error al procesar el archivo PDF:', error);
+                          return res.status(500).send('Error al procesar el archivo PDF');
+                        });             
+                      }
+                      else{
+                        await replacer.addString('eol_80', percentData.values[1].toString());
+                        await replacer.addString('anio_80', percentData.values[2].toString());
+                        await replacer.addString('eol_70', percentData.values[3].toString());
+                        await replacer.addString('anio_70', percentData.dates[1].toString());
+                        await replacer.addString('eol_60', percentData.dates[2].toString());
+                        await replacer.addString('anio_60', percentData.dates[3].toString());
+                        await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL)  
+                            .then(() => {                 
+                                replacer.process(page);
+                                replacer.process(page2);            
+                                pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
+                                fs.readFile(outputPath, (err_f, data) => {
+                                    if (err_f) {
+                                        console.error('Error al leer el archivo PDF:', err_f);
+                                        return res.status(500).send('Error al procesar el archivo PDF');                                      
+                                    }
+                                    const base64PDF = data.toString('base64');
+                                    const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
+                                    db.query(SQL5_PDF, [id], (err_g, rows_g) => {
+                                        if (rows_g.length > 0) {
+                                            const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
+                                            db.query(SQL6_PDF, [base64PDF, id, rows.length], (err_h, rows_h) => {
+                                                console.log('PDF convertido a Base64 y almacenado con éxito');
+                                            });
+                                        }
+                                    });
+                                });
+                            })
+                            .catch((error) => {
+                                console.error('Error al añadir imagen al PDF:', error);
+                                res.status(500).send('Error al añadir imagen al PDF');
+                            });
+                      }                      
+                    }
+                    catch (error) {
+                      console.error('Error al reemplazar el texto en el PDF:', error);
+                      res.status(500).send('Error al reemplazar el texto en el PDF');
+                    }      
+                  }
+                  try{
+                    PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
+                      console.log("PDF generado con éxito");
+                      fs.readFile(outputPath, (err, data) => {
+                          if (err) {
+                              res.statusCode = 500;
+                              res.send(err);
+                          } else {                              
+                              return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });
+                              // res.setHeader('Content-Type', 'application/pdf');
+                              // res.send(data);
+                          }                   
+                      })
+                    }).catch(err => {
+                        res.statusCode = 500;
+                        res.send(err);
+                    }); 
+                  }
+                  catch (error) {
+                    console.log("Error en PDFNet.runWithCleanup: ",error);
+                    return res.status(500).send({status: "Error", message: "Error al generar el PDF"});
+                  }                  
                 });                
             });
         });
-    })    
-      
+    })      
   } 
   catch {
     console.log("Error al generar el PDF: ",error);

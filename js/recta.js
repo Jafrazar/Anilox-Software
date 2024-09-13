@@ -16,7 +16,7 @@ db.getConnection((err) => {
 const app = express();
 let volData = [], eolDates = [];
 
-function calcularRectaTendencia(eolDates, volData) {
+function calcularRectaTendencia(eolDates, volData, limite) {
     // Convertir fechas a valores numéricos (timestamp)
     const x = eolDates.map(date => new Date(date).getTime());
     const y = volData;
@@ -35,6 +35,24 @@ function calcularRectaTendencia(eolDates, volData) {
       x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
       y: m * xi + b
     }));
+
+    // Generar puntos en fechas futuras hasta que el valor sea menor o igual al límite
+    let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
+    let ultimoValor = tendencia[tendencia.length - 1].y;
+    let b2 = b > 100 ? 3 : 6;
+
+    if ( m < -0.000000000005 ) {
+        while (ultimoValor > limite) {
+            ultimaFecha.setMonth(ultimaFecha.getMonth() + b2); // Incrementar la fecha en 6 meses o 3 meses dependiendo de la intersección
+            const nuevaFecha = ultimaFecha.getTime();
+            ultimoValor = m * nuevaFecha + b;
+            console.log("ultimoValor: ", ultimoValor);
+            tendencia.push({
+                x: ultimaFecha.toISOString().split('T')[0],
+                y: ultimoValor
+            });
+        }
+    }
   
     return { tendencia, m, b };
 }
@@ -42,7 +60,7 @@ function calcularRectaTendencia(eolDates, volData) {
 function extenderFechas(eolDates, numPuntos) {
     const fechasExtendidas = [...eolDates];
     let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
-  
+    console.log("ultimaFecha: ", ultimaFecha);
     for (let i = eolDates.length; i < numPuntos; i++) {
       ultimaFecha.setMonth(ultimaFecha.getMonth() + 6);
       fechasExtendidas.push(ultimaFecha.toISOString().split('T')[0]);
@@ -51,41 +69,48 @@ function extenderFechas(eolDates, numPuntos) {
     return fechasExtendidas;
 }
 
-sql = 'SELECT * FROM anilox_history WHERE anilox = ?'
-db.query(sql, ["AA0000001"], (err, result) => {
-    if (err) throw err;
-    for (let i = 0; i < result.length; i++) {
-        volData[i] = result[i].volume;
-        result.forEach(row => {
-            if(row.date) {
-              let date = new Date(row.date);
-              row.date = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
-            }
-        });
-        eolDates[i] = result[i].date;
-    }
-    console.log("Datos de volumen: " + volData);
-    console.log("Fechas de EOL: " + eolDates);
-    const numPuntos = 2 * volData.length + 1; // 19 en este caso
-    const fechasExtendidas = extenderFechas(eolDates, numPuntos);
-    const { m, b } = calcularRectaTendencia(eolDates, volData);
+// sql = 'SELECT * FROM anilox_history WHERE anilox = ?'
+// db.query(sql, ["AA0000001"], (err, result) => {
+//     if (err) throw err;
+//     for (let i = 0; i < result.length; i++) {
+//         volData[i] = result[i].volume;
+//         result.forEach(row => {
+//             if(row.date) {
+//               let date = new Date(row.date);
+//               row.date = date.toISOString().split('T')[0]; // Esto devolverá la fecha en formato 'YYYY-MM-DD'
+//             }
+//         });
+//         eolDates[i] = result[i].date;
+//     }
+//     console.log("Datos de volumen: " + volData);
+//     console.log("Fechas de EOL: " + eolDates);
+//     const numPuntos = 2 * volData.length + 1; // 19 en este caso
+//     const fechasExtendidas = extenderFechas(eolDates, numPuntos);
+//     const { m, b } = calcularRectaTendencia(eolDates, volData);
 
-    // Calcular los puntos de tendencia para las fechas extendidas
-    const puntosTendenciaExtendida = fechasExtendidas.map(fecha => {
-        const xi = new Date(fecha).getTime();
-        return {
-            x: fecha,
-            y: (m * xi + b).toFixed(3)
-        };
-    });
-    // const puntosTendencia = calcularRectaTendencia(eolDates, volData);
-    console.log(puntosTendenciaExtendida);
-});
+//     // Calcular los puntos de tendencia para las fechas extendidas
+//     const puntosTendenciaExtendida = fechasExtendidas.map(fecha => {
+//         const xi = new Date(fecha).getTime();
+//         return {
+//             x: fecha,
+//             y: (m * xi + b).toFixed(3)
+//         };
+//     });
+//     // const puntosTendencia = calcularRectaTendencia(eolDates, volData);
+//     console.log(puntosTendenciaExtendida);
+// });
 // Ejemplo de uso
 // const eolDates = ['2023-01-01', '2023-02-01', '2023-03-01'];
 // const volData = [10, 20, 30];
 
-
 app.listen(3000, () => {
     console.log('Servidor iniciado en http://localhost:3000');
 });
+
+const Dates = ["2024-05-16", "2024-05-17", "2024-05-23", "2024-05-30", "2024-06-06", "2024-06-14"];
+
+const Data = [8.8, 9.2, 8.6, 9.2, 8.9, 8.85];
+const limite = 0.6*8;
+
+const resultado = calcularRectaTendencia(Dates, Data, limite);
+console.log(resultado);

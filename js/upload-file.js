@@ -129,8 +129,8 @@ const submit = async(e)=>{
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
-      json.forEach(el=>{
-        if(el.id === $code.value){
+      for (let el of json) {
+        if (el.id === $code.value) {
           alreadyExists = 1;
           saveId = el.id;
           saveBrand = el.brand;
@@ -140,11 +140,12 @@ const submit = async(e)=>{
           saveLast = el.last;
           saveMaster = el.master;
           savePatron = el.patron;
-        }
-        else {
+          break; // Usar break para salir del bucle y mantener el valor de 1
+        } else {
+          console.log("el.id es igual a: ", el.id);
           alreadyExists = 0;
         }
-      });
+      }
 
       if(alreadyExists === 1){
         if(Date.parse(e.target.date.value) > Date.parse(saveLast)){
@@ -256,7 +257,7 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
           }),
       });
       let json = await res.json();
-
+      console.log("json es: ", json);
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
 // --------CÓDIGO PARA GENERAR PDF-----
@@ -278,9 +279,7 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
         }),
       });
       let json2 = await res2.json();
-      console.log("res2.json es igual a: ", json2);
       json2 = json2.result;
-      console.log("json2 es igual a: ", json2);
 
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};  
       $formExtra.submit();  // Envia el formulario de recorrido

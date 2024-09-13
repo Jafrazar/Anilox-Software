@@ -430,7 +430,7 @@ const $daysLeft = d.getElementById("days-left");
 
 const getDaysLeft = async()=>{
   let expirationDate;
-  if(ss.getItem("expiration") !== null){
+  if(ss.getItem("expiration") != null){
     try {
       let res = await fetch("/api/licencias", {
         method: 'POST',
@@ -457,10 +457,8 @@ const getDaysLeft = async()=>{
     expirationDate = ss.getItem("expiration");
   }
   let today = (new Date().toISOString()).slice(0,10);
-  console.log("today: ",today);
-  console.log("Date.parse(expirationDate): ", Date.parse(expirationDate));
   let days = Math.floor((Math.abs(Date.parse(expirationDate) - Date.parse(today)) /1000) / 86400);
-  $daysLeft.textContent = 437;
+  $daysLeft.textContent = days;
 }
 
 d.addEventListener("DOMContentLoaded", getDaysLeft);
