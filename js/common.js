@@ -430,32 +430,28 @@ const $daysLeft = d.getElementById("days-left");
 
 const getDaysLeft = async()=>{
   let expirationDate;
-  if(ss.getItem("expiration") != null){
-    try {
-      let res = await fetch("/api/licencias", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-      }),
-        json = await res.json();
+  try {
+    let res = await fetch("/api/licencias", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
+      json = await res.json();
 
-      if(!res.ok) throw{status: res.status, statusText: res.statusText};
-      ss.setItem("expiration", json.result[0].expiration);
-      expirationDate = json.result[0].expiration;
-    } 
-    catch (err) {
-      console.log(err);
-      let errorCode = err.status || "2316",
-          errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
-          message1 = "Error " + errorCode + ": ",
-          message2 = errorStatus;
-      $daysLeft.insertAdjacentHTML("afterend", `<p><b>${message1}</b>${message2}</p>`);
-    }
+    if(!res.ok) throw{status: res.status, statusText: res.statusText};
+    ss.setItem("expiration", json.result[0].expiration);
+    expirationDate = json.result[0].expiration;
+  } 
+  catch (err) {
+    console.log(err);
+    let errorCode = err.status || "2316",
+        errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
+        message1 = "Error " + errorCode + ": ",
+        message2 = errorStatus;
+    $daysLeft.insertAdjacentHTML("afterend", `<p><b>${message1}</b>${message2}</p>`);
   }
-  else{
-    expirationDate = ss.getItem("expiration");
-  }
+  
   let today = (new Date().toISOString()).slice(0,10);
   let days = Math.floor((Math.abs(Date.parse(expirationDate) - Date.parse(today)) /1000) / 86400);
   $daysLeft.textContent = days;
