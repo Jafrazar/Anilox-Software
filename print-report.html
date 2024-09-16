@@ -127,7 +127,12 @@
         <!-- Final Accesos Rapidos -->
         <div class="right-content">
           <div class="lista-anilox">
-            <h3>Rodillos</h3>
+            <span class="anilox-list-title">
+              <h3>Rodillos</h3>
+              <span class="material-icons-sharp" title="Buscar" id="search-report-btn">
+                search
+              </span>
+            </span>
             <div class="table">
               <table class="anilox-table">
                 <tbody></tbody>
@@ -139,6 +144,20 @@
               </template>
             </div>
           </div>
+        <!-- <div class="right-content">
+          <div class="lista-anilox">
+            <h3>Rodillos</h3>
+            <div class="table">
+              <table class="anilox-table">
+                <tbody></tbody>
+              </table>
+              <template id="anilox-template">
+                <tr>
+                  <td class="id"></td>
+                </tr>
+              </template>
+            </div>
+          </div> -->
           <!-- Final lista anilox -->
           <div class="lista-reportes">
             <h3>Reportes</h3>
@@ -190,6 +209,26 @@
       </div>
     </div>
     <!-- Final de buscar anilox -->
+    <div class="modal" id="modal-search-report-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-report-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <div class="search-input">
+            <p>ID:</p>
+            <input type="text" id="search-report-id" placeholder="Ingrese código de ánilox">
+          </div>
+          <div class="search-submit">
+            <input type="button" value="Buscar" id="search-report">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Final buscar reportes para un anilox específico -->
     <div class="modal" id="modal-alert-box">
       <div class="modal-content">
         <div class="modal-header">

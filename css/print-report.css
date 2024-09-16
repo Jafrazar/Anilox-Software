@@ -90,3 +90,39 @@
 .right-content > div object:hover{
   box-shadow: none;
 }
+
+/* anilox list title */
+
+.right-content .lista-anilox .anilox-list-title{
+  display: flex;
+  justify-content: center;
+}
+
+.right-content .lista-anilox .anilox-list-title span{
+  padding-left: 0.5rem;
+  cursor: pointer;
+}
+
+/* anilox report search */
+
+.modal .modal-body #search-report-id{
+  color: var(--color-dark);
+  font-weight: 400;
+  font-size: 20px;
+  padding: 0.5rem;
+  border: thin solid var(--color-primary);
+  font-family: inherit;
+}
+
+.modal .modal-body #search-report{
+  background: var(--color-primary);
+  color: var(--color-info-light);
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 20px;
+  height: 3rem;
+  width: auto;
+  padding: 0.5rem 1rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+}

@@ -1,5 +1,5 @@
-import { jsPDF } from "jspdf";
-import pdfjsLib from "pdfjs-dist";
+// import { jsPDF } from "jspdf";
+// import pdfjsLib from "pdfjs-dist";
 const $aniloxTable = d.querySelector(".anilox-table"),
       $reportTable = d.querySelector(".report-table"),
       $aniloxTemplate = d.getElementById("anilox-template").content,
@@ -12,9 +12,15 @@ const $aniloxTable = d.querySelector(".anilox-table"),
       $reportTableBody = d.querySelector(".report-table-body"),
       $reportTitle = d.getElementById("report-title"),
       $reportPdf = d.getElementById("report-pdf"),
-      $descargaPdf = d.getElementById("descarga-pdf");
+      $descargaPdf = d.getElementById("descarga-pdf"),
+      $searchReportBtn = d.getElementById("search-report-btn"),
+      $closeSearchReport = d.getElementById("close-search-report-anilox"),
+      $modalSearchReport = d.getElementById("modal-search-report-anilox"),
+      $searchReportId = d.getElementById("search-report-id"),
+      $searchReport = d.getElementById("search-report");
 
 let aniloxReportId, aniloxReportDate;
+let aniloxList = [];
 
 const getAniloxList = async ()=>{
   try {
@@ -48,6 +54,10 @@ const getAniloxList = async ()=>{
 const getReportList = async(e)=>{
   if(e.target.matches(".id")){
     try {
+      for(let i = 0; i < e.target.parentElement.parentElement.children.length; i++){
+        e.target.parentElement.parentElement.children[i].children[0].classList.remove("selected");
+      }
+      e.target.classList.add("selected");
       $reportTableBody.innerHTML = "";
       $listaReportes.style.display = "block";
       aniloxReportId = e.target.textContent;
@@ -83,16 +93,20 @@ const getReportList = async(e)=>{
 const getReport = async(e)=>{
   if(e.target.matches(".date")){
     try {
+      for(let i = 0; i < e.target.parentElement.parentElement.children.length; i++){
+        e.target.parentElement.parentElement.children[i].children[0].classList.remove("selected");
+      }
+      e.target.classList.add("selected");
       $pdf.style.display = "block";
       aniloxReportDate = e.target.textContent;
       $reportTitle.textContent = `${aniloxReportId}_${aniloxReportDate}`
       let res = await fetch('/api/anilox-history', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ aniloxReportId: aniloxReportId })
-    }),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ aniloxReportId: aniloxReportId })
+      }),
           json = await res.json();
           json = json.result;
 
@@ -118,6 +132,71 @@ const getReport = async(e)=>{
   }
 }
 
+const searchSpecific = async(e)=>{
+  if(e.target === $searchReportBtn){
+    $modalSearchReport.style.display = "block";
+  }
+  if(e.target === $closeSearchReport){
+    $modalSearchReport.style.display = "none"
+  }
+  if(e.target === $searchReport){
+    for(let i = 0; i < $aniloxTable.children[0].children.length; i++){
+      aniloxList[i] = $aniloxTable.children[0].children[i].children[0].textContent;
+    }
+    if(aniloxList.includes($searchReportId.value.toUpperCase())){
+      aniloxReportId = $searchReportId.value.toUpperCase();
+      $modalSearchReport.style.display = "none";
+      $searchReportId.value = "";
+      try {
+        for(let i = 0; i < $aniloxTable.children[0].children.length; i++){
+          $aniloxTable.children[0].children[i].children[0].classList.remove("selected");
+        }
+        $aniloxTable.children[0].children[aniloxList.indexOf(aniloxReportId)].children[0].classList.add("selected");
+        $reportTableBody.innerHTML = "";
+        $listaReportes.style.display = "block";
+        let res = await fetch('/api/anilox-history', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ aniloxReportId: aniloxReportId })
+        }),
+            json = await res.json();
+            json = json.result;
+  
+        if(!res.ok) throw{status: res.status, statusText: res.statusText};
+  
+        json.reverse();
+  
+        json.forEach(el =>{
+          $reportTemplate.querySelector(".date").textContent = el.date;
+          let $clone = d.importNode($reportTemplate, true);
+          $reportFragment.appendChild($clone);
+        });
+        $reportTable.querySelector("tbody").appendChild($reportFragment);
+      } catch (err) {
+        let errorCode = err.status || "2316",
+            errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
+            message1 = "Error " + errorCode + ": ",
+            message2 = errorStatus;
+        $reportTable.insertAdjacentHTML("afterend", `<p><b>${message1}</b>${message2}</p>`);
+      }
+    }
+    else if($searchReportId.value === ""){
+      $modalSearchReport.style.display = "none";
+      $searchReportId.value = "";
+      $alertContent.textContent = "Debe ingresar un ID para buscar el anilox en su lista.";
+      $modalAlertBox.style.display = "block";
+    }
+    else{
+      $modalSearchReport.style.display = "none";
+      $searchReportId.value = "";
+      $alertContent.textContent = "No se encontró el ID ingresado en su lista de anilox.";
+      $modalAlertBox.style.display = "block";
+    }
+  }
+}
+
 const levelCheck = ()=>{
   let level = ss.getItem("level")
   if(level === "1"){
@@ -130,3 +209,4 @@ d.addEventListener("DOMContentLoaded",levelCheck);
 d.addEventListener("DOMContentLoaded",getAniloxList);
 d.addEventListener("click", getReportList);
 d.addEventListener("click", getReport);
+d.addEventListener("click", searchSpecific);
