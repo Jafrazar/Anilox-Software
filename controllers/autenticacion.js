@@ -909,17 +909,17 @@ function generarPdf(req, res) {
   };
   
   const coord_tapadas = {
-    x: 45,     y: 322,
+    x: 45,     y: 320,
     width: 160, height: 193
   };
   
   const coord_danadas = {
-    x: 225,     y: 322,
+    x: 225,     y: 320,
     width: 160, height: 193
   };
   
   const coord_desgastadas = {
-    x: 405,     y: 322,
+    x: 405,     y: 320,
     width: 165, height: 193
   };
   
@@ -936,7 +936,7 @@ function generarPdf(req, res) {
   try {
     let { id, revision, last, brand, volume, screen } = req.body;
     let tapadas, limpias, danadas, sinDano, desgastadas, sinDesgaste, tapadas_img, danadas_img, desgastadas_img, bcmChart, eolGraph, tipo, purchase, msg;
-    let volLabels = [], volData = [], diag = [], eolDates = [], nomData =[];
+    let volLabels = [], volData = [], diag = [], eolDates = [], nomData =[], actualDates=[], ultimaFecha, diferenciasEnAnios;
     let sql_PDF = 'SELECT * FROM anilox_analysis WHERE id = ?'
     db.query(sql_PDF, [id], (err, rows) => {
         if (err) throw err;
@@ -1417,18 +1417,21 @@ function generarPdf(req, res) {
                     percentDates = "";
                   }
                   else{
-                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
+                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));                    
                     newDates = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => point.x);
-                    percentVol = encontrarValoresCercanosMenores(eolData, [(nomVol/1.55) * 0.9, (nomVol/1.55) * 0.8, (nomVol/1.55) * 0.7, (nomVol/1.55) * 0.6]);
+                    percentVol = encontrarValoresCercanosMenores(eolData, [0.9*nomVol/1.55, 0.8*nomVol/1.55, 0.7*nomVol/1.55, 0.6*nomVol/1.55]);
                     percentDates = encontrarPosiciones(eolData, percentVol);
-                    
-                    // for(let i = 0; i < rows3.length; i++){
-                    //   let date = new Date(rows3[i].date);
-                    //   eolDates[i] = date.toISOString().split('T')[0];
-                    //   volData[i] = Math.round(((rows3[i].volume)/1.55) * 10) / 10; 
-                    // }
+                    actualDates = percentDates.map(pos => newDates[pos-1]);
+                    ultimaFecha = new Date(eolDates[eolDates.length - 1]);
+                    diferenciasEnAnios = actualDates.map(dateStr => {
+                      const actualDate = new Date(dateStr);
+                      const diferenciaEnMilisegundos = actualDate - ultimaFecha;
+                      const diferenciaEnAnios = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24 * 365.25); // 365.25 para considerar los años bisiestos
+                      return diferenciaEnAnios;
+                    });
                   }
                 }
+                
                 console.log("eolData: " + eolData);
                 console.log("percentVol: " + percentVol);
                 console.log("percentDates: " + percentDates);
@@ -1540,8 +1543,7 @@ function generarPdf(req, res) {
                   });
                   let eol_img = generarGrafico(eolGraph).replace('data:image/jpeg;base64,', '');
   
-                  const outputPath = path.join(__dirname, '/output.pdf');
-                  // return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });                  
+                  const outputPath = path.join(__dirname, '/output.pdf');              
                   const replaceText = async () => {
                     try{                      
                       console.log("Se inició el proceso de reemplazo de texto");
@@ -1600,7 +1602,7 @@ function generarPdf(req, res) {
                                 });
                               }
                             });
-                          });   
+                          });
                         }).catch((error) => {
                           console.error('Error al procesar el archivo PDF:', error);
                           return res.status(500).send('Error al procesar el archivo PDF');
@@ -1608,15 +1610,15 @@ function generarPdf(req, res) {
                       }
                       else{
                         await replacer.addString('eol_80', percentData.values[1].toString());
-                        await replacer.addString('anio_80', percentData.values[2].toString());
-                        await replacer.addString('eol_70', percentData.values[3].toString());
-                        await replacer.addString('anio_70', percentData.dates[1].toString());
-                        await replacer.addString('eol_60', percentData.dates[2].toString());
-                        await replacer.addString('anio_60', percentData.dates[3].toString());
-                        await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL)  
-                            .then(() => {                 
+                        await replacer.addString('anio_80', diferenciasEnAnios[1].toFixed(1));
+                        await replacer.addString('eol_70', percentData.values[2].toString());
+                        await replacer.addString('anio_70', diferenciasEnAnios[2].toFixed(1));
+                        await replacer.addString('eol_60', percentData.values[3].toString());
+                        await replacer.addString('anio_60', diferenciasEnAnios[3].toFixed(1));
+                        await addBase64ImageToPDF(pdfdoc, pageSet2, eol_img, coord_graficaEOL)
+                            .then(() => {  
                                 replacer.process(page);
-                                replacer.process(page2);            
+                                replacer.process(page2);
                                 pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
                                 fs.readFile(outputPath, (err_f, data) => {
                                     if (err_f) {

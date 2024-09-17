@@ -264,8 +264,6 @@ const $clientLogo = d.getElementById("client-logo");
 
 const getUser = async()=>{
   try {
-    console.log("El ss.getItem(user) es: ", ss.getItem("user"));
-    console.log("El ss.getItem(level) es: ", ss.getItem("level"));
       let res = await fetch("/api/usuarios", {
         method: 'POST',
         headers: {
