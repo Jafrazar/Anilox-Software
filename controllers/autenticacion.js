@@ -904,27 +904,27 @@ function generarPdf(req, res) {
   const canvas_EOL = createCanvas(800, 350);
   const EOL_ctx = canvas_EOL.getContext('2d'); // Se crea un canva para el gráfico de EOL
   const coord_revision = {
-    x: 215,     y: 685,     
+    x: 215,     y: 688,     
     width: 205, height: 120 
   };
   
   const coord_tapadas = {
-    x: 45,     y: 325,
+    x: 45,     y: 322,
     width: 160, height: 193
   };
   
   const coord_danadas = {
-    x: 225,     y: 325,
+    x: 225,     y: 322,
     width: 160, height: 193
   };
   
   const coord_desgastadas = {
-    x: 405,     y: 325,
+    x: 405,     y: 322,
     width: 165, height: 193
   };
   
   const coord_historial = {
-    x: 23,     y: 535,
+    x: 23,     y: 532,
     width: 555, height: 185
   };
 
@@ -932,11 +932,6 @@ function generarPdf(req, res) {
     x: 23,     y: 45,
     width: 545, height: 335
   }
-
-  // const coord_estadisticas = {
-  //   x: 130,     y: 410,
-  //   width: 250, height: 300
-  // }
 
   try {
     let { id, revision, last, brand, volume, screen } = req.body;
@@ -1399,39 +1394,45 @@ function generarPdf(req, res) {
                 console.log("eolData: " + eolData);
                 console.log("eolData[0]: " + eolData[0]);
                 let percentVol=[], percentDates=[];
-                if(rows3.length < 3) { 
-                  eolData[0] = 2000;
+                if(rows3.length < 2) {
+                  eolData = 2000;
                   msg = `No se cuenta con suficientes datos para realizar una estimación.`;
                   pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');                  
                 }
-                else if (parseFloat(rows[0].estado) < 60) { 
-                  eolData[0] = 1000;
-                  msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;
+                else if (parseFloat(rows[0].estado) < 60) {
+                  eolData = 1000;
+                  msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.6).toFixed(3)}).`;
                   pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');
                 }
                 else{
                   // eolData = calcularRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
-                  const { m, b } = generarRectaTendencia(eolDates, volData, 0.6*nomVol);
+                  const { m, b } = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55);
+                  console.log("m: " + m);
+                  console.log("b: " + b);
                   if(m >= -0.000000000005) {
-                    eolData[0] = 2000;
+                    eolData = 2000;
                     msg = `No se cuenta con suficientes datos para realizar una estimación.`;
                     pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');
-                    percentVol ="";
-                    percertDates="";
+                    percentVol = "";
+                    percentDates = "";
                   }
                   else{
-                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol).tendencia.map(point => parseFloat(point.y.toFixed(3)));
-                    percentVol = encontrarValoresCercanosMenores(eolData, [nomVol * 0.9, nomVol * 0.8, nomVol * 0.7, nomVol * 0.6]);
+                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
+                    newDates = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => point.x);
+                    percentVol = encontrarValoresCercanosMenores(eolData, [(nomVol/1.55) * 0.9, (nomVol/1.55) * 0.8, (nomVol/1.55) * 0.7, (nomVol/1.55) * 0.6]);
                     percentDates = encontrarPosiciones(eolData, percentVol);
                     
-                    for(let i = 0; i < rows3.length; i++){
-                      let date = new Date(rows3[i].date);
-                      eolDates[i] = date.toISOString().split('T')[0];
-                      volData[i] = rows3[i].volume;
-                    }
-                  }                  
+                    // for(let i = 0; i < rows3.length; i++){
+                    //   let date = new Date(rows3[i].date);
+                    //   eolDates[i] = date.toISOString().split('T')[0];
+                    //   volData[i] = Math.round(((rows3[i].volume)/1.55) * 10) / 10; 
+                    // }
+                  }
                 }
-
+                console.log("eolData: " + eolData);
+                console.log("percentVol: " + percentVol);
+                console.log("percentDates: " + percentDates);
+                
                 const percentData = {
                   dates: percentDates,
                   values: percentVol
@@ -1446,11 +1447,11 @@ function generarPdf(req, res) {
                   }
                   
                   const dataEOLGraph = {
-                    labels: eolDates,
+                    labels: newDates,
                     datasets: [{
                       type: 'line',
                       label: 'Volumen estimado (BCM)',
-                      data: eolData.map(dato => Math.round((dato/1.55) * 10) / 10),
+                      data: eolData.map(dato => Math.round(dato * 10) / 10),
                       fill: false,
                       borderColor: 'rgba(255, 0, 0, 0.35)',
                       tension: 0.1,
@@ -1461,7 +1462,7 @@ function generarPdf(req, res) {
                     }, {
                       type: 'scatter',
                       label: 'Volumen medido (BCM)',
-                      data: volData.map(dato => Math.round((dato/1.55) * 10) / 10),
+                      data: volData.map(dato => Math.round(dato * 10) / 10),
                       fill: false,
                       borderColor: 'rgba(0, 0, 255, 0.6)',
                       datalabels: {
@@ -1500,7 +1501,7 @@ function generarPdf(req, res) {
                           clip: false,
                           formatter: function(value, context){
                             if(context.dataset.type === 'line'){
-                              if((value == Math.round((percentVol[0]/1.55) * 10) / 10 && ((percentDates[0] - rows3[0].length) / 2) > 0) || (value == Math.round((percentVol[1]/1.55) * 10) / 10 && ((percentDates[1] - rows3[0].length) / 2) > 0) || (value == Math.round((percentVol[2]/1.55) * 10) / 10 && ((percentDates[2] - rows3[0].length) / 2) > 0) || (value == Math.round((percentVol[3]/1.55) * 10) / 10 && ((percentDates[3] - rows3[0].length) / 2) > 0)) {
+                              if(value == parseFloat(percentVol[0].toFixed(1)) || value == parseFloat(percentVol[1].toFixed(1)) || value == parseFloat(percentVol[2].toFixed(1)) || value == parseFloat(percentVol[3].toFixed(1))) {
                                 return value
                               }
                               else {
@@ -1508,35 +1509,7 @@ function generarPdf(req, res) {
                               }
                             }
                           },
-                        },
-                        tooltip: {
-                          enabled: true,
-                          titleFont: {
-                            size: 16,
-                            weight: 600,
-                          },
-                          bodyFont: {
-                            size: 14,
-                            weight: 500,
-                          },
-                          footerFont: {
-                            size: 16,
-                            weight: 300,
-                          },
-                          callbacks: {
-                            label: function(context){
-                              let data = context.parsed.y;
-                              return 'Volumen: ' + data + ' BCM';
-                            },
-                            footer: function(tooltipItems){
-                              let vol = tooltipItems[0].dataset.data[tooltipItems[0].dataIndex];
-                              if(vol == Math.round((percentVol[0]/1.55) * 10) / 10 && ((percentDates[0] - rows3[0].length) / 2) > 0){return `Volumen de celda aprox. 90% del nominal (${(nomVol/1.55 * 0.9).toFixed(3)})`}
-                              if(vol == Math.round((percentVol[1]/1.55) * 10) / 10 && ((percentDates[1] - rows3[0].length) / 2) > 0){return `Volumen de celda aprox. 80% del nominal (${(nomVol/1.55 * 0.8).toFixed(3)})`}
-                              if(vol == Math.round((percentVol[2]/1.55) * 10) / 10 && ((percentDates[2] - rows3[0].length) / 2) > 0){return `Volumen de celda aprox. 70% del nominal (${(nomVol/1.55 * 0.7).toFixed(3)})`}
-                              if(vol == Math.round((percentVol[3]/1.55) * 10) / 10 && ((percentDates[3] - rows3[0].length) / 2) > 0){return `Volumen de celda aprox. 60% del nominal (${(nomVol/1.55 * 0.6).toFixed(3)})`}
-                            }
-                          },
-                        },
+                        }
                       },
                       responsive: true,
                       maintainAspectRatio: false,

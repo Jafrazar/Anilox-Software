@@ -107,10 +107,12 @@ app.listen(3000, () => {
     console.log('Servidor iniciado en http://localhost:3000');
 });
 
-const Dates = ["2024-05-16", "2024-05-17", "2024-05-23", "2024-05-30", "2024-06-06", "2024-06-14"];
+const Dates = ["2024-05-16", "2024-05-17", "2024-05-23", "2024-05-30", "2024-06-06", "2024-06-14", "2024-08-22"];
 
-const Data = [8.8, 9.2, 8.6, 9.2, 8.9, 8.85];
-const limite = 0.6*8;
+let Data = [8.8, 9.2, 8.6, 9.2, 8.9, 9.0, 8.2];
+Data = Data.map(Number => parseFloat(Number/1.55));
+console.log(Data);
+const limite = 0.6*6;
 
 const resultado = calcularRectaTendencia(Dates, Data, limite);
 console.log(resultado);
