@@ -142,7 +142,6 @@ const submit = async(e)=>{
           savePatron = el.patron;
           break; // Usar break para salir del bucle y mantener el valor de 1
         } else {
-          console.log("el.id es igual a: ", el.id);
           alreadyExists = 0;
         }
       }
@@ -257,7 +256,6 @@ const recorrido = async(e)=>{ // Página de "Ingrese el recorrido del anilox"
           }),
       });
       let json = await res.json();
-      console.log("json es: ", json);
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
 
 // --------CÓDIGO PARA GENERAR PDF-----

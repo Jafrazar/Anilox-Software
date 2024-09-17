@@ -178,3 +178,14 @@
   border-radius: 1.5rem;
   cursor: pointer;
 }
+
+/* warnings */
+
+.right-content .anilox-upload .warnings{
+  padding-top: 1rem;
+}
+
+.right-content .anilox-upload .warnings > h3, ul{
+  color: red;
+  font-size: 18px;
+}

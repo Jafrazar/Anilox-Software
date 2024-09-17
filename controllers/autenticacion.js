@@ -247,7 +247,8 @@ async function limpieza(IpPath, IrPath) {
   const IpRed = createRedImage(Ip, IpRedPix);
   const IrRed = createRedImage(Ir, IrRedPix);
   // Calcular porcentaje de celdas tapadas
-  const porcentajeTapadas = Math.round((1 - (IrRedPix / IpRedPix)) * 100);
+  let porcentajeTapadas = Math.round((1 - (IrRedPix / IpRedPix)) * 100);
+  porcentajeTapadas = porcentajeTapadas <= 0 ? 1 : porcentajeTapadas;
   console.log(`Porcentaje de celdas tapadas: ${porcentajeTapadas}`);
   return { IpRed, IrRed, porcentajeTapadas };
 }
@@ -309,7 +310,8 @@ async function desgaste(IpPath, IrPath) {
   const IpBlue = createBlueImage(Ip, IpBluePix);
   const IrBlue = createBlueImage(Ir, IrBluePix);
   // Calcular porcentaje de celdas desgastadas
-  const porcentajeDesgaste = Math.round((1 - (IrBluePix / IpBluePix)) * 100);  
+  let porcentajeDesgaste = Math.round((1 - (IrBluePix / IpBluePix)) * 100);
+  porcentajeDesgaste = porcentajeDesgaste <= 0 ? 1 : porcentajeDesgaste;
   console.log(`Porcentaje de celdas desgastadas: ${porcentajeDesgaste}`);
   return { IpBlue, IrBlue, porcentajeDesgaste };
 }
@@ -328,7 +330,7 @@ async function dano(IpPath, IrPath) {
 
     // Función para contar píxeles verdes
     const contarPixelesVerdes = (imagen) => {
-        const rThr = 255;
+        const rThr = 100;
         const gThr = 0;
         const bThr = 110;
         return contarPixeles(imagen, rThr, gThr, bThr, true);
@@ -347,7 +349,7 @@ async function dano(IpPath, IrPath) {
             const g = data[i + 1];
             const b = data[i + 2];
             if (esVerde) {
-                if (r <= rThr && g >= gThr && b <= bThr) contador++;
+                if (r >= rThr && g >= gThr && b <= bThr) contador++;
             } else {
                 if (r >= rThr && g <= gThr && b <= bThr) contador++;
             }
@@ -380,7 +382,9 @@ async function dano(IpPath, IrPath) {
     };
 
     // Cálculo de porcentaje de daño
-    const porcentajeDano = (((IrGreenPix) / (IpGreenPix)) - 1) * 100;
+    let porcentajeDano = (((IrGreenPix) / (IpGreenPix)) - 1) * 100; // Falta arreglar
+    porcentajeDano = porcentajeDano <= 0 ? 1 : porcentajeDano;
+    porcentajeDano = porcentajeDano > 100 ? 100 : porcentajeDano;
     console.log({IpRedPix, IrRedPix, IpGreenPix, IrGreenPix, porcentajeDano});
     return {porcentajeDano};
 }
@@ -395,7 +399,9 @@ async function resultados(porcentajeTapadas, porcentajeDano, porcentajeDesgaste)
   const dano = pesoDano * porcentajeDano;
   const desgaste = pesoDesgaste * porcentajeDesgaste;
 
-  const estado = Math.round(100 - (tapadas + dano + desgaste) / pesoTotal, 1);
+  let estado = Math.round(100 - (tapadas + dano + desgaste) / pesoTotal, 1);
+  estado = estado >100 ? 100 : estado;
+  estado = estado < 0 ? 10 : estado;
 
   let diagnostico, recomendacion;
 
@@ -892,7 +898,7 @@ function encontrarPosiciones(arr, valoresCercanos) {
 }
 
 function generarPdf(req, res) {  
-  let pdfPath = path.join(__dirname, '/modelo_reporte_final5.pdf');  
+  let pdfPath = path.join(__dirname, '/modelo_reporte_final6.pdf');  
   const canvas_bcm = createCanvas(800, 185);
   const bcm_ctx = canvas_bcm.getContext('2d'); // Se crea un canva para el gráfico de BCM
   const canvas_EOL = createCanvas(800, 350);
@@ -924,7 +930,7 @@ function generarPdf(req, res) {
 
   const coord_graficaEOL = {
     x: 23,     y: 45,
-    width: 555, height: 350
+    width: 545, height: 335
   }
 
   // const coord_estadisticas = {
@@ -1405,7 +1411,7 @@ function generarPdf(req, res) {
                 }
                 else{
                   // eolData = calcularRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
-                  const { m, b } = generarRectaTendencia(eolDates, volData, (0.6*nomVol)/1.55);
+                  const { m, b } = generarRectaTendencia(eolDates, volData, 0.6*nomVol);
                   if(m >= -0.000000000005) {
                     eolData[0] = 2000;
                     msg = `No se cuenta con suficientes datos para realizar una estimación.`;
@@ -1414,7 +1420,7 @@ function generarPdf(req, res) {
                     percertDates="";
                   }
                   else{
-                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol/1.55).tendencia.map(point => parseFloat(point.y.toFixed(3)));
+                    eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol).tendencia.map(point => parseFloat(point.y.toFixed(3)));
                     percentVol = encontrarValoresCercanosMenores(eolData, [nomVol * 0.9, nomVol * 0.8, nomVol * 0.7, nomVol * 0.6]);
                     percentDates = encontrarPosiciones(eolData, percentVol);
                     
@@ -1646,7 +1652,7 @@ function generarPdf(req, res) {
                                     db.query(SQL5_PDF, [id], (err_g, rows_g) => {
                                         if (rows_g.length > 0) {
                                             const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
-                                            db.query(SQL6_PDF, [base64PDF, id, rows.length], (err_h, rows_h) => {
+                                            db.query(SQL6_PDF, [base64PDF, id, rows_g.length], (err_h, rows_h) => {
                                                 console.log('PDF convertido a Base64 y almacenado con éxito');
                                             });
                                         }
