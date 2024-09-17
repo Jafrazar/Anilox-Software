@@ -1501,8 +1501,11 @@ function generarPdf(req, res) {
                           clip: false,
                           formatter: function(value, context){
                             if(context.dataset.type === 'line'){
+                              const volDataRounded = volData.map(dato => Math.round(dato * 10) / 10);
                               if(value == parseFloat(percentVol[0].toFixed(1)) || value == parseFloat(percentVol[1].toFixed(1)) || value == parseFloat(percentVol[2].toFixed(1)) || value == parseFloat(percentVol[3].toFixed(1))) {
-                                return value
+                                if(!volDataRounded.includes(value)){
+                                  return value;
+                                }
                               }
                               else {
                                 return ''
@@ -1620,7 +1623,7 @@ function generarPdf(req, res) {
                                         console.error('Error al leer el archivo PDF:', err_f);
                                         return res.status(500).send('Error al procesar el archivo PDF');                                      
                                     }
-                                    const base64PDF = data.toString('base64');
+                                    const base64PDF = `data:application/pdf;base64,${data.toString('base64')}`;
                                     const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
                                     db.query(SQL5_PDF, [id], (err_g, rows_g) => {
                                         if (rows_g.length > 0) {
