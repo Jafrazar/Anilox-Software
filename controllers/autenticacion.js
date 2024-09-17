@@ -331,7 +331,7 @@ async function dano(IpPath, IrPath) {
     // Función para contar píxeles verdes
     const contarPixelesVerdes = (imagen) => {
         const rThr = 100;
-        const gThr = 0;
+        const gThr = 123;
         const bThr = 110;
         return contarPixeles(imagen, rThr, gThr, bThr, true);
     };
