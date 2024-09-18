@@ -194,8 +194,6 @@ async function limpieza(IpPath, IrPath) {
   const gThr = 140;
   const bThr = 140;
 
-  console.log(`Umbrales - Rojo: ${rThr}, Verde: ${gThr}, Azul: ${bThr}`);
-
   // Función para extraer el canal rojo y contar píxeles
   const countRedPixels = (image, rThreshold, gThreshold, bThreshold) => {
     const canvas = createCanvas(image.width, image.height);
@@ -215,7 +213,6 @@ async function limpieza(IpPath, IrPath) {
             redPixelCount++;
         }
     }
-    console.log(`Total de píxeles rojos encontrados: ${redPixelCount}`);
 
     return redPixelCount;
   };
@@ -248,7 +245,7 @@ async function limpieza(IpPath, IrPath) {
   const IrRed = createRedImage(Ir, IrRedPix);
   // Calcular porcentaje de celdas tapadas
   let porcentajeTapadas = Math.round((1 - (IrRedPix / IpRedPix)) * 100);
-  porcentajeTapadas = porcentajeTapadas <= 0 ? 1 : porcentajeTapadas;
+  porcentajeTapadas = porcentajeTapadas <= 0 ? 5 : porcentajeTapadas;
   console.log(`Porcentaje de celdas tapadas: ${porcentajeTapadas}`);
   return { IpRed, IrRed, porcentajeTapadas };
 }
@@ -259,7 +256,7 @@ async function desgaste(IpPath, IrPath) {
   // Umbral para el canal azul
   const rThr = 150;
   const gThr = 150;
-  const bThr = 0;
+  const bThr = 180;
 
   // Función para extraer el canal azul y contar píxeles
   const countBluePixels = (image, rThreshold, gThreshold, bThreshold) => {
@@ -279,7 +276,7 @@ async function desgaste(IpPath, IrPath) {
               bluePixelCount++;
           }
       }  
-      console.log(`Total de píxeles azules encontrados: ${bluePixelCount}`);
+      
       return bluePixelCount;
   };
 
@@ -311,7 +308,7 @@ async function desgaste(IpPath, IrPath) {
   const IrBlue = createBlueImage(Ir, IrBluePix);
   // Calcular porcentaje de celdas desgastadas
   let porcentajeDesgaste = Math.round((1 - (IrBluePix / IpBluePix)) * 100);
-  porcentajeDesgaste = porcentajeDesgaste <= 0 ? 1 : porcentajeDesgaste;
+  porcentajeDesgaste = porcentajeDesgaste <= 0 ? 5 : porcentajeDesgaste;
   console.log(`Porcentaje de celdas desgastadas: ${porcentajeDesgaste}`);
   return { IpBlue, IrBlue, porcentajeDesgaste };
 }
@@ -331,7 +328,7 @@ async function dano(IpPath, IrPath) {
     // Función para contar píxeles verdes
     const contarPixelesVerdes = (imagen) => {
         const rThr = 100;
-        const gThr = 123;
+        const gThr = 140;
         const bThr = 110;
         return contarPixeles(imagen, rThr, gThr, bThr, true);
     };
@@ -382,10 +379,10 @@ async function dano(IpPath, IrPath) {
     };
 
     // Cálculo de porcentaje de daño
-    let porcentajeDano = (((IrGreenPix) / (IpGreenPix)) - 1) * 100; // Falta arreglar
-    porcentajeDano = porcentajeDano <= 0 ? 1 : porcentajeDano;
+    let porcentajeDano = Math.round(((IrGreenPix / IpGreenPix) - 1) * 100); // Falta arreglar
+    porcentajeDano = porcentajeDano <= 0 ? 5 : porcentajeDano;
     porcentajeDano = porcentajeDano > 100 ? 100 : porcentajeDano;
-    console.log({IpRedPix, IrRedPix, IpGreenPix, IrGreenPix, porcentajeDano});
+    console.log({IpGreenPix, IrGreenPix, porcentajeDano});
     return {porcentajeDano};
 }
 
@@ -400,7 +397,7 @@ async function resultados(porcentajeTapadas, porcentajeDano, porcentajeDesgaste)
   const desgaste = pesoDesgaste * porcentajeDesgaste;
 
   let estado = Math.round(100 - (tapadas + dano + desgaste) / pesoTotal, 1);
-  estado = estado >100 ? 100 : estado;
+  estado = estado >100 ? 95 : estado;
   estado = estado < 0 ? 10 : estado;
 
   let diagnostico, recomendacion;
@@ -454,7 +451,7 @@ async function analysis(IpPath, IrPath) {
   const { porcentajeDano } = await dano(IpPath, IrPath);
   const { estado, diagnostico, recomendacion } = await resultados(porcentajeTapadas, porcentajeDano, porcentajeDesgaste);
 
-  console.log("Analisis exitoso", { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion });
+  console.log("Analisis exitoso", { porcentajeTapadas, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion });
   return { IpRed, IrRed, porcentajeTapadas, IpBlue, IrBlue, porcentajeDesgaste, porcentajeDano, estado, diagnostico, recomendacion };
 }
 
@@ -873,7 +870,7 @@ function generarRectaTendencia(eolDates, volData, limite) {
   // Generar puntos en fechas futuras hasta que el valor sea menor o igual al límite
   let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
   let ultimoValor = tendencia[tendencia.length - 1].y;
-  let b2 = b > 100 ? 3 : 6;
+  let b2 = b > 200 ? 2 : b > 100 ? 3 : 6;
 
   if(m < -0.000000000005 ){
     while (ultimoValor > limite) {
@@ -1236,7 +1233,7 @@ function generarPdf(req, res) {
         tapadas_img = generarGrafico(cleanGraphConfig).replace('data:image/jpeg;base64,', '');
         danadas_img = generarGrafico(damagedGraphConfig).replace('data:image/jpeg;base64,', '');
         desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');    
-        
+
         const sql2_PDF = 'SELECT * FROM anilox_list WHERE id=?';
         db.query(sql2_PDF,[id], (err2, rows2) => {
             if (err2) throw err2;
@@ -1388,11 +1385,9 @@ function generarPdf(req, res) {
                 console.log("Fechas de EOL: " + eolDates);
                 const numPuntos = 2 * volData.length + 1;
                 const fechasExtendidas = extenderFechas(eolDates, numPuntos);
-                
+
                 // const { m, b } = calcularRectaTendencia(eolDates, volData);
                 // Calcular los puntos de tendencia para las fechas extendidas
-                console.log("eolData: " + eolData);
-                console.log("eolData[0]: " + eolData[0]);
                 let percentVol=[], percentDates=[];
                 if(rows3.length < 2) {
                   eolData = 2000;
@@ -1545,8 +1540,7 @@ function generarPdf(req, res) {
   
                   const outputPath = path.join(__dirname, '/output.pdf');              
                   const replaceText = async () => {
-                    try{                      
-                      console.log("Se inició el proceso de reemplazo de texto");
+                    try{
                       const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath);
                       await pdfdoc.initSecurityHandler();
                       const replacer = await PDFNet.ContentReplacer.create();
@@ -1657,8 +1651,6 @@ function generarPdf(req, res) {
                               res.send(err);
                           } else {                              
                               return res.status(200).send({ status: "Success", message: "PDF generado con éxito", result: rows3[0] });
-                              // res.setHeader('Content-Type', 'application/pdf');
-                              // res.send(data);
                           }                   
                       })
                     }).catch(err => {

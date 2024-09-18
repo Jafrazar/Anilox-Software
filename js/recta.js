@@ -39,7 +39,7 @@ function calcularRectaTendencia(eolDates, volData, limite) {
     // Generar puntos en fechas futuras hasta que el valor sea menor o igual al límite
     let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
     let ultimoValor = tendencia[tendencia.length - 1].y;
-    let b2 = b > 100 ? 3 : 6;
+    let b2 = b > 200 ? 2 : b > 100 ? 3 : 6;
 
     if ( m < -0.000000000005 ) {
         while (ultimoValor > limite) {
@@ -107,9 +107,9 @@ app.listen(3000, () => {
     console.log('Servidor iniciado en http://localhost:3000');
 });
 
-const Dates = ["2024-05-16", "2024-05-17", "2024-05-23", "2024-05-30", "2024-06-06", "2024-06-14", "2024-08-22"];
+const Dates = ["2024-05-16", "2024-05-17", "2024-05-23", "2024-08-28"];
 
-let Data = [8.8, 9.2, 8.6, 9.2, 8.9, 9.0, 8.2];
+let Data = [8.4, 8.7, 8.5, 6.8];
 Data = Data.map(Number => parseFloat(Number/1.55));
 console.log(Data);
 const limite = 0.6*6;
