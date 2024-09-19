@@ -3,8 +3,7 @@ require('dotenv').config();
 module.exports = { path };
 
 const express = require("express");
-const nodemailer = require('nodemailer');
-const { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList, cotizaciones,
+const { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList, cotizaciones,
         tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
 const app = express();
@@ -142,35 +141,7 @@ app.post('/api/usuarios', tablaUsuarios);
 app.post('/api/clientes', tablaClientes);
 app.post('/api/licencias', tablaLicencias);
 app.post('/api/pdf', generarPdf);
-app.post('/rcvpass', async (req, res) => {
-  
-  let { email } = req.body;
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: true,
-    auth: {
-      user: 'franco.delalcazar@qanders.com',
-      pass: '104-55Fppl3'
-    }
-  });
-
-  let mailOptions = {
-    from: 'franco.delalcazar@qanders.com',
-    to: email,
-    subject: 'Recuperación de contraseña',
-    text: 'Por favor, haz clic en el enlace para restablecer tu contraseña.'
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    res.json({ success: true });
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: 'No se pudo enviar el correo electrónico.' });
-  }
-});
+app.post('/api/recover', password_recovery);
 
 app.listen(port, () => {
   console.log(`Server listening at port: ${port}`);

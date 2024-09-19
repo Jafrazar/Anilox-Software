@@ -8,6 +8,7 @@ const ChartDataLabels = require('chartjs-plugin-datalabels');
 Chart.register(ChartDataLabels);
 const { createCanvas, loadImage } = require('canvas');
 const { PDFNet } = require("@pdftron/pdfnet-node");
+const nodemailer = require('nodemailer');
 const fs = require('fs');
 const os = require('os');
 
@@ -135,6 +136,51 @@ async function registro_licencia(req, res) {
         });
       }
     });
+}
+
+async function password_recovery(req, res) {
+  let { email } = req.body;
+  let pass_to_recover = "";
+  console.log(email);
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query('SELECT * FROM login WHERE mail = ?', [email], (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      });
+    });
+
+    if (result.length == 0) {
+      return res.status(400).send({ success: false, message: 'No se encontró el correo electrónico.' });
+    }
+
+    pass_to_recover = result[0].pass_l;
+
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'francodel380@gmail.com',
+        pass: 'xthk vflx wjqn qaef'
+      }
+    });
+
+    let mailOptions = {
+      from: 'francodel380@gmail.com',
+      to: email,
+      subject: 'Recuperación de contraseña',
+      text: 'Su contraseña es:\n' + pass_to_recover
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: 'Error al enviar el correo electrónico.' });
+  }
 }
 
 function revisarCookie(req){
@@ -1232,7 +1278,7 @@ function generarPdf(req, res) {
 
         tapadas_img = generarGrafico(cleanGraphConfig).replace('data:image/jpeg;base64,', '');
         danadas_img = generarGrafico(damagedGraphConfig).replace('data:image/jpeg;base64,', '');
-        desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');    
+        desgastadas_img = generarGrafico(wearGraphConfig).replace('data:image/jpeg;base64,', '');  
 
         const sql2_PDF = 'SELECT * FROM anilox_list WHERE id=?';
         db.query(sql2_PDF,[id], (err2, rows2) => {
@@ -1240,7 +1286,7 @@ function generarPdf(req, res) {
             revision = rows2[0].revision;
             revision = revision.replace('data:image/jpeg;base64,', '');
             purchase = rows2[0].purchase.toISOString().substring(0, 10);
-            tipo = rows2[0].type;            
+            tipo = rows2[0].type;
             let nomVol = rows2[0].nomvol;
             const sql3_PDF = 'SELECT * FROM anilox_history WHERE anilox=?';
             db.query(sql3_PDF,[id], (err3, rows3) => {
@@ -1578,7 +1624,7 @@ function generarPdf(req, res) {
                       if( pdfPath == path.join(__dirname, '/modelo_reporte_final_alt.pdf') ) { 
                         await replacer.addString('grafico_eol', msg);
                         await replacer.process(page);
-                        await replacer.process(page2);            
+                        await replacer.process(page2);
                         await pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized).then(() => {
                           console.log('PDF alterno generado con éxito');
                           fs.readFile(outputPath, (err_f, data) => {
@@ -1600,7 +1646,7 @@ function generarPdf(req, res) {
                         }).catch((error) => {
                           console.error('Error al procesar el archivo PDF:', error);
                           return res.status(500).send('Error al procesar el archivo PDF');
-                        });             
+                        });
                       }
                       else{
                         await replacer.addString('eol_80', percentData.values[1].toString());
@@ -1673,5 +1719,5 @@ function generarPdf(req, res) {
   }
 }
 
-module.exports = { login, registro, registro_licencia, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
+module.exports = { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
                    cotizaciones, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf };
