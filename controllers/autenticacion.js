@@ -515,7 +515,7 @@ async function tablaAniloxList(req, res) {
       }
     }
     if (mensaje == "getAniloxList") {
-      const SQL_quote = 'SELECT * FROM anilox_list WHERE empresa = ?';
+      const SQL_quote = 'SELECT id, brand, type, purchase, recorrido, nomvol, volume, screen, angle, last FROM anilox_list WHERE empresa = ?';
       const result = await queryDB(SQL_quote, [sesion_empresa]);
       return res.status(200).send({ status: "Success", message: "Estado", result });
     } 
@@ -571,12 +571,8 @@ async function tablaAniloxList(req, res) {
               let aux = resultC.length > 0 ? resultC.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
               const sqlInsertHistory = 'INSERT INTO anilox_history (anilox, id, date, volume, diagnostico, report, empresa) VALUES (?,?,?,?,?,?,?)'
               db.query(sqlInsertHistory, [id, aux, last, volume, diagnostico, "https://www.africau.edu/images/default/sample.pdf", sesion_empresa], (errD, resultD) => {
-                if (errD) throw errD;
-                const sqlInsertImages = 'INSERT INTO imagenes (id, ipred, irred, ipblue, irblue, ipdano, irdano) VALUES (?,?,?,?,?,?,?)';                       
-                db.query(sqlInsertImages, [id, IpRed, IrRed, IpBlue, IrBlue, "", ""], (err, result) => {
-                  if (err) throw err;
-                  return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
-                });
+                if (errD) throw errD;                
+                return res.status(200).send({ status: "Success", message: "Anilox actualizado correctamente" });
               });
             });
           });
@@ -627,7 +623,7 @@ async function tablaAniloxList(req, res) {
 
 async function tablaAniloxAnalysis(req, res) {
   try {
-    const { id, moda } = req.body;
+    const { id } = req.body;
     if(id){
       const sql = 'SELECT * FROM anilox_analysis WHERE id=? and empresa=?';
       db.query(sql, [id, sesion_empresa], (err, result) => {

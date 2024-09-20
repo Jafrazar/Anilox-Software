@@ -751,8 +751,7 @@ const updateTable = async(mode)=>{
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ moda: 'x' })
+      }
     }),
         json2 = await res2.json();
 

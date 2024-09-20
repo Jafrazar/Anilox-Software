@@ -58,11 +58,11 @@ app.get('/registro_licencia.html', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'registro_licencia.html'));
 });
 
-app.get('/rcvpass', soloPublico, function(req, res) {
+app.get('/rcvpass', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'rcvpass.html'));
 });
 
-app.get('/rcvpass.html', soloPublico, function(req, res) {
+app.get('/rcvpass.html', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'rcvpass.html'));
 });
 
@@ -82,43 +82,43 @@ app.get('/ayuda.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'ayuda.html'));
 });
 
-app.get('/export-data', soloAdmin, function(req, res) {
+app.get('/export-data', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'export-data.html'));
 });
 
-app.get('/export-data.html', soloAdmin, function(req, res) {
+app.get('/export-data.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'export-data.html'));
 });
 
-app.get('/listado', soloAdmin, function(req, res) {
+app.get('/listado', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'listado.html'));
 });
 
-app.get('/listado.html', soloAdmin, function(req, res) {
+app.get('/listado.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'listado.html'));
 });
 
-app.get('/print-report', soloAdmin, function(req, res) {
+app.get('/print-report', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'print-report.html'));
 });
 
-app.get('/print-report.html', soloAdmin, function(req, res) {
+app.get('/print-report.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'print-report.html'));
 });
 
-app.get('/upload-file', soloAdmin, function(req, res) {
+app.get('/upload-file', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'upload-file.html'));
 });
 
-app.get('/upload-file.html', soloAdmin, function(req, res) {
+app.get('/upload-file.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'upload-file.html'));
 });
 
-app.get('/req-quotes', soloAdmin, function(req, res) {
+app.get('/req-quotes', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'req-quotes.html'));
 });
 
-app.get('/req-quotes.html', soloAdmin, function(req, res) {
+app.get('/req-quotes.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'req-quotes.html'));
 });
 
@@ -126,10 +126,6 @@ app.get('/req-quotes.html', soloAdmin, function(req, res) {
 app.use('/', express.static(path.join(__dirname, '')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
-
-// app.get('/admin', soloAdmin, (req, res) => {
-//   res.send('Bienvenido a la página de administrador');
-// });
 
 // API
 app.post('/api/login', login);  // fetch('/api/login') redirige a la función login de autenticacion.js
