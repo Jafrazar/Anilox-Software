@@ -9,6 +9,7 @@ Chart.register(ChartDataLabels);
 const { createCanvas, loadImage } = require('canvas');
 const { PDFNet } = require("@pdftron/pdfnet-node"); // Necesario para trabajar con archivos PDF.
 const nodemailer = require('nodemailer'); // Necesario para enviar correos electrónicos.
+const redis = require('redis'); // Necesario para trabajar con caché.
 const fs = require('fs'); // (file system) Necesario para usar los archivos PDF de modelo.
 const os = require('os'); // (operating system) Necesario para obtener la ruta temporal del sistema.
 
@@ -603,7 +604,7 @@ async function tablaAniloxList(req, res) {
       });  
     }
     else {
-      const sql = 'SELECT * FROM anilox_list WHERE empresa=?';
+      const sql = 'SELECT id, brand, type, purchase, recorrido, nomvol, volume, last FROM anilox_list WHERE empresa=?';
       const result = await queryDB(sql, [sesion_empresa]);
       result.forEach(row => {
         if(row.purchase) {
