@@ -1,18 +1,18 @@
-const path = require('path');
-require('dotenv').config();
-module.exports = { path };
+const path = require('path'); // Necesario para manejar rutas de archivos 
+require('dotenv').config(); // Necesario para leer las variables de entorno
+module.exports = { path }; // Exportar la variable path para poder usarla en otros archivos
 
-const express = require("express");
+const express = require("express"); // Ncesario para poder crear la aplicación Express
 const { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList, cotizaciones,
         tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
 const app = express();
 const port = 3000;
 
-// Middleware para analizar el cuerpo de las solicitudes
+// Middleware para analizar el cuerpo de las solicitudes, el limit: '50mb' es para permitir solicitudes con archivos adjuntos
 app.use(express.json({limit: '50mb'}));
 
-// Middleware para permitir solicitudes desde cualquier dominio
+// Middleware para permitir solicitudes desde cualquier dominio y no haya problemas de CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", '*');
   res.header('Access-Control-Allow-Credentials', true);
@@ -20,7 +20,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Configuración
+// la función soloAdmin solo permite el acceso a los usuarios logueados. soloPublico permite el acceso a cualquier persona
 app.get('/index', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -29,6 +29,7 @@ app.get('/index.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Por defecto la raíz del servidor redirige a la página de login
 app.get('/', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
@@ -49,7 +50,7 @@ app.get('/registro.html', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'registro.html'));
 });
 
-app.get('/registro_licencia', soloPublico, (req, res) => {
+app.get('/registro_licencia', soloPublico, (req, res) => {  // Registro_licencia debería tener una 3ra función que permita el acceso a todos los registrados
   res.sendFile(path.join(__dirname, 'registro_licencia.html'));
 });
 
@@ -57,7 +58,7 @@ app.get('/registro_licencia.html', soloPublico, (req, res) => {
   res.sendFile(path.join(__dirname, 'registro_licencia.html'));
 });
 
-app.get('rcvpass', soloPublico, function(req, res) {
+app.get('/rcvpass', soloPublico, function(req, res) {
   res.sendFile(path.join(__dirname, 'rcvpass.html'));
 });
 
@@ -129,21 +130,23 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 // app.get('/admin', soloAdmin, (req, res) => {
 //   res.send('Bienvenido a la página de administrador');
 // });
-app.post('/api/login', login);
-app.post('/api/registro', registro);
+
+// API
+app.post('/api/login', login);  // fetch('/api/login') redirige a la función login de autenticacion.js
+app.post('/api/registro', registro);  // fetch('/api/registro') redirige a la función registro de autenticacion.js
 app.post('/api/registro_licencia', registro_licencia);
 app.post('/api/analysis', tablaAniloxAnalysis);
 app.post('/api/listado', tablaAniloxList);
 app.post('/api/anilox-history', tablaAniloxHistory);
 app.post('/api/request-quotes', cotizaciones);
 app.post('/api/borrar-anilox', borrarAnilox);
-app.post('/api/usuarios', tablaUsuarios);
-app.post('/api/clientes', tablaClientes);
+app.post('/api/usuarios', tablaUsuarios); 
+app.post('/api/clientes', tablaClientes); 
 app.post('/api/licencias', tablaLicencias);
-app.post('/api/pdf', generarPdf);
-app.post('/api/recover', password_recovery);
+app.post('/api/pdf', generarPdf); // fetch('/api/pdf') redirige a la función generarPdf de autenticacion.js
+app.post('/api/recover', password_recovery); // fetch('/api/recover') redirige a la función password_recovery de autenticacion.js
 
-app.listen(port, () => {
-  console.log(`Server listening at port: ${port}`);
+app.listen(port, () => {  // Iniciar el servidor en el puerto 3000
+  console.log(`Server listening at port: ${port}`); 
 });
 

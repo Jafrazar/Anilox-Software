@@ -35,7 +35,6 @@ const drawIndex = async()=>{
           'Content-Type': 'application/json',
       }
     });
-
     //Fetch call server-response para el listado de anilox (anillox_analysis)    
     let res2 = await fetch('/api/analysis', {
       method: 'POST',

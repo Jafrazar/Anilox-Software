@@ -7,7 +7,7 @@ const d = document,
 const $modalAlertBox = d.getElementById("modal-alert-box"),
       $closeAlertBox = d.getElementById("close-alert-box"),
       $alertContent = d.getElementById("alert-content");
-      
+
 // Service Worker
 
 // if('serviceWorker' in navigator){

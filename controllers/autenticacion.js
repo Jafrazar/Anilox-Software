@@ -1,35 +1,35 @@
-let sesion_usuario, sesion_empresa;
-const mysql = require('mysql');
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
+let sesion_usuario, sesion_empresa; // Variables para almacenar el usuario y la empresa de la sesión actual
+const mysql = require('mysql'); // Necesario para trabajar con MySQL
+require('dotenv').config(); // Necesario para leer las variables de entorno
+const jwt = require('jsonwebtoken');  // Necesario para crear tokens de acceso
 const path = require('path');
 const { Chart } = require('chart.js/auto');
 const ChartDataLabels = require('chartjs-plugin-datalabels');
 Chart.register(ChartDataLabels);
 const { createCanvas, loadImage } = require('canvas');
-const { PDFNet } = require("@pdftron/pdfnet-node");
-const nodemailer = require('nodemailer');
-const fs = require('fs');
-const os = require('os');
+const { PDFNet } = require("@pdftron/pdfnet-node"); // Necesario para trabajar con archivos PDF.
+const nodemailer = require('nodemailer'); // Necesario para enviar correos electrónicos.
+const fs = require('fs'); // (file system) Necesario para usar los archivos PDF de modelo.
+const os = require('os'); // (operating system) Necesario para obtener la ruta temporal del sistema.
 
-const db = mysql.createPool({
+const db = mysql.createPool({  // Creación de variable db para la conexión a la BD MySQL
   host: 'anxsuite.crkw6qaew4si.sa-east-1.rds.amazonaws.com',
   user: 'admin',
   password: '104-55Fppl2',
   database: 'ANDERS'
 });
 
-const util = require('util');
-const queryDB = util.promisify(db.query).bind(db);
+const util = require('util'); // Se usa para convertir funciones de callback (db.query) a funciones de promesa
+const queryDB = util.promisify(db.query).bind(db); // Convierte db.query en una función de promesa queryDB
 
-db.getConnection((err) => {
+db.getConnection((err) => { // Conexión a la BD MySQL
   if (err) throw err;
   console.log('Conexión exitosa a MySQL');
 });
 
 let usuarios = []; 
 const query = 'SELECT user_l FROM login';
-db.query(query, (err, results) => {
+db.query(query, (err, results) => { // Query básico para extraer los usuarios de la BD y mostrarlos en consola
   if (err) throw err;
 
   // Extrae los usuarios de los resultados
@@ -38,12 +38,12 @@ db.query(query, (err, results) => {
   // Imprime los usuarios
   console.log('Usuarios:');
   usuarios.forEach((usuario) => {
-    process.stdout.write(usuario + ", "); // Sirve para imprimir en la consola en una misma línea
+    process.stdout.write(usuario + ", "); 
   });
   console.log("\n");
 });
 
-async function login(req, res) {
+async function login(req, res) {  // función redirigida desde api/login
     const { username, password } = req.body;
     const sql = 'SELECT * FROM login WHERE user_l = ? AND pass_l = ?';
     db.query(sql, [username, password], (err, result) => {
@@ -52,6 +52,7 @@ async function login(req, res) {
             sesion_usuario =  result[0].user_l;
             sesion_empresa = result[0].empresa;
             console.log(result[0].user_l);
+            // SI SE ENCUENTRA EL USUARIO Y LA CONTRASEÑA EN LA BD, SE CREA UN TOKEN DE ACCESO
             const token = jwt.sign({ user: result[0].user_l, sesion_usuario: sesion_usuario,
                 sesion_empresa: sesion_empresa }, process.env.ACCESS_TOKEN_SECRET, {
                 expiresIn: process.env.ACCESS_TOKEN_EXPIRATION // expira en una hora
@@ -71,7 +72,7 @@ async function login(req, res) {
     });
 }
 
-async function registro(req, res) {
+async function registro(req, res) {   // función redirigida desde api/registro
   const { username, password, email, license } = req.body;
   console.log(username, password, email, license); 
     const licenciaSql = 'SELECT * FROM licencias WHERE licenseNumber = ?';
@@ -105,7 +106,7 @@ async function registro(req, res) {
     });
 }
 
-async function registro_licencia(req, res) {
+async function registro_licencia(req, res) {   // función redirigida desde api/registro_licencia
   const { username_su, email_su, password_su, username_op, email_op, password_op } = req.body;
   console.log(username_su, email_su, password_su, username_op, email_op, password_op); 
     const licenciaSql = 'SELECT * FROM licencias WHERE licenseNumber = ?';
@@ -138,7 +139,7 @@ async function registro_licencia(req, res) {
     });
 }
 
-async function password_recovery(req, res) {
+async function password_recovery(req, res) {   // función redirigida desde api/recover
   let { email } = req.body;
   let pass_to_recover = "";
   console.log(email);
@@ -718,7 +719,44 @@ async function tablaAniloxHistory(req, res) {
 async function cotizaciones(req, res) {
   try {
     let { reqDate, req2, mensaje, type, nomvol, screen, angle } = req.body;
-    if(req2) {
+
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'francodel380@gmail.com',
+        pass: 'xthk vflx wjqn qaef'
+      }
+    });
+
+    if (mensaje == "send quote"){ // Si solo es una solicitud de cotización de un solo anilox
+      const sql_q0 = 'SELECT * FROM solicitudes where tipo_solicitud = ?';
+      db.query(sql_q0, ["single"], (err, result) => {
+        if (err) throw err;
+        let aux3 = result.length > 0 ? result.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
+        const sql_q1 = 'INSERT INTO solicitudes (tipo_solicitud, id, posicion, type, nomvol, screen, angle, amount, empresa, reqDate) VALUES (?,?,?,?,?,?,?,?)';
+        db.query(sql_q1, ["single", aux3, 0, type, nomvol, screen, angle, req2[0].amount, sesion_empresa, reqDate], (err, result) => {
+          if (err) throw err;
+        });
+        let mailOptions = {
+          from: 'francodel380@gmail.com',
+          to: 'franco.delalcazar@qanders.com',
+          subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
+          html: 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
+                'Las características del rodillo son:<br><br>' +
+                '<ul>' +
+                '<li><strong>Tipo:</strong> ' + type + '</li>' +
+                '<li><strong>Volumen:</strong> ' + nomvol + '</li>' +
+                '<li><strong>Screen:</strong> ' + screen + '</li>' +
+                '<li><strong>Angle:</strong> ' + angle + '</li>' +
+                '</ul>',
+        };  
+        transporter.sendMail(mailOptions);        
+        return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });
+      });
+    }
+    else if(req2) {  // Se envía 'req2' desde re-quote.js para que no se confunda con 'req' de la función cotizaciones
       const sql_q0 = 'SELECT * FROM solicitudes where tipo_solicitud = ?';
       db.query(sql_q0, ["grouped"], (err, result) => {
         if (err) throw err;
@@ -728,21 +766,23 @@ async function cotizaciones(req, res) {
           db.query(sql_q1, ["grouped", aux2, req2[i].id, req2[i].type, req2[i].nomvol, req2[i].screen, req2[i].angle, req2[i].amount, sesion_empresa, reqDate], (err, result) => {
             if (err) throw err;
           });
+          let mailOptions = {
+            from: 'francodel380@gmail.com',
+            to: 'franco.delalcazar@qanders.com',
+            subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
+            html: 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
+                  'Las características del rodillo son:<br><br>' +
+                  '<ul>' +
+                  '<li><strong>Tipo:</strong> ' + req2[i].type + '</li>' +
+                  '<li><strong>Volumen:</strong> ' + req2[i].nomvol + '</li>' +
+                  '<li><strong>Screen:</strong> ' + req2[i].screen + '</li>' +
+                  '<li><strong>Angle:</strong> ' + req2[i].angle + '</li>' +
+                  '</ul>',
+          };  
+          transporter.sendMail(mailOptions);
         }
         return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });        
       });      
-    }
-    else if (mensaje = "send quote"){
-      const sql_q0 = 'SELECT * FROM solicitudes where tipo_solicitud = ?';
-      db.query(sql_q0, ["single"], (err, result) => {
-        if (err) throw err;
-        let aux3 = result.length > 0 ? result.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
-        const sql_q1 = 'INSERT INTO solicitudes (tipo_solicitud, id, posicion, type, nomvol, screen, angle, amount, empresa, reqDate) VALUES (?,?,?,?,?,?,?,?)';
-        db.query(sql_q1, ["single", aux3, 0, type, nomvol, screen, angle, 1, sesion_empresa, reqDate], (err, result) => {
-          if (err) throw err;
-          return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });
-        });
-      });
     }
     else {
       const sql_q2 = 'SELECT * FROM solicitudes';
@@ -841,40 +881,28 @@ async function addBase64ImageToPDF(doc, pSet, base64Image, options) {
   fs.unlinkSync(tempImagePath); // Opcional: Eliminar el archivo temporal de la imagen 
 }
 
-function calcularRectaTendencia(eolDates, volData) {
-  // Convertir fechas a valores numéricos (timestamp)
-  const x = eolDates.map(date => new Date(date).getTime());
-  const y = volData;
+// function calcularRectaTendencia(eolDates, volData) {
+//   // Convertir fechas a valores numéricos (timestamp)
+//   const x = eolDates.map(date => new Date(date).getTime());
+//   const y = volData;
 
-  const n = x.length;
-  const sumX = x.reduce((a, b) => a + b, 0);
-  const sumY = y.reduce((a, b) => a + b, 0);
-  const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
-  const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
+//   const n = x.length;
+//   const sumX = x.reduce((a, b) => a + b, 0);
+//   const sumY = y.reduce((a, b) => a + b, 0);
+//   const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+//   const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
 
-  const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  const b = (sumY - m * sumX) / n;
+//   const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+//   const b = (sumY - m * sumX) / n;
 
-  // Calcular los puntos de la recta de tendencia
-  const tendencia = x.map(xi => ({
-    x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
-    y: m * xi + b
-  }));
+//   // Calcular los puntos de la recta de tendencia
+//   const tendencia = x.map(xi => ({
+//     x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
+//     y: m * xi + b
+//   }));
 
-  return { tendencia, m, b };
-}
-
-function extenderFechas(eolDates, numPuntos) {
-  const fechasExtendidas = [...eolDates];
-  let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
-
-  for (let i = eolDates.length; i < numPuntos; i++) {
-    ultimaFecha.setMonth(ultimaFecha.getMonth() + 6);
-    fechasExtendidas.push(ultimaFecha.toISOString().split('T')[0]);
-  }
-
-  return fechasExtendidas;
-}
+//   return { tendencia, m, b };
+// }
 
 function encontrarValoresCercanosMenores(arr, objetivos) {
   return objetivos.map(objetivo => {
@@ -886,12 +914,6 @@ function encontrarValoresCercanosMenores(arr, objetivos) {
     }, Number.MAX_VALUE);
   });
 }
-// const valores = [4.996, 4.805, 4.614, 4.423, 4.232, 4.041, 3.85, 3.659, 3.468, 3.277, 3.086, 2.895];
-// const objetivos = [4.5, 4.0, 3.5, 3.0];
-
-// const valoresCercanosMenores = encontrarValoresCercanosMenores(valores, objetivos);
-// console.log(valoresCercanosMenores);
-// Salida esperada: [4.423, 3.85, 3.468, 2.895]
 
 function generarRectaTendencia(eolDates, volData, limite) {
   // Convertir fechas a valores numéricos (timestamp)
@@ -916,7 +938,7 @@ function generarRectaTendencia(eolDates, volData, limite) {
   // Generar puntos en fechas futuras hasta que el valor sea menor o igual al límite
   let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
   let ultimoValor = tendencia[tendencia.length - 1].y;
-  let b2 = b > 200 ? 2 : b > 100 ? 3 : 6;
+  let b2 = b > 200 ? 2 : b > 100 ? 3 : 6; // Si b es mayor a 200 elabora una pendiente de 2 meses, si es mayor a 100 de 3 meses, de lo contrario de 6 meses
 
   if(m < -0.000000000005 ){
     while (ultimoValor > limite) {
@@ -979,7 +1001,7 @@ function generarPdf(req, res) {
   try {
     let { id, revision, last, brand, volume, screen } = req.body;
     let tapadas, limpias, danadas, sinDano, desgastadas, sinDesgaste, tapadas_img, danadas_img, desgastadas_img, bcmChart, eolGraph, tipo, purchase, msg;
-    let volLabels = [], volData = [], diag = [], eolDates = [], nomData =[], actualDates=[], ultimaFecha, diferenciasEnAnios;
+    let volLabels = [], volData = [], diag = [], eolDates = [], nomData =[], actualDates=[], percentVol=[], percentDates=[], ultimaFecha, diferenciasEnAnios;
     let sql_PDF = 'SELECT * FROM anilox_analysis WHERE id = ?'
     db.query(sql_PDF, [id], (err, rows) => {
         if (err) throw err;
@@ -1430,11 +1452,7 @@ function generarPdf(req, res) {
                 console.log("Datos de volumen: " + volData);
                 console.log("Fechas de EOL: " + eolDates);
                 const numPuntos = 2 * volData.length + 1;
-                const fechasExtendidas = extenderFechas(eolDates, numPuntos);
 
-                // const { m, b } = calcularRectaTendencia(eolDates, volData);
-                // Calcular los puntos de tendencia para las fechas extendidas
-                let percentVol=[], percentDates=[];
                 if(rows3.length < 2) {
                   eolData = 2000;
                   msg = `No se cuenta con suficientes datos para realizar una estimación.`;

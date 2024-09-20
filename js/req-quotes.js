@@ -130,9 +130,11 @@ const removeFromQuote = (e)=>{
 const requestQuote = async(e)=>{
   if(e.target === $requestQuote){
     let cantItems = $quoteBody.childElementCount;
+    let mensaje;
     if(cantItems > 0){
       try {
         let req = [];
+        if (cantItems == 1) { mensaje = "send quote"}
         for(let i = 0; i < cantItems; i++){
           let item = $quoteBody.children[i];
           let type = item.querySelector(".specific-item-type").textContent,
@@ -146,7 +148,8 @@ const requestQuote = async(e)=>{
             nomvol: nomvol,
             screen: screen,
             angle: angle,
-            amount: amount
+            amount: amount,
+            mensaje: mensaje
           });
         }
         
@@ -166,7 +169,7 @@ const requestQuote = async(e)=>{
           $modalAlertBox.style.display = "block";
           setTimeout(()=>{
             $quoteBody.replaceChildren();
-          }, 3000);
+          }, 3000);          
         }
         if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
       } 
