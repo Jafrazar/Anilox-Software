@@ -535,10 +535,6 @@ app.get('/generarReporte', (req, res) => {
         await addBase64ImageToPDF(pdfdoc, pageSet, desgastadas_img, coord_desgastadas);
         await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
 
-        // const page2 = await pdfdoc.getPage(2);
-        // const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
-        // await addBase64ImageToPDF(pdfdoc, pageSet2, historial, coord_historial);
-
             .then(() => {                 
                 replacer.process(page);               
                 pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
@@ -550,12 +546,6 @@ app.get('/generarReporte', (req, res) => {
                         return;
                     }
                     const base64PDF = data.toString('base64');
-                    // const sql2 = 'INSERT INTO anilox_history (id_anilox, fecha, pdf) VALUES (?,?,?)';
-                    // db.query(sql2,[anilox, new Date(), base64PDF], (err, rows) => {
-                    //     if (err) throw err;
-                    //     console.log('PDF convertido a Base64 y almacenado con éxito');
-                    // });
-                    // res.send('PDF convertido a Base64 y almacenado con éxito');
                 });
             })
             .catch((error) => {

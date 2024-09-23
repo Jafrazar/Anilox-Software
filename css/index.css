@@ -14,6 +14,7 @@
   display: flex;
   flex-direction: row;
   padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Center */
@@ -108,13 +109,22 @@
 
 .index-content .bottom-content{
   margin-left: 1.5rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .index-content .bottom-content .stat-id{
   display: flex;
   flex-direction: row;
+  background: var(--color-white);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  padding: 0.5rem 2rem;
   margin-bottom: 1rem;
+  width: max-content;
 }
 
 .index-content .bottom-content .stat-id span{
@@ -126,9 +136,9 @@
 }
 
 .index-content .bottom-content .stats{
-  display: grid;
-  width: 99%;
-  grid-template-columns: 20% 20% 20% 40%;
+  display: flex;
+  flex-grow: 1;
+  height: 15rem;
 }
 
 .index-content .bottom-content .stats > div{
@@ -142,8 +152,15 @@
   margin-right: 1.5rem;
 }
 
+.index-content .bottom-content .stats > .clean-stat, .damaged-stat, .wear-stat{
+  flex-shrink: 1;
+  flex-grow: 1;
+  width: 10rem;
+}
+
 .index-content .bottom-content .stats .bcm-stat{
-  margin-right: 1rem;
+  width: 20rem;
+  margin-right: 1.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
@@ -220,7 +237,7 @@
 }
 
 /* Ordenar */
-.modal .container-radial{
+/* .modal .container-radial{
   display: block;
   position: relative;
   padding-left: 3.5rem;
@@ -255,4 +272,4 @@
 
 .modal .container-radial input:checked ~ .radial{
   background: var(--color-primary);
-}
+} */

@@ -47,8 +47,9 @@
           <button class="dropbtn">Opciones
           </button>
           <div class="dropdown-content" id="drop-opciones">
-            <a href="export-data.html">Exportar datos</a>
             <a id="estimar-vida">Estimar vida restante</a>
+            <a id="open-config-units">Configurar Unidades</a>   
+            <a href="export-data.html">Exportar datos</a>
             <a href="req-quotes.html">Solicitar cotización</a>
           </div>
         </div>
@@ -70,6 +71,18 @@
             hive
           </span>
           <h1 id="anilox-id"></h1>
+          <div class="list-controls">
+            <div class="control">
+              <span class="material-icons-sharp arrow" id="prev-anilox" title="" data-load="">
+                navigate_before
+              </span>
+            </div>
+            <div class="control">
+              <span class="material-icons-sharp arrow" id="next-anilox" title="" data-load="">
+                navigate_next
+              </span>
+            </div>
+          </div>
         </div>
         <div class="license">
           <small>Licencia:</small>
@@ -94,16 +107,16 @@
                 file_upload
               </span>
             </a>
-            <a id="search-anilox" class="active">
-              <span class="material-icons-sharp" title="Buscar Ánilox">
-                manage_search
-              </span>
-            </a>
             <a href="listado.html">
               <span class="material-icons-sharp" title="Listado de Ánilox">
                 format_list_numbered
               </span>
             </a>
+            <a id="search-anilox" class="active">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>            
             <a href="print-report.html">
               <span class="material-icons-sharp" title="Imprimir Reportes">
                 print
@@ -136,37 +149,39 @@
           <div class="detail-content">
             <div class="data-top">
               <div class="data">
-                <span>
-                  <h3>Fabricante:</h3>
-                  <p id="data-brand"></p>
-                </span>
-                <span>
-                  <h3>Tipo:</h3>
-                  <p id="data-type"></p>
-                </span>
-                <span>
-                  <h3>Fecha de compra:</h3>
-                  <p id="data-purchase"></p>
-                </span>
-                <span>
-                  <h3>Volumen de celda (BCM):</h3>
-                  <p id="data-volume"></p>
-                </span>
-                <span>
-                  <h3>Lineatura (LPI):</h3>
-                  <p id="data-screen"></p>
-                </span>
-                <span>
-                  <h3>Última fecha de revisión:</h3>
-                  <p id="data-last"></p>
-                </span>
-                <span>
-                  <h3>Próxima fecha de revisión:</h3>
-                  <p id="data-next"></p>
-                </span>
-                <span class="material-icons-sharp" title="Ver más" id="ver-mas">
-                  read_more
-                </span>
+                <div class="span-container">
+                  <span>
+                    <h3>Fabricante:</h3>
+                    <p id="data-brand"></p>
+                  </span>
+                  <span>
+                    <h3>Tipo:</h3>
+                    <p id="data-type"></p>
+                  </span>
+                  <span>
+                    <h3>Fecha de compra:</h3>
+                    <p id="data-purchase"></p>
+                  </span>
+                  <span>
+                    <h3>Volumen de celda<h3 class="volumeUnit"></h3></h3>
+                    <p id="data-volume"></p>
+                  </span>
+                  <span>
+                    <h3>Lineatura<h3 class="screenUnit"></h3></h3>
+                    <p id="data-screen"></p>
+                  </span>
+                  <span>
+                    <h3>Última fecha de revisión:</h3>
+                    <p id="data-last"></p>
+                  </span>
+                  <span>
+                    <h3>Próxima fecha de revisión:</h3>
+                    <p id="data-next"></p>
+                  </span>
+                  <span class="material-icons-sharp" title="Ver más" id="ver-mas">
+                    read_more
+                  </span>
+                </div>                
               </div>
               <div class="clean-graph">
                 <canvas id="clean-graph"></canvas>
@@ -205,7 +220,7 @@
                     <h3>Estado de Transferencia:</h3>
                     <h4 class="status-info" title="Estado calculado a partir la reducción de volumen de celda">ⓘ</h4>
                   </span>
-                  <p class="status-percentage" id="data-status"></p>                  
+                  <p class="status-percentage" id="data-status-transfer"></p>                  
                 </span>
                 <span>
                   <h3>Diagnóstico:</h3>
@@ -272,7 +287,7 @@
             <p id="more-recorrido"></p>
           </span>
           <span>
-            <h3>Volumen de celda (BCM):</h3>
+            <h3>Volumen de celda<h3 class="volumeUnit"></h3></h3>
             <p id="more-volume"></p>
           </span>
           <span>
@@ -288,7 +303,7 @@
             <p id="more-wall"></p>
           </span>
           <span>
-            <h3>Lineatura (LPI):</h3>
+            <h3>Lineatura<h3 class="screenUnit"></h3></h3>
             <p id="more-screen"></p>
           </span>
           <span>
@@ -378,6 +393,41 @@
       </div>
     </div>
     <!-- Final Alert Box -->
+    <div class="modal" id="modal-config-units">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-config-units">
+            close
+          </span>
+          <h2>Configurar Unidades</h2>
+        </div>
+        <div class="modal-body">
+          <span>
+            <h3>Volumen de celda:</h3>
+            <label class="container-radial">
+              <input type="radio" name="volume-radio" id="unit-BCM" checked="checked">BCM
+              <span class="radial"></span>
+            </label>
+            <label class="container-radial">
+              <input type="radio" name="volume-radio" id="unit-cm3m2">cm3/m2
+              <span class="radial"></span>
+            </label>
+          </span>
+          <span>
+            <h3>Lineatura:</h3>
+            <label class="container-radial">
+              <input type="radio" name="screen-radio" id="unit-LPI" checked="checked">LPI
+              <span class="radial"></span>
+            </label>
+            <label class="container-radial">
+              <input type="radio" name="screen-radio" id="unit-LPCM">LPCM
+              <span class="radial"></span>
+            </label>
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Final Unit Config -->
     <!-- Common JS Script -->
     <script src="js/common.js"></script>
     <!-- Anilox Detail JS Script -->

@@ -67,7 +67,63 @@ const $table = d.querySelector(".eol-table"),
       $template = d.getElementById("eol-table-template").content,
       $fragment = d.createDocumentFragment();
 
+const $prevAnilox = d.getElementById("prev-anilox"),
+      $nextAnilox = d.getElementById("next-anilox");
+
 Chart.defaults.font.family = 'Rajdhani';
+
+const getCompleteList = async() =>{
+  let completeList = [];
+  let currentIndex;
+  let item = {
+    id: '',
+    brand: '',
+  };
+  try {
+    let res = await fetch("api/listado", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }),
+        json = await res.json();
+        json = json.result;
+    if(!res.ok) throw{status: res.status, statusText: res.statusText};
+    for(let i = 0; i < json.length; i++){
+      let newItem = {...item};
+      newItem.id = json[i].id;
+      newItem.brand = json[i].brand;
+      if(newItem.id === aniloxId){
+        currentIndex = i;
+      }
+      completeList.push(newItem);
+    }
+  } catch (err) {
+    console.log(err);
+    let errorCode = error.status || "2316",
+        errorStatus = error.statusText || "No se pudo establecer contacto con el servidor",
+        message1 = "Error " + errorCode + ": ",
+        message2 = errorStatus;
+    $alertContent.textContent = `${message1}: ${message2}`;
+    $modalAlertBox.style.display = "block";
+  }
+  if(currentIndex > 0){
+    $prevAnilox.dataset.load = `${completeList[currentIndex - 1].id},${completeList[currentIndex - 1].brand}`;
+    $prevAnilox.title = completeList[currentIndex - 1].id;
+    $prevAnilox.style.cursor = "pointer";
+  }
+  if(currentIndex < completeList.length - 1){
+    $nextAnilox.dataset.load = `${completeList[currentIndex + 1].id},${completeList[currentIndex + 1].brand}`;
+    $nextAnilox.title = completeList[currentIndex + 1].id;
+    $nextAnilox.style.cursor = "pointer";
+  }
+  if($prevAnilox.dataset.load == ''){
+    $prevAnilox.style.cursor = "not-allowed";
+  }
+  if($nextAnilox.dataset.load == ''){
+    $nextAnilox.style.cursor = "not-allowed";
+  }
+}
 
 const getAnilox = async()=>{
   try {
@@ -101,11 +157,12 @@ const getAnilox = async()=>{
     let type = json1[0].type;
     let purchase = json1[0].purchase;
     let recorrido = json1[0].recorrido;
-    let volume = (json1[0].volume)/1.55;
+    let volume = (json1[0].volume*volMulti)/1.55;
+    let nomVol = Math.round(json1[0].nomvol*volMulti/1.55 * 10) / 10;
     let depth = json1[0].depth;
     let opening = json1[0].opening;
     let wall = json1[0].wall;
-    let screen = json1[0].screen;
+    let screen = Math.round(json1[0].screen*screenMulti * 10) / 10;
     let angle = json1[0].angle;
     let last = json1[0].last;
     let next = json2[0].next;
@@ -131,6 +188,8 @@ const getAnilox = async()=>{
     $moreLast.textContent = last;
     $moreNext.textContent = next;
 
+    let statusTransfer = Math.round((((volume / nomVol) * 100) + Number.EPSILON) * 10) / 10;
+    
     let tapadas = parseFloat(json2[0].tapadas),
         limpias = 100 - tapadas,
         danadas = parseFloat(json2[0].danadas),
@@ -410,9 +469,11 @@ const getAnilox = async()=>{
       $imageLast.src = json1[0].revision;
     }
     $dataStatus.textContent = `${json2[0].estado}%`;
+    $dataStatusTransfer.textContent = `${statusTransfer}%`;
     $dataDiag.textContent = json2[0].diagnostico;
     $dataAct.textContent = json2[0].recomendacion;
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
@@ -449,7 +510,7 @@ const getAnilox = async()=>{
 
     for(let i = 0; i < json.length; i++){
      volLabels[i] = json[i].date;
-     volData[i] = Math.round(((json[i].volume)/1.55) * 10) / 10; // VOLUMEN EN BCM
+     volData[i] = Math.round(((json[i].volume*volMulti)/1.55) * 10) / 10; // VOLUMEN EN BCM
      diag[i] = json[i].diagnostico;
     }
 
@@ -457,13 +518,13 @@ const getAnilox = async()=>{
     let nomData = [];
 
     for(let i = 0; i < json.length; i++){
-      nomData[i] = Math.round((nomVol/1.55) * 10) / 10;
+      nomData[i] = nomVol;
     }
 
     const dataBcmStat = {
       labels: volLabels,
       datasets: [{
-        label: 'Volumen medido (BCM)',
+        label: `Volumen medido (${ls.getItem("volumeUnit")})`, // Verificar
         data: volData,
         info: diag,
         fill: false,
@@ -471,12 +532,12 @@ const getAnilox = async()=>{
         tension: 0.1,
       },
       {
-        label: 'Volumen Nominal (BCM)',
+        label:`Volumen nominal (${ls.getItem("volumeUnit")})`,
         data: nomData,
         fill: false,
         borderColor: 'rgba(255, 0, 0, 0.35)',
         tension: 0.1,
-        pointRadius: 0,
+        pointStyle: false,
         datalabels: {
           // display: function(context){
           //   return context.dataIndex === 0;
@@ -545,7 +606,7 @@ const getAnilox = async()=>{
               label: function(tooltipItem){
                 if(tooltipItem.datasetIndex == 0){
                   let data = tooltipItem.parsed.y;
-                  return 'Volumen: ' + data + ' BCM'; 
+                  return 'Volumen: ' + data + ' ' + ls.getItem("volumeUnit"); 
                 }
                 else{return ""}
               },
@@ -584,6 +645,7 @@ const getAnilox = async()=>{
       }
     });
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
@@ -629,16 +691,16 @@ const estimarVida = async(e)=>{
       if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
       
-      let eolData=[], nomVol = json2[0].nomvol; // nomVol en cm3/m2;
+      let eolData=[], nomVol = json2[0].nomvol*volMulti; // nomVol en cm3/m2;
       if(!json1[0].eol || json1[0].eol == null) {
         eolData[0] = 2000;
       }
-      else{ eolData = JSON.parse(json1[0].eol) }
+      else{ eolData = JSON.parse(json1[0].eol)*volMulti }
           
       let msg;
   // ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
-      if(eolData[0] == 1000){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;} // FALTA UPDATEAR
-      else if (eolData[0] == 2000){msg = `No se cuenta suficientes datos para realizar una estimación.`;} // CUANDO ES MENOR A 3 actualizar eolData a 2000
+      if(eolData[0] == 1000 || eolData[0] == 1550){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;} // FALTA UPDATEAR
+      else if (eolData[0] == 2000 || eolData[0] == 3100){msg = `No se cuenta suficientes datos para realizar una estimación.`;} // CUANDO ES MENOR A 3 actualizar eolData a 2000
       else {
         res3 = await fetch('/api/anilox-history', {
           method: 'POST',
@@ -657,11 +719,11 @@ const estimarVida = async(e)=>{
 
         let eolDates = [],
             volData = [],
-            percentVol = JSON.parse(json1[0].percent).values,
+            percentVol = JSON.parse(json1[0].percent).values*volMulti,
             percentDates = JSON.parse(json1[0].percent).dates;
         for(let i = 0; i < json3.length; i++){
           eolDates[i] = json3[i].date;
-          volData[i] = json3[i].volume;
+          volData[i] = json3[i].volume*volMulti;
         }
         console.log("eolDates", eolDates);
         console.log("volData: ", volData);
@@ -679,7 +741,6 @@ const estimarVida = async(e)=>{
 
           month.length < 2 ? month = `0${month}` : month = month;
           day.length < 2 ? day = `0${day}` : day = day;
-          console.log(next, year, month, day);
 
           next = [year, month, day].join('-');
           eolDates[json3.length + i] = next;
@@ -689,7 +750,7 @@ const estimarVida = async(e)=>{
           labels: eolDates,
           datasets: [{
             type: 'line',
-            label: 'Volumen estimado (BCM)',
+            label: `Volumen estimado (${ls.getItem("volumeUnit")})`,
             data: eolData.map(dato => Math.round((dato/1.55) * 10) / 10),
             fill: false,
             borderColor: 'rgba(255, 0, 0, 0.35)',
@@ -700,7 +761,7 @@ const estimarVida = async(e)=>{
             },
           }, {
             type: 'scatter',
-            label: 'Volumen medido (BCM)',
+            label: `Volumen medido (${ls.getItem("volumeUnit")})`,
             data: volData.map(dato => Math.round((dato/1.55) * 10) / 10),
             fill: false,
             borderColor: 'rgba(0, 0, 255, 0.6)',
@@ -710,10 +771,6 @@ const estimarVida = async(e)=>{
           }]
         };
         
-        console.log("json3.length: ", json3.length);
-        console.log("percentDates[0]: ", percentDates[0]);
-        console.log("percentVol[0]: ", percentVol[0]);
-
         eolGraph = new Chart($eolGraph, {
           data: dataEOLGraph,
           options: {
@@ -724,7 +781,7 @@ const estimarVida = async(e)=>{
                 labels: {
                   font: {
                     weight: 500,
-                    size: 11,
+                    size: 14,
                   },
                   padding: 15,
                   boxWidth: 30,
@@ -733,12 +790,12 @@ const estimarVida = async(e)=>{
               },
               datalabels:{
                 color: '#363949',
-                align: 'right', // 'right'
+                align: 'right', 
                 padding: {
                   right: 7,
                 },
                 font: {
-                  size: 11,
+                  size: 13,
                   weight: 500,
                 },
                 clip: false,
@@ -770,7 +827,7 @@ const estimarVida = async(e)=>{
                 callbacks: {
                   label: function(context){
                     let data = context.parsed.y;
-                    return 'Volumen: ' + data + ' BCM';
+                    return 'Volumen: ' + data + ' ' + ls.getItem("volumeUnit");
                   },
                   footer: function(tooltipItems){
                     let vol = tooltipItems[0].dataset.data[tooltipItems[0].dataIndex];
@@ -865,6 +922,19 @@ const estimarVida = async(e)=>{
   }
 }
 
+const load = (e)=>{
+  if(e.target.matches(".arrow")){
+    if(e.target.dataset.load !== ""){
+      let data = e.target.dataset.load.split(",");
+      ss.setItem("aniloxId", data[0]);
+      ss.setItem("aniloxBrand", data[1]);
+      window.location.reload();
+    }
+  }
+}
+
+d.addEventListener("DOMContentLoaded",getAnilox);
+d.addEventListener("DOMContentLoaded",getCompleteList);
 d.addEventListener("click",viewMore);
 d.addEventListener("click",estimarVida);
-d.addEventListener("DOMContentLoaded",getAnilox);
+d.addEventListener("click",load);

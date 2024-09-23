@@ -30,6 +30,7 @@
             <a id="buscar-anilox">Buscar ánilox</a>
             <a href="listado.html">Listado de ánilox</a>
             <a href="print-report.html">Imprimir reportes</a>
+            <a href="login.html" id="cerrar-sesion">Cerrar sesión</a>
           </div>
         </div>
         <div class="dropdown">
@@ -87,16 +88,16 @@
                 file_upload
               </span>
             </a>
-            <a id="search-anilox">
-              <span class="material-icons-sharp" title="Buscar Ánilox">
-                manage_search
-              </span>
-            </a>
             <a href="listado.html">
               <span class="material-icons-sharp" title="Listado de Ánilox">
                 format_list_numbered
               </span>
             </a>
+            <a id="search-anilox">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>            
             <a href="print-report.html">
               <span class="material-icons-sharp" title="Imprimir Reportes">
                 print
@@ -141,37 +142,38 @@
           </div>
           <!-- Final de Lista Anilox -->
           <div class="middle">
-            <div class="anilox-data">
+            <div class="title">
               <h3>Datos</h3>
+            </div>
+            <div class="anilox-data">
               <div id="specific-data">
                 <span>
                   <h3>Tipo:</h3>
                   <p id="specific-type"></p>
                 </span>
                 <span>
-                  <h3>Ángulo:</h3>
+                  <h3>Ángulo (°):</h3>
                   <p id="specific-angle"></p>
                   <p>°</p>
                 </span>
                 <span>
-                  <h3>Volumen:</h3>
+                  <h3>Volumen<h3 class="volumeUnit"></h3></h3>
                   <p id="specific-vol"></p>
-                  <p>&nbsp;BCM</p>
                 </span>
                 <span>
-                  <h3>Lineatura:</h3>
+                  <h3>Lineatura<h3 class="screenUnit"></h3></h3>
                   <p id="specific-screen"></p>
-                  <p>&nbsp;LPI</p>
                 </span>
               </div>
             </div>
             <!-- Final de Anilox-Data -->
-            <div class="item-cantidad">
+            <div class="title"></div>
               <h3>Cantidad</h3>
+            </div>
+            <div class="item-cantidad">
               <div class="cantidad-input">
                 <span>
                   <input type="text" id="anilox-quantity" autocomplete="off">
-                  <p>Rodillos</p>
                 </span>
               </div>
               <div id="quote-add">
@@ -190,7 +192,9 @@
           </div>
           <!-- Final de Middle -->
           <div class="quote">
-            <h3>Lista a Cotizar</h3>
+            <div class="title">
+              <h3>Lista a Cotizar</h3>
+            </div>
             <div class="quote-list">
               <div class="quote-header">
                 <div class="header-item">
@@ -220,21 +224,18 @@
                       <p class="specific-item-type"></p>
                     </div>
                     <div class="item-angle">
-                      <h3>Ángulo:</h3>
+                      <h3>Ángulo (°):</h3>
                       <p class="specific-item-angle"></p>
-                      <p>°</p>
                     </div>
                   </div>
                   <div class="item-second">
                     <div class="item-vol">
-                      <h3>Volumen:</h3>
+                      <h3>Volumen<h3 class="volumeUnit"></h3></h3>
                       <p class="specific-item-vol"></p>
-                      <p>&nbsp;cm3/m2</p>
                     </div>
                     <div class="item-screen">
-                      <h3>Lineatura:</h3>
+                      <h3>Lineatura<h3 class="screenUnit"></h3></h3>
                       <p class="specific-item-screen"></p>
-                      <p>&nbsp;LPI</p>
                     </div>
                   </div>
                   <div class="item-remove">

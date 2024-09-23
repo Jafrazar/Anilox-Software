@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
         const email = document.getElementById('email').value;
-        console.log('email: ', email);
         recoverPassword(email);
     });
 });

@@ -204,7 +204,6 @@ function revisarCookie(req){
       console.log("Sesión no válida");
       return false;
     }
-    console.log("Usuario encontrado: ", usuarioARevisar);
     return true;
   }
   catch (error){

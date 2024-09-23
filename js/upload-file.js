@@ -203,7 +203,6 @@ const submit = async(e)=>{
       let json = await res.json();
 
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
-      console.log("Se acaba de insertar un nuevo registro: ", json);
     }
     catch (err) {
       console.log(err);

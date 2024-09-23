@@ -9,6 +9,8 @@
   padding-right: 1.5rem;
   flex: 0 0 15rem;
   display: none;
+  flex-direction: column;
+  align-items: center;  
 }
 
 .right-content > div:last-child{
@@ -21,6 +23,22 @@
   font-size: 20px;
   font-weight: 500;
   margin-bottom: 0.5rem;
+}
+
+.right-content .title{
+  display: flex;
+  justify-content: center;
+  background: var(--color-white);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  width: max-content;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.right-content .title:hover{
+  box-shadow: none;
 }
 
 /* Lista rodillo y lista reportes */
@@ -51,7 +69,7 @@
 }
 
 .right-content > div table tbody{
-  height: 81vh;
+  height: 80vh;
   overflow-y: auto;
 }
 
@@ -93,10 +111,10 @@
 
 /* anilox list title */
 
-.right-content .lista-anilox .anilox-list-title{
+/* .right-content .lista-anilox .anilox-list-title{
   display: flex;
   justify-content: center;
-}
+} */
 
 .right-content .lista-anilox .anilox-list-title span{
   padding-left: 0.5rem;
@@ -116,7 +134,7 @@
 
 .modal .modal-body #search-report{
   background: var(--color-primary);
-  color: var(--color-info-light);
+  color: var(--color-white);
   font-family: inherit;
   font-weight: 400;
   font-size: 20px;

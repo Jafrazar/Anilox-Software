@@ -126,8 +126,13 @@ const drawIndex = async()=>{
               size: 18,
               weight: 500,
             },
-            formatter: function(value, context){
-              return value + ' AX';
+            formatter: function(value){
+              if(value > 0){
+                return value + ' AX';
+              }
+              else{
+                return "";
+              }
             }
           },
           tooltip: {

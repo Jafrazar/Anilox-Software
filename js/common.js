@@ -15,6 +15,118 @@ const $modalAlertBox = d.getElementById("modal-alert-box"),
 //   .catch(err => console.warn(err));
 // }
 
+const $volumeText = d.querySelectorAll(".volumeUnit"),
+      $screenText = d.querySelectorAll(".screenUnit"),
+      $volumeTitle = d.querySelectorAll(".volumeTitle");
+
+let volMulti, screenMulti;
+
+d.addEventListener("DOMContentLoaded",()=>{
+  if(ls.getItem("volumeUnit") === null){
+    ls.setItem("volumeUnit","BCM");
+    volMulti = 1;
+  }
+  if(ls.getItem("screenUnit") === null){
+    ls.setItem("screenUnit","LPI");
+    screenMulti = 1;
+  }
+  if(ls.getItem("volumeUnit") === "BCM"){
+    volMulti = 1;
+  }
+  if(ls.getItem("screenUnit") === "LPI"){
+    screenMulti = 1;
+  }
+  if(ls.getItem("volumeUnit") === "cm3/m2"){
+    volMulti = 1.55;
+  }
+  if(ls.getItem("screenUnit") === "LPCM"){
+    screenMulti = 2.54;
+  }
+  $volumeText.forEach(el=>{
+    el.textContent = `(${ls.getItem("volumeUnit")}):`;
+  })
+  $screenText.forEach(el=>{
+    el.textContent = `(${ls.getItem("screenUnit")}):`;
+  })
+  $volumeTitle.forEach(el=>{
+    el.title = `Volumen de celda de ánilox (${ls.getItem("volumeUnit")})`;
+  });
+});
+
+// Unit Config
+
+const $modalConfigUnits = d.getElementById("modal-config-units"),
+      $openConfigUnits = d.getElementById("open-config-units"),
+      $closeConfigUnits = d.getElementById("close-config-units"),
+      $unitBCM = d.getElementById("unit-BCM"),
+      $unitCM3M2 = d.getElementById("unit-cm3m2"),
+      $unitLPI = d.getElementById("unit-LPI"),
+      $unitLPCM = d.getElementById("unit-LPCM");
+
+d.addEventListener("click", (e)=>{
+  if(e.target === $openConfigUnits){
+    $modalConfigUnits.style.display = "block";
+    if(ls.getItem("volumeUnit") === "BCM"){
+      $unitBCM.checked = true;
+      $unitCM3M2.checked = false;
+    }
+    if(ls.getItem("screenUnit") === "LPI"){
+      $unitLPI.checked = true;
+      $unitLPCM.checked = false;
+    }
+    if(ls.getItem("volumeUnit") === "cm3/m2"){
+      $unitBCM.checked = false;
+      $unitCM3M2.checked = true;
+    }
+    if(ls.getItem("screenUnit") === "LPCM"){
+      $unitLPI.checked = false;
+      $unitLPCM.checked = true;
+    }
+  }
+  if(e.target === $unitBCM){
+    if($unitBCM.checked === true){
+      ls.setItem("volumeUnit", "BCM");
+      $volumeText.forEach(el=>{
+        el.textContent = `(${ls.getItem("volumeUnit")}):`;
+      });
+      $volumeTitle.forEach(el=>{
+        el.title = `Volumen de celda de ánilox (${ls.getItem("volumeUnit")})`;
+      });
+    }
+  }
+  if(e.target === $unitLPI){
+    if($unitLPI.checked === true){
+      ls.setItem("screenUnit", "LPI");
+      $screenText.forEach(el=>{
+        el.textContent = `(${ls.getItem("screenUnit")}):`;
+      });
+    }
+  }
+  if(e.target === $unitCM3M2){
+    if($unitCM3M2.checked === true){
+      ls.setItem("volumeUnit", "cm3/m2");
+      $volumeText.forEach(el=>{
+        el.textContent = `(${ls.getItem("volumeUnit")}):`;
+      });
+      $volumeTitle.forEach(el=>{
+        el.title = `Volumen de celda de ánilox (${ls.getItem("volumeUnit")})`;
+      });
+    }
+  }
+  if(e.target === $unitLPCM){
+    if($unitLPCM.checked === true){
+      ls.setItem("screenUnit", "LPCM");
+      $screenText.forEach(el=>{
+        el.textContent = `(${ls.getItem("screenUnit")}):`;
+      });
+    }
+  }
+  if(e.target === $closeConfigUnits){
+    $modalConfigUnits.style.display = "none";
+    location.reload(true);
+  }
+});
+
 // Dropdown
 
 const dropArchivo = d.getElementById("drop-archivo"),
@@ -26,24 +138,9 @@ const dropArchivo = d.getElementById("drop-archivo"),
       logo = d.querySelector(".logo");
       ocultarMenu = d.getElementById("ocultar-menu"),
 
-      modalEditDash = d.getElementById("modal-edit-dash"),
-      editarDashboard = d.getElementById("editar-dashboard"),
-      closeModalEditDash = d.getElementById("close-edit-dash"),
-
       modalSearchAnilox = d.getElementById("modal-search-anilox"),
       buscarAnilox = d.getElementById("buscar-anilox"),
       closeModalSearchAnilox = d.getElementById("close-search-anilox"),
-
-      showStats = d.getElementById("show-stats"),
-      showAnilox = d.getElementById("show-anilox"),
-      showDetails = d.getElementById("show-details"),
-      rightMenu = d.querySelector(".right-content"),
-      centerMenu = d.querySelector(".center-content"),
-      bottomMenu = d.querySelector(".bottom-content"),
-
-      indexContent = d.querySelector(".index-content"),
-      topFirst = d.getElementById("top-first"),
-      bottomFirst = d.getElementById("bottom-first");
 
 d.addEventListener("click",e=>{
   if(e.target.matches(".dropbtn")){
@@ -92,34 +189,12 @@ d.addEventListener("click",e=>{
     }
   }
 
-  if(e.target == editarDashboard){
-    modalEditDash.style.display = "block";
-    if(ls.getItem("anilox") === "show"){
-      showAnilox.checked = true;
-    }
-    if(ls.getItem("anilox") === "hide"){
-      showAnilox.checked = false;
-    }
-    if(ls.getItem("stats") === "show"){
-      showStats.checked = true;
-    }
-    if(ls.getItem("stats") === "hide"){
-      showStats.checked = false;
-    }
-    if(ls.getItem("details") === "show"){
-      showDetails.checked = true;
-    }
-    if(ls.getItem("details") === "hide"){
-      showDetails.checked = false;
-    }
-    if(ls.getItem("direction") === "normal"){
-      topFirst.checked = true;
-      bottomFirst.checked = false;
-    }
-    if(ls.getItem("direction") === "reverse"){
-      topFirst.checked = false;
-      bottomFirst.checked = true;
-    }
+  if(e.target === buscarAnilox){
+    modalSearchAnilox.style.display = "block";
+  }
+
+  if(e.target === closeModalSearchAnilox){
+    modalSearchAnilox.style.display = "none";
   }
 
   if (e.target.matches("#cerrar-sesion")) {
@@ -128,66 +203,99 @@ d.addEventListener("click",e=>{
       document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
   }
-
-  if(e.target == closeModalEditDash){
-    modalEditDash.style.display = "none";
-  }
-
-  if(e.target === showAnilox){
-    if(showAnilox.checked === true){
-      rightMenu.classList.remove("hide");
-      ls.setItem("anilox", "show");
-    }
-    if(showAnilox.checked === false){
-      rightMenu.classList.add("hide");
-      ls.setItem("anilox","hide");
-    }
-  }
-
-  if(e.target === showStats){
-    if(showStats.checked === true){
-      centerMenu.classList.remove("hide");
-      ls.setItem("stats", "show");
-    }
-    if(showStats.checked == false){
-      centerMenu.classList.add("hide");
-      ls.setItem("stats", "hide");
-    }
-  }
-
-  if(e.target === showDetails){
-    if(showDetails.checked === true){
-      bottomMenu.classList.remove("hide");
-      ls.setItem("details", "show");
-    }
-    if(showDetails.checked === false){
-      bottomMenu.classList.add("hide");
-      ls.setItem("details", "hide");
-    }
-  }
-
-  if(e.target === topFirst){
-    if(topFirst.checked === true){
-      indexContent.style.flexDirection = "column";
-      ls.setItem("direction", "normal");
-    }
-  }
-
-  if(e.target === bottomFirst){
-    if(bottomFirst.checked === true){
-      indexContent.style.flexDirection = "column-reverse";
-      ls.setItem("direction", "reverse");
-    }
-  }
-
-  if(e.target === buscarAnilox){
-    modalSearchAnilox.style.display = "block";
-  }
-
-  if(e.target === closeModalSearchAnilox){
-    modalSearchAnilox.style.display = "none";
-  }
 });
+
+//------------ HASTA AQUÍ, TODO NORMAL-------------------------
+
+//   if(e.target == editarDashboard){
+//     modalEditDash.style.display = "block";
+//     if(ls.getItem("anilox") === "show"){
+//       showAnilox.checked = true;
+//     }
+//     if(ls.getItem("anilox") === "hide"){
+//       showAnilox.checked = false;
+//     }
+//     if(ls.getItem("stats") === "show"){
+//       showStats.checked = true;
+//     }
+//     if(ls.getItem("stats") === "hide"){
+//       showStats.checked = false;
+//     }
+//     if(ls.getItem("details") === "show"){
+//       showDetails.checked = true;
+//     }
+//     if(ls.getItem("details") === "hide"){
+//       showDetails.checked = false;
+//     }
+//     if(ls.getItem("direction") === "normal"){
+//       topFirst.checked = true;
+//       bottomFirst.checked = false;
+//     }
+//     if(ls.getItem("direction") === "reverse"){
+//       topFirst.checked = false;
+//       bottomFirst.checked = true;
+//     }
+//   }
+
+//   if(e.target == closeModalEditDash){
+//     modalEditDash.style.display = "none";
+//   }
+
+//   if(e.target === showAnilox){
+//     if(showAnilox.checked === true){
+//       rightMenu.classList.remove("hide");
+//       ls.setItem("anilox", "show");
+//     }
+//     if(showAnilox.checked === false){
+//       rightMenu.classList.add("hide");
+//       ls.setItem("anilox","hide");
+//     }
+//   }
+
+//   if(e.target === showStats){
+//     if(showStats.checked === true){
+//       centerMenu.classList.remove("hide");
+//       ls.setItem("stats", "show");
+//     }
+//     if(showStats.checked == false){
+//       centerMenu.classList.add("hide");
+//       ls.setItem("stats", "hide");
+//     }
+//   }
+
+//   if(e.target === showDetails){
+//     if(showDetails.checked === true){
+//       bottomMenu.classList.remove("hide");
+//       ls.setItem("details", "show");
+//     }
+//     if(showDetails.checked === false){
+//       bottomMenu.classList.add("hide");
+//       ls.setItem("details", "hide");
+//     }
+//   }
+
+//   if(e.target === topFirst){
+//     if(topFirst.checked === true){
+//       indexContent.style.flexDirection = "column";
+//       ls.setItem("direction", "normal");
+//     }
+//   }
+
+//   if(e.target === bottomFirst){
+//     if(bottomFirst.checked === true){
+//       indexContent.style.flexDirection = "column-reverse";
+//       ls.setItem("direction", "reverse");
+//     }
+//   }
+
+//   if(e.target === buscarAnilox){
+//     modalSearchAnilox.style.display = "block";
+//   }
+
+//   if(e.target === closeModalSearchAnilox){
+//     modalSearchAnilox.style.display = "none";
+//   }
+// });
 
 d.addEventListener("DOMContentLoaded",e=>{
   if(ls.getItem("sidebar") === null){
@@ -200,58 +308,6 @@ d.addEventListener("DOMContentLoaded",e=>{
   if(ls.getItem("sidebar") === "hide"){
     sideMenu.classList.add("hide");
     logo.classList.add("hide");
-  }
-
-  if(ls.getItem("anilox") === null){
-    ls.setItem("anilox","show");
-  }
-  if(ls.getItem("anilox") === "show"){
-    rightMenu.classList.remove("hide");
-  }
-  if(ls.getItem("anilox") === "hide"){
-    rightMenu.classList.add("hide");
-  }
-
-  if(ls.getItem("stats") === null){
-    ls.setItem("stats","show");
-  }
-  if(ls.getItem("stats") === "show"){
-    if(centerMenu !== null){
-      centerMenu.classList.remove("hide");
-    }
-  }
-  if(ls.getItem("stats") === "hide"){
-    if(centerMenu !== null){
-      centerMenu.classList.add("hide");
-    }
-  }
-
-  if(ls.getItem("details") === null){
-    ls.setItem("details","show");
-  }
-  if(ls.getItem("details") === "show"){
-    if(bottomMenu !== null){
-      bottomMenu.classList.remove("hide");
-    }
-  }
-  if(ls.getItem("details") === "hide"){
-    if(bottomMenu !== null){
-      bottomMenu.classList.add("hide");
-    }
-  }
-
-  if(ls.getItem("direction") === null){
-    ls.setItem("direction","normal");
-  }
-  if(ls.getItem("direction") === "normal"){
-    if(indexContent !== null){
-      indexContent.style.flexDirection = "column";
-    }
-  }
-  if(ls.getItem("direction") === "reverse"){
-    if(indexContent !== null){
-      indexContent.style.flexDirection = "column-reverse";
-    }
   }
 });
 
@@ -369,7 +425,7 @@ const searchAnilox = async(e)=>{
   if(e.target === $formSearch){
     e.preventDefault();
     let searchId = $searchId.value.toUpperCase();
-
+    let aniloxBrand;
     try {
       let res = await fetch("/api/listado", {
         method: 'POST',
@@ -385,11 +441,13 @@ const searchAnilox = async(e)=>{
 
       json.forEach(el=>{
         if(el.id === searchId){
+          aniloxBrand = el.brand;
           foundFlag = 1;
         }
       });
       if(foundFlag === 1){
         ss.setItem("aniloxId", searchId);
+        ss.setItem("aniloxBrand", aniloxBrand);
         window.location.href = 'anilox-detail.html';
       }
       if(foundFlag !== 1){

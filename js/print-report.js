@@ -1,5 +1,3 @@
-// import { jsPDF } from "jspdf";
-// import pdfjsLib from "pdfjs-dist";
 const $aniloxTable = d.querySelector(".anilox-table"),
       $reportTable = d.querySelector(".report-table"),
       $aniloxTemplate = d.getElementById("anilox-template").content,
@@ -24,7 +22,6 @@ let aniloxList = [];
 
 const getAniloxList = async ()=>{
   try {
-    $listaAnilox.style.display = "block";
     let res = await fetch("/api/listado", {
       method: 'POST',
       headers: {
@@ -36,6 +33,7 @@ const getAniloxList = async ()=>{
 
     if(!res.ok) throw{status: res.status, statusText: res.statusText};
     
+    $listaAnilox.style.display = "flex";
     json.forEach(el => {
       $aniloxTemplate.querySelector(".id").textContent = el.id;
       let $clone = d.importNode($aniloxTemplate, true);
@@ -43,6 +41,7 @@ const getAniloxList = async ()=>{
     });
     $aniloxTable.querySelector("tbody").appendChild($aniloxFragment);
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
@@ -59,7 +58,7 @@ const getReportList = async(e)=>{
       }
       e.target.classList.add("selected");
       $reportTableBody.innerHTML = "";
-      $listaReportes.style.display = "block";
+      $listaReportes.style.display = "flex";
       aniloxReportId = e.target.textContent;
       let res = await fetch('/api/anilox-history', {
         method: 'POST',
@@ -81,6 +80,7 @@ const getReportList = async(e)=>{
       });
       $reportTable.querySelector("tbody").appendChild($reportFragment);
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",
@@ -97,7 +97,7 @@ const getReport = async(e)=>{
         e.target.parentElement.parentElement.children[i].children[0].classList.remove("selected");
       }
       e.target.classList.add("selected");
-      $pdf.style.display = "block";
+      $pdf.style.display = "flex";
       aniloxReportDate = e.target.textContent;
       $reportTitle.textContent = `${aniloxReportId}_${aniloxReportDate}`
       let res = await fetch('/api/anilox-history', {
@@ -123,6 +123,7 @@ const getReport = async(e)=>{
       $reportPdf.setAttribute("data", reportURL);
       $descargaPdf.setAttribute("href", reportURL);
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
          message1 = "Error " + errorCode + ": ",
