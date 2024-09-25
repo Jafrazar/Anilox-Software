@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimineto del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#364349">
+    <title>ANX Suite SuperAdmin</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./super_css/super_style.css">
+    <!-- Listado Stylesheet -->
+    <link rel="stylesheet" href="./super_css/super_listado.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="dropdown">
+          <button class="dropbtn">Archivo
+          </button>
+          <div class="dropdown-content" id="drop-archivo">
+            <a id="buscar-anilox">Buscar ánilox</a>
+            <a href="listado.html">Listado de ánilox</a>
+            <a href="print-report.html">Imprimir reportes</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ver
+          </button>
+          <div class="dropdown-content" id="drop-ver">
+            <a id="ocultar-menu">Barra de herramientas</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Opciones
+          </button>
+          <div class="dropdown-content" id="drop-opciones">
+            <a href="export-data.html">Exportar datos</a>
+            <a href="req-quotes.html">Solicitar cotización</a>
+          </div>
+        </div>
+      </div>
+      <!-- Final Menu -->
+      <div class="top-bar">
+        <div class="logo">
+          <img src="./assets/logo.png">
+        </div>
+        <div class="title">
+          <h1>Listado de Ánilox</h1>
+        </div>
+        <div class="user">
+          <p>Bienvenido, <b id="user-name"></b></p>
+          <small id="user-level">SuperAdmin</small>
+        </div>
+      </div>
+      <!-- Final de TopBar -->
+      <main>
+        <div class="left-content">
+          <div class="sidebar">
+            <a href="index.html">
+              <span class="material-icons-sharp" title="Panel Principal">
+                dashboard
+              </span>
+            </a>
+            <a id="search-anilox">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>
+            <a href="listado.html" class="active" id="listado">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
+              </span>
+            </a>
+            <a href="print-report.html">
+              <span class="material-icons-sharp" title="Imprimir Reportes">
+                print
+              </span>
+            </a>
+            <a href="export-data.html">
+              <span class="material-icons-sharp" title="Exportar Datos">
+                file_download
+              </span>
+            </a>
+            <a href="req-quotes.html">
+              <span class="material-icons-sharp" title="Solicitar Cotización">
+                request_quote
+              </span>
+            </a>
+            <a href="#" id="log-out">
+              <span class="material-icons-sharp" title="Cerrar Sesión">
+                logout
+              </span>
+            </a>
+          </div>
+        </div>
+        <!-- Final Accesos Rapidos -->
+        <div class="right-content">
+          <div class="selector-container">
+            <h3>Filtrar por cliente:</h3>
+            <select name="clients" id="client-selector">
+              <option value="none">- - - - - - - -</option>
+            </select>
+            <!-- Final Client Selector -->
+          </div>
+          <!-- Final Selector Container -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th class="header-client">
+                    <span class="material-icons-sharp" title="Cliente">
+                      people
+                    </span>
+                  </th>
+                  <th class="header-code">
+                    <span class="material-icons-sharp" title="Código de ánilox">
+                      hive
+                    </span>
+                  </th>
+                  <th class="hearder-brand">
+                    <span class="material-icons-sharp" title="Fabricante de ánilox">
+                      sell
+                    </span>
+                  </th>
+                  <th class="header-type">
+                    <span class="material-icons-sharp" title="Tipo de ánilox">
+                      handyman
+                    </span>
+                  </th>
+                  <th class="header-purchase">
+                    <span class="material-icons-sharp" title="Fecha de compra de ánilox">
+                      today
+                    </span>
+                  </th>
+                  <th class="header-volume">
+                    <span class="material-icons-sharp volumeTitle" title="Volumen de celda de ánilox (BCM)">
+                      battery_3_bar
+                    </span>
+                  </th>
+                  <th class="header-last">
+                    <span class="material-icons-sharp" title="Última fecha de revisión de ánilox">
+                      bookmark_added
+                    </span>
+                  </th>
+                  <th class="header-next">
+                    <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                      notification_important
+                    </span>
+                  </th>
+                  <th class="header-status">
+                    <span class="material-icons-sharp" title="Estado estructural">
+                      battery_unknown
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <template id="table-template">
+              <tr>
+                <td class="client"></td>
+                <td class="code"></td>
+                <td class="brand"></td>
+                <td class="type"></td>
+                <td class="purchase"></td>
+                <td class="volume"></td>
+                <td class="last"></td>
+                <td class="next"></td>
+                <td class="status">
+                  <div class="barra-estado">
+                    <div id="barra"></div>
+                  </div>
+                </td>
+                <td class="pdf">
+                  <span class="material-icons-sharp master" title="Reporte de Fábrica" data-base64="">
+                    description
+                  </span>
+                </td>
+                <td class="send">
+                  <span class="material-icons-sharp quote" title="Solicitar cotización" data-id="">
+                    request_quote
+                  </span>
+                </td>
+                <td class="trash">
+                  <span class="material-icons-sharp delete" title="Eliminar ánilox" data-id="">
+                    delete_forever
+                  </span>
+                </td>
+              </tr>
+            </template>
+            <!-- Final Table Template -->
+          </div>
+          <!-- Final Table Container -->
+        </div>
+        <!-- Final Right Content -->
+      </main>
+    </div>
+    <!-- Final .container -->
+    <div class="modal" id="modal-pdf">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-modal-pdf">
+            close
+          </span>
+        </div>
+        <div class="modal-body">
+          <object data="" type="application/pdf" id="master-pdf">
+          </object>
+        </div>
+      </div>
+    </div>
+    <!-- Final modal pdf -->
+    <div class="modal" id="modal-quote-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-quote-box">
+            close
+          </span>
+          <h2>Confirmar</h2>
+        </div>
+        <div class="modal-body" id="modal-quote-box-body">
+          <div class="modal-body-question">
+            <h3>¿Cotizar un ánilox de las siguientes características?</h3>
+          </div>
+          <div class="quote-data">
+            <span>
+              <h3>Tipo: </h3>
+              <p id="quote-type"></p>
+            </span>
+            <span>
+              <h3>Ángulo (°):</h3>
+              <p id="quote-angle"></p>
+            </span>
+            <span>
+              <h3>Volumen (BCM):</h3>
+              <p id="quote-vol"></p>
+            </span>
+            <span>
+              <h3>Lineatura (LPI):</h3>
+              <p id="quote-screen"></p>
+            </span>
+          </div>
+          <div class="quote-confirm">
+            <input type="button" value="Aceptar" id="send-quote" class="accept-btn">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Final Quote Box -->
+    <div class="modal" id="modal-delete-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-delete-box">
+            close
+          </span>
+          <h2>Confirmar</h2>
+        </div>
+        <div class="modal-body" id="modal-delete-body">
+          <div class="modal-body-question">
+            <h3>¿Eliminar el ánilox de código&nbsp;</h3>
+            <h3 id="delete-id"></h3>
+            <h3>&nbsp;permanentemente?</h3>
+          </div>
+          <div class="delete-confirm">
+            <input type="button" value="Aceptar" id="accept-delete" class="accept-btn">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Final Delete Box -->
+    <div class="modal" id="modal-search-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-search" autocomplete="off">
+            <div class="search-input">
+              <p>ID:</p>
+              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+            </div>
+            <div class="search-submit">
+              <input type="submit" value="Buscar" id="search-submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de buscar anilox -->
+    <div class="modal" id="modal-alert-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-alert-box">
+            close
+          </span>
+          <h2>Información</h2>
+        </div>
+        <div class="modal-body">
+          <h3 id="alert-content"></h3>
+        </div>
+      </div>
+    </div>
+    <!-- Final Alert Box -->
+    <!-- Common JS Script -->
+    <script src="./super_js/super_common.js"></script>
+    <!-- Listado JS Script -->
+    <script src="./super_js/super_listado.js"></script>
+  </body>
+</html>

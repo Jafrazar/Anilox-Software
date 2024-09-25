@@ -1,0 +1,290 @@
+/* Common */
+
+.container .right-content{
+  margin-right: 0;
+}
+
+.top-bar .title{
+  display: flex;
+  flex-direction: row;
+}
+
+.top-bar .title h1{
+  margin-left: 1rem;
+}
+
+.right-content .detail-content{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar .title .list-controls{
+  display: flex;
+  width: 10%;
+  padding-left: 1rem;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.top-bar .title .list-controls .control{
+  background: var(--color-white);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+}
+
+.top-bar .title .list-controls .control:hover{
+  box-shadow: none;
+}
+
+.top-bar .title .list-controls .control span{
+  padding: 0.2rem;
+}
+
+/* Top */
+
+.right-content .detail-content .data-top{
+  flex: 0 0 34%;
+  display: flex;
+  width: 99%;
+  flex-direction: row;
+}
+
+.right-content .detail-content .data-top > div{
+  background: var(--color-white);
+  padding: 0 0.5rem 0rem 1rem;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  margin-left: 1.5rem;
+  height: 31vh;
+}
+
+.right-content .detail-content .data-top .data{
+  flex-shrink: 1;
+  width: 27vw;
+}
+
+.right-content .detail-content .data-top > .clean-graph, .damaged-graph, .wear-graph{
+  flex-grow: 1;
+  flex-shrink: 1;
+  width: 20vw;
+}
+
+.right-content .detail-content .data-top > div:first-child{
+  margin-left: 0; 
+  padding-left: 2rem;
+}
+
+.right-content .detail-content .data-top .data span{
+  display: flex;
+  flex-direction: row;
+  padding-top: 1rem;
+}
+
+.right-content .detail-content .data-top .data #ver-mas{
+  cursor: pointer;
+}
+
+.right-content .detail-content .data-top h3{
+  font-size: 17px;
+  font-weight: 500;
+  padding-right: 0.25rem;
+}
+
+.right-content .detail-content .data-top p{
+  font-size: 17px;
+  font-weight: 500;
+  padding-right: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.right-content .detail-content .data-top h3{
+  font-weight: bold;
+}
+
+.right-content .detail-content .data-top > div:hover{
+  box-shadow: none;
+}
+
+/* Middle */
+
+.right-content .detail-content .data-middle{
+  flex: 0 0 25%;
+  display: flex;
+  margin-top: 1rem;
+}
+
+.right-content .detail-content .data-middle .graph-line{
+  background: var(--color-white);
+  padding: 0 0.5rem 0.5rem 1rem;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  width: 99%;
+}
+
+.right-content .detail-content .data-middle > div:hover{
+  box-shadow: none;
+}
+
+/* Bottom */
+
+.right-content .detail-content .data-bottom{
+  margin-top: 1rem;
+  display: flex;
+  width: 99%;
+}
+
+.right-content .detail-content .data-bottom > div{
+  flex: 1 1 38%;
+  display: flex;
+  justify-content: center;
+  background: var(--color-white);
+  padding: 0 0.5rem 0.5rem 1rem;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+  margin-right: 1.5rem;
+  padding-top: 0.5rem;
+  padding-right: 1rem;
+  height: 33vh;
+}
+
+.right-content .detail-content .data-bottom > div:last-child{
+  flex: 1 1 24%;
+  margin-right: 0; 
+}
+
+.right-content .detail-content .data-bottom > div:hover{
+  box-shadow: none;
+}
+
+.right-content .detail-content .data-bottom img{
+  height: 31vh;
+  width: auto;
+  border-radius: var(--card-border-radius);
+  padding-top: 0.5rem;
+}
+
+.right-content .detail-content .data-bottom .analysis{
+  display: flex;
+  flex-direction: column;
+  padding-left: 0;
+  padding-right: 0;
+  align-items: center;
+}
+
+.right-content .detail-content .data-bottom .analysis .status-span{
+  display: flex;
+  justify-content: center;
+}
+
+.right-content .detail-content .data-bottom .analysis .status-span .status-info{
+  padding-left: 0.5rem;
+}
+
+.right-content .detail-content .data-bottom h3{
+  font-size: 20px;
+  text-align: center;
+  padding-top: 0.3rem;
+}
+
+.right-content .detail-content .data-bottom h4{
+  font-size: 12px;
+  text-align: center;
+}
+
+.right-content .detail-content .data-bottom p{
+  inline-size: 15vw;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-align: center;
+  font-size: 20px;
+}
+
+.right-content .detail-content .data-bottom .status-percentage{
+  width: auto;
+}
+
+/* Modal Extra Data Anilox*/
+
+#modal-data-anilox span{
+  display: flex;
+  flex-direction: row;
+}
+
+#modal-data-anilox span h3{
+  margin: 0.5rem 0.25rem 0.5rem 0;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+#modal-data-anilox span p{
+  margin: 0.5rem 0 0.5rem 0.5rem;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+/* Modal Estimar Vida Util */
+
+#modal-content-eol-anilox{
+  width: 75rem;
+}
+
+#modal-content-eol-anilox .modal-body p{
+  margin: 0.5rem 1.5rem 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 22px;
+  text-align: center;
+}
+
+#modal-content-eol-anilox .modal-body #eol-graph-container{
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--color-primary);
+  height: 50vh;
+  display: none;
+  padding: 1rem 1.5rem 0 1rem;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes{
+  display: none;
+  justify-content: center;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table{
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--color-primary);
+  text-align: center;
+  width: 35%;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table thead tr th{
+  height: 3rem;
+  border-bottom: 1px solid var(--color-primary);
+  padding: 0.8rem 0;
+  color: var(--color-primary);
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table tbody tr td{
+  width: 15%;
+  height: 3rem;
+  border-bottom: 1px solid var(--color-primary);
+  color: var(--color-dark-variant);
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes table tbody tr:last-child td{
+  border: none;
+}
+
+#modal-content-eol-anilox .modal-body #tabla-porcentajes .modal-eol-graph{
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--color-primary);
+  width: 15rem;
+  height: 17rem;
+  margin-right: 1rem;
+}

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="./">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplicación para facilitar la administración y seguimineto del estado de sus rodillos ánilox">
+    <meta name="theme-color", content="#364349">
+    <title>ANX Suite SuperAdmin</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <!-- Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./super_css/super_style.css">
+    <!-- Index Stylesheet -->
+    <link rel="stylesheet" href="./super_css/super_anilox-detail.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <div class="dropdown">
+          <button class="dropbtn">Archivo
+          </button>
+          <div class="dropdown-content" id="drop-archivo">
+            <a id="buscar-anilox">Buscar ánilox</a>
+            <a href="listado.html">Listado de ánilox</a>
+            <a href="print-report.html">Imprimir reportes</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Ver
+          </button>
+          <div class="dropdown-content" id="drop-ver">
+            <a id="ocultar-menu">Barra de herramientas</a>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="dropbtn">Opciones
+          </button>
+          <div class="dropdown-content" id="drop-opciones">
+            <a href="export-data.html">Exportar datos</a>
+            <a href="req-quotes.html">Solicitar cotización</a>
+          </div>
+        </div>
+      </div>
+      <!-- Final Menu -->
+      <div class="top-bar">
+        <div class="logo">
+          <img src="./assets/logo.png">
+        </div>
+        <div class="title">
+          <h1>Panel Principal</h1>
+        </div>
+        <div class="user">
+          <p>Bienvenido, <b id="user-name"></b></p>
+          <small id="user-level">SuperAdmin</small>
+        </div>
+      </div>
+      <!-- Final de TopBar -->
+      <main>
+        <div class="left-content">
+          <div class="sidebar">
+            <a href="index.html" class="active">
+              <span class="material-icons-sharp" title="Panel Principal">
+                dashboard
+              </span>
+            </a>
+            <a id="search-anilox">
+              <span class="material-icons-sharp" title="Buscar Ánilox">
+                manage_search
+              </span>
+            </a>
+            <a href="listado.html" id="listado">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
+              </span>
+            </a>
+            <a href="print-report.html">
+              <span class="material-icons-sharp" title="Imprimir Reportes">
+                print
+              </span>
+            </a>
+            <a href="export-data.html">
+              <span class="material-icons-sharp" title="Exportar Datos">
+                file_download
+              </span>
+            </a>
+            <a href="req-quotes.html">
+              <span class="material-icons-sharp" title="Solicitar Cotización">
+                request_quote
+              </span>
+            </a>
+            <a href="#" id="log-out">
+              <span class="material-icons-sharp" title="Cerrar Sesión">
+                logout
+              </span>
+            </a>
+          </div>
+        </div>
+        <!-- Final Accesos Rapidos -->
+        <div class="index-content">
+          <div class="arrow-container" id="index-left">
+            <span class="material-icons-sharp" id="arrow-left">
+              chevron_left
+            </span>
+          </div>
+          <!-- Final index-left -->
+          <div id="index-center">
+            <div class="center-container" id="center-top">
+              <div class="table-container" id="center-top-left">
+                <div class="title">
+                  <h3 class="client-name" id="name-1"></h3>
+                </div>
+                <div class="table">
+                  <table id="table-top-left">
+                    <thead>
+                      <tr>
+                        <th class="header-code">
+                          <span class="material-icons-sharp" title="Código de ánilox">
+                            hive
+                          </span>
+                        </th>
+                        <th class="header-next">
+                          <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                            notification_important
+                          </span>
+                        </th>
+                        <th class="header-status">
+                          <span class="material-icons-sharp" title="Estado estructural">
+                            battery_unknown
+                          </span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-top-left-body"></tbody>
+                  </table>
+                </div>
+                <a href="listado.html" class="show-more" id="show-more-1" data-client="">Mostrar todos</a>
+              </div>
+              <!-- Final center-top-left -->
+              <div class="table-container" id="center-top-right">
+                <div class="title">
+                  <h3 class="client-name" id="name-2"></h3>
+                </div>
+                <div class="table">
+                  <table id="table-top-right">
+                    <thead>
+                      <tr>
+                        <th class="header-code">
+                          <span class="material-icons-sharp" title="Código de ánilox">
+                            hive
+                          </span>
+                        </th>
+                        <th class="header-next">
+                          <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                            notification_important
+                          </span>
+                        </th>
+                        <th class="header-status">
+                          <span class="material-icons-sharp" title="Estado estructural">
+                            battery_unknown
+                          </span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-top-right-body"></tbody>
+                  </table>
+                </div>
+                <a href="listado.html" class="show-more" id="show-more-2" data-client="">Mostrar todos</a>
+              </div>
+              <!-- Final center-top-right -->
+            </div>
+            <!-- Final center-top -->
+            <div class="center-container" id="center-bottom">
+              <div class="table-container" id="center-bottom-left">
+                <div class="title">
+                  <h3 class="client-name" id="name-3"></h3>
+                </div>
+                <div class="table">
+                  <table id="table-bottom-left">
+                    <thead>
+                      <tr>
+                        <th class="header-code">
+                          <span class="material-icons-sharp" title="Código de ánilox">
+                            hive
+                          </span>
+                        </th>
+                        <th class="header-next">
+                          <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                            notification_important
+                          </span>
+                        </th>
+                        <th class="header-status">
+                          <span class="material-icons-sharp" title="Estado de estructural">
+                            battery_unknown
+                          </span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-bottom-left-body"></tbody>
+                  </table>
+                </div>
+                <a href="listado.html" class="show-more" id="show-more-3" data-client="">Mostrar todos</a>
+              </div>
+              <!-- Final center-bottom-left -->
+              <div class="table-container" id="center-bottom-right">
+                <div class="title">
+                  <h3 class="client-name" id="name-4"></h3>
+                </div>
+                <div class="table">
+                  <table id="table-bottom-right">
+                    <thead>
+                      <tr>
+                        <th class="header-code">
+                          <span class="material-icons-sharp" title="Código de ánilox">
+                            hive
+                          </span>
+                        </th>
+                        <th class="header-next">
+                          <span class="material-icons-sharp" title="Próxima fecha de revisión de ánilox">
+                            notification_important
+                          </span>
+                        </th>
+                        <th class="header-status">
+                          <span class="material-icons-sharp" title="Estado de estructural">
+                            battery_unknown
+                          </span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-bottom-right-body"></tbody>
+                  </table>
+                </div>
+                <a href="listado.html" class="show-more" id="show-more-4" data-client="">Mostrar todos</a>
+              </div>
+              <!-- Final center-bottom-right -->
+            </div>
+            <!-- Final center-bottom -->
+            <template id="table-template">
+              <tr>
+                <td class="code"></td>
+                <td class="next"></td>
+                <td class="status">
+                  <div class="barra-estado">
+                    <div class="barra"></div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </div>
+          <!-- Final index-center -->
+          <div class="arrow-container" id="index-right">
+            <span class="material-icons-sharp" id="arrow-right">
+              chevron_right
+            </span>
+          </div>
+          <!-- Final index-rigth -->
+        </div>
+        <!-- Final de Index Content -->
+      </main>
+    </div>
+    <!-- Final .container -->
+    <div class="modal" id="modal-search-anilox">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-search-anilox">
+            close
+          </span>
+          <h2>Buscar rodillo ánilox</h2>
+        </div>
+        <div class="modal-body">
+          <form class="form-search" autocomplete="off">
+            <div class="search-input">
+              <p>ID:</p>
+              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+            </div>
+            <div class="search-submit">
+              <input type="submit" value="Buscar" id="search-submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Final de buscar anilox -->
+    <div class="modal" id="modal-alert-box">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close material-icons-sharp" id="close-alert-box">
+            close
+          </span>
+          <h2>Información</h2>
+        </div>
+        <div class="modal-body">
+          <h3 id="alert-content"></h3>
+        </div>
+      </div>
+    </div>
+    <!-- Final Alert Box -->
+    <!-- Common JS Script -->
+    <script src="./super_js/super_common.js"></script>
+    <!-- Index JS Script -->
+    <script src="./super_js/super_index.js"></script>
+  </body>
+</html>
