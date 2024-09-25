@@ -65,7 +65,13 @@ async function login(req, res) {  // función redirigida desde api/login
             }
             res.cookie("jwt", token, cookieOption);
             res.set('Authorization', token);
-            return res.status(200).send({status: "Success", message: `Usuario ${username} logueado correctamente`,  redirect: '/index'});
+            if(sesion_usuario == "superadmin") {
+              return res.status(200).send({status: "Success", message: `Usuario ${username} logueado correctamente`,  redirect: '/super_index'});
+            }
+            else{
+              return res.status(200).send({status: "Success", message: `Usuario ${username} logueado correctamente`,  redirect: '/index'});
+            }
+            
         } else {
             console.log('Error: Usuario o contraseña incorrectos');
             return res.status(400).send({status: "Error", message: "Usuario o contraseña incorrectos"});     
@@ -229,6 +235,21 @@ function soloPublico(req, res, next) {
   }
   if(!logueado){
     return next();
+  }
+}
+
+function soloSuperAdmin(req, res, next) {
+  const logueado = revisarCookie(req);
+  if(logueado){
+    if(sesion_usuario == "superadmin") {
+      return next();
+    }
+    else {
+      return res.redirect("/index");
+    }
+  }
+  else {
+    return res.redirect("/");
   }
 }
 
@@ -722,7 +743,7 @@ async function cotizaciones(req, res) {
       secure: true,
       auth: {
         user: 'francodel380@gmail.com',
-        pass: 'xthk vflx wjqn qaef'
+        pass: 'xthk vflx wjqn qaef' // Es una contraseña de aplicación (se crea en Gmail cuando se autentica la verificación de 2 factores)
       }
     });
 
@@ -737,7 +758,7 @@ async function cotizaciones(req, res) {
         });
         let mailOptions = {
           from: 'francodel380@gmail.com',
-          to: 'franco.delalcazar@qanders.com',
+          to: 'mario.molina@qanders.com',
           subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
           html: 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
                 'Las características del rodillo son:<br><br>' +
@@ -748,7 +769,7 @@ async function cotizaciones(req, res) {
                 '<li><strong>Angle:</strong> ' + angle + '</li>' +
                 '</ul>',
         };  
-        transporter.sendMail(mailOptions);        
+        transporter.sendMail(mailOptions);
         return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });
       });
     }
@@ -764,7 +785,7 @@ async function cotizaciones(req, res) {
           });
           let mailOptions = {
             from: 'francodel380@gmail.com',
-            to: 'franco.delalcazar@qanders.com',
+            to: 'mario.molina@qanders.com',
             subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
             html: 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
                   'Las características del rodillo son:<br><br>' +
@@ -876,29 +897,6 @@ async function addBase64ImageToPDF(doc, pSet, base64Image, options) {
   }
   fs.unlinkSync(tempImagePath); // Opcional: Eliminar el archivo temporal de la imagen 
 }
-
-// function calcularRectaTendencia(eolDates, volData) {
-//   // Convertir fechas a valores numéricos (timestamp)
-//   const x = eolDates.map(date => new Date(date).getTime());
-//   const y = volData;
-
-//   const n = x.length;
-//   const sumX = x.reduce((a, b) => a + b, 0);
-//   const sumY = y.reduce((a, b) => a + b, 0);
-//   const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
-//   const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
-
-//   const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-//   const b = (sumY - m * sumX) / n;
-
-//   // Calcular los puntos de la recta de tendencia
-//   const tendencia = x.map(xi => ({
-//     x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
-//     y: m * xi + b
-//   }));
-
-//   return { tendencia, m, b };
-// }
 
 function encontrarValoresCercanosMenores(arr, objetivos) {
   return objetivos.map(objetivo => {
@@ -1733,5 +1731,5 @@ function generarPdf(req, res) {
   }
 }
 
-module.exports = { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList,
+module.exports = { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, soloSuperAdmin, tablaAniloxAnalysis, tablaAniloxList,
                    cotizaciones, tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf };

@@ -5,7 +5,6 @@ const $licenseNumber = d.getElementById("license-number"),
 
 const licenseData = async ()=>{
   try {
-    // if(ss.getItem("licenseNumber") === null){
     let res = await fetch("/api/licencias", {
       method: 'POST',
       headers: {

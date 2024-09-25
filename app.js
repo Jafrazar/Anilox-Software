@@ -3,7 +3,7 @@ require('dotenv').config(); // Necesario para leer las variables de entorno
 module.exports = { path }; // Exportar la variable path para poder usarla en otros archivos
 
 const express = require("express"); // Ncesario para poder crear la aplicación Express
-const { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, tablaAniloxAnalysis, tablaAniloxList, cotizaciones,
+const { login, registro, registro_licencia, password_recovery, soloAdmin, soloPublico, soloSuperAdmin, tablaAniloxAnalysis, tablaAniloxList, cotizaciones,
         tablaUsuarios, tablaClientes, tablaLicencias, tablaAniloxHistory, borrarAnilox, generarPdf } = require("./controllers/autenticacion");
 
 const app = express();
@@ -120,6 +120,54 @@ app.get('/req-quotes', soloAdmin, (req, res) => {
 
 app.get('/req-quotes.html', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'req-quotes.html'));
+});
+
+app.get('/super_index', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_index.html'));
+});
+
+app.get('/super_index.html', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_index.html'));
+});
+
+app.get('/super_anilox-detail', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_anilox-detail.html'));
+});
+
+app.get('/super_anilox-detail.html', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_anilox-detail.html'));
+});
+
+app.get('/super_export-data', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_export-data.html'));
+});
+
+app.get('/super_export-data.html', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_export-data.html'));
+});
+
+app.get('/super_listado', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_listado.html'));
+});
+
+app.get('/super_listado.html', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_listado.html'));
+});
+
+app.get('/super_print-report', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_print-report.html'));
+});
+
+app.get('/super_print-report.html', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_print-report.html'));
+});
+
+app.get('/super_req-quotes', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_req-quotes.html'));
+});
+
+app.get('/super_req-quotes.html', soloSuperAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'super_req-quotes.html'));
 });
 
 // Rutas

@@ -31,6 +31,7 @@ d.addEventListener("DOMContentLoaded",async()=>{
     }
     $user.textContent = ss.getItem("user");
   } catch (err) {
+    console.log(err);
     let errorCode = err.status || "2316",
         errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
         message1 = "Error " + errorCode + ": ",
@@ -43,10 +44,10 @@ d.addEventListener("DOMContentLoaded",async()=>{
 
 d.addEventListener("DOMContentLoaded", ()=>{
   let level = ss.getItem("level");
-  if(level !== "4"){
-    alert("No se encuentra autorizado para realizar esta operación");
-    window.location.href = "index.html";
-  }
+  // if(level !== "4"){
+  //   alert("No se encuentra autorizado para realizar esta operación");
+  //   window.location.href = "index.html";
+  // }
 });
 
 // Dropdown
@@ -158,6 +159,7 @@ d.addEventListener("click", (e)=>{
 //Error Message
 
 const errorMessage = (error)=>{
+  console.log(error);
   let errorCode = error.status || "2316",
       errorStatus = error.statusText || "No se pudo establecer contacto con el servidor",
       message1 = "Error " + errorCode + ": ",
@@ -183,6 +185,7 @@ d.addEventListener("submit",async(e)=>{
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
       clientsList = Object.values(json[0]);
     } catch (err) {
+      console.log(err);
       let errorCode = err.status || "2316",
           errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
           message1 = "Error " + errorCode + ": ",
@@ -205,6 +208,7 @@ d.addEventListener("submit",async(e)=>{
           }
         });
       } catch (err) {
+        console.log(err);
         let errorCode = err.status || "2316",
             errorStatus = err.statusText || "No se pudo establecer contacto con el servidor",
             message1 = "Error " + errorCode + ": ",
