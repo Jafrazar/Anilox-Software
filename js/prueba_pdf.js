@@ -18,7 +18,8 @@ const db = mysql.createPool({
 });
 
 const app = express();
-const pdfPath = "./modelo_reporte_final.pdf";
+const pdfPath = "./modelo_reporte_final3.pdf";
+const pdfPath2 = "./modelo_reporte_final_alt.pdf";
 
 async function obtenerDatosAnilox(anilox) {
     return new Promise((resolve, reject) => {
@@ -100,7 +101,6 @@ const coord_desgastadas = {
     x: 360,     y: 300,
     width: 120, height: 120
 };
-
 
 // Llamar a addBase64ImageToPDF según sea necesario
 console.log(procesarAnilox('AS183209'));

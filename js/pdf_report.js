@@ -23,10 +23,11 @@ db.getConnection((err) => {
 });
 
 const app = express();
-let anilox = 'AS183209'; let fecha; let fabricante=""; let revision="";
-let danadas; let desgastadas; let tapadas; let volLabels = [], volData = [], diag = [];
-let tapadas_img; let danadas_img; let desgastadas_img; let nomVol, nomData = [];let bcmChart;
+let anilox = 'AA0000001'; let fabricante=""; let revision="";
+let danadas; let desgastadas; let tapadas; let estado; let diagnostico; let recomendacion; let volLabels = [], volData = [], diag = [];
+let tapadas_img; let danadas_img; let desgastadas_img; let tipo; let purchase; let volume; let screen; let last; let next; let nomVol, nomData = [];let bcmChart;
 const pdfPath = "./modelo_reporte_final3.pdf";
+const pdfPath2 = "./modelo_reporte_final_alt.pdf";
 
 async function addBase64ImageToPDF(doc, pSet, base64Image, options) {    
     const imageBuffer = Buffer.from(base64Image, 'base64'); // Convertir la cadena base64 a buffer 
@@ -48,8 +49,12 @@ async function addBase64ImageToPDF(doc, pSet, base64Image, options) {
 }
 
 sql = 'SELECT * FROM anilox_analysis WHERE id = ?'
-db.query(sql, ['AS183209'], (err, rows) => {
+db.query(sql, [anilox], (err, rows) => {
     if (err) throw err;
+    estado = parseFloat(rows[0].estado) + '%';
+    diagnostico = rows[0].diagnostico;
+    recomendacion = rows[0].recomendacion;
+    next = rows[0].next.toISOString().substring(0, 10);
     tapadas = parseFloat(rows[0].tapadas),
     limpias = 100 - tapadas,
     danadas = parseFloat(rows[0].danadas),
@@ -348,6 +353,11 @@ db.query(sql, ['AS183209'], (err, rows) => {
     const sql2 = 'SELECT * FROM anilox_list WHERE id=?';
     db.query(sql2,[anilox], (err2, rows2) => {
         if (err2) throw err2;
+        tipo = rows2[0].type;
+        purchase = rows2[0].purchase.toISOString().substring(0, 10);
+        volume = (Math.round((rows2[0].volume/1.55) * 10) / 10).toString();
+        screen = rows2[0].screen.toString();
+        last = rows2[0].last.toISOString().substring(0, 10);
         fabricante = rows2[0].brand;
         revision = rows2[0].revision;
         revision = revision.replace('data:image/jpeg;base64,', '');
@@ -515,19 +525,33 @@ const coord_historial = {
 app.get('/generarReporte', (req, res) => {
     const outputPath = path.join(__dirname, '/output_with_image.pdf');
     const replaceText = async () => {
-        const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath); // Crea un archivo PDFdoc desde un archivo PDF existente
+        const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(pdfPath2); // Crea un archivo PDFdoc desde un archivo PDF existente
         await pdfdoc.initSecurityHandler(); // Habilita el security Handler para poder realizar cambios en el PDF
         const replacer = await PDFNet.ContentReplacer.create(); // Crea un objeto ContentReplacer para reemplazar texto en el PDF
         const page = await pdfdoc.getPage(1); // Se obtiene la primera página del PDF
         const pageSet = await PDFNet.PageSet.createRange(1, 1);
+        const page2 = await pdfdoc.getPage(2);
+        const pageSet2 = await PDFNet.PageSet.createRange(2, 2);
         await replacer.addString('ANILOX', anilox);
         await replacer.addString('date', '2024-06-16');
-        await replacer.addString('fabricante', fabricante);
+        await replacer.addString('brand', fabricante);
+        await replacer.addString('type', tipo);
+        await replacer.addString('purchase', purchase);
+        await replacer.addString('volume', volume);
+        await replacer.addString('screen', screen);
+        await replacer.addString('last', last);
+        await replacer.addString('next', next);
         await replacer.addString('revision', "");
         await replacer.addString('tapadas', '');
         await replacer.addString('danadas', '');
         await replacer.addString('desgastadas', '');
         await replacer.addString('historial_volumen', '');
+        await replacer.addString('estado', estado);
+        await replacer.addString('diagnostico', diagnostico);
+        await replacer.addString('recomendacion', recomendacion);
+        await replacer.addString('usuario', 'Juan');        
+        await replacer.addString('hoy', new Date().toLocaleDateString('es-ES'));
+        await replacer.addString('grafico_eol', 'No se cuenta con suficientes datos para realizar una estimación.');        
 
         await addBase64ImageToPDF(pdfdoc, pageSet, revision, coord_revision);
         await addBase64ImageToPDF(pdfdoc, pageSet, tapadas_img, coord_tapadas);
@@ -536,7 +560,8 @@ app.get('/generarReporte', (req, res) => {
         await addBase64ImageToPDF(pdfdoc, pageSet, historial_img, coord_historial)
 
             .then(() => {                 
-                replacer.process(page);               
+                replacer.process(page); 
+                replacer.process(page2);              
                 pdfdoc.save(outputPath, PDFNet.SDFDoc.SaveOptions.e_linearized);
                 console.log('Imágenes añadidas al PDF con éxito');
                 fs.readFile(outputPath, (err, data) => {
@@ -545,7 +570,16 @@ app.get('/generarReporte', (req, res) => {
                         res.status(500).send('Error al procesar el archivo PDF');
                         return;
                     }
-                    const base64PDF = data.toString('base64');
+                    const base64PDF = `data:application/pdf;base64,${data.toString('base64')}`;
+                    const SQL5_PDF = 'SELECT * FROM anilox_history WHERE anilox = ?';
+                    db.query(SQL5_PDF, [anilox], (err_g, rows_g) => {
+                        if (rows_g.length > 0) {
+                            const SQL6_PDF = 'UPDATE anilox_history SET report = ? WHERE anilox = ? AND id = ?';
+                            db.query(SQL6_PDF, [base64PDF, anilox, rows_g.length], (err_h, rows_h) => {
+                                console.log('PDF convertido a Base64 y almacenado con éxito');
+                            });
+                        }
+                    });
                 });
             })
             .catch((error) => {
@@ -557,6 +591,7 @@ app.get('/generarReporte', (req, res) => {
     PDFNet.runWithCleanup(replaceText, "demo:1720195871717:7f8468a2030000000072c68a051f8b60b73e2b966862266ca0be4eacb7").then(() => {
         fs.readFile(outputPath, (err, data) => {
             if (err) {
+                console.log(err);
                 res.statusCode = 500;
                 res.send(err);
             } else {
@@ -565,6 +600,7 @@ app.get('/generarReporte', (req, res) => {
             }
         })
     }).catch(err => {
+        console.log("El error es: ", err);
         res.statusCode = 500;
         res.send(err);
     });
