@@ -23,7 +23,7 @@ const $user = d.getElementById("user-name"),
 d.addEventListener("DOMContentLoaded",async()=>{
   try {
     if(ss.getItem("user") === null){
-      let res = await fetch("http://anx-suite:3001/user"),
+      let res = await fetch("api/"),
           json = await res.json();
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
       ss.setItem("user",json[0].user);
@@ -39,16 +39,6 @@ d.addEventListener("DOMContentLoaded",async()=>{
     $level.insertAdjacentHTML("afterend", `<p><b>${message1}</b>${message2}</p>`);
   }
 })
-
-// Level Check
-
-d.addEventListener("DOMContentLoaded", ()=>{
-  let level = ss.getItem("level");
-  // if(level !== "4"){
-  //   alert("No se encuentra autorizado para realizar esta operación");
-  //   window.location.href = "index.html";
-  // }
-});
 
 // Dropdown
 
@@ -109,20 +99,6 @@ d.addEventListener("click",e=>{
   }
 });
 
-d.addEventListener("DOMContentLoaded",()=>{
-  if(ls.getItem("sidebar") === null){
-    ls.setItem("sidebar","show");
-  }
-  if(ls.getItem("sidebar") === "show"){
-    $sideMenu.classList.remove("hide");
-    $logo.classList.remove("hide");
-  }
-  if(ls.getItem("sidebar") === "hide"){
-    $sideMenu.classList.add("hide");
-    $logo.classList.add("hide");
-  }
-});
-
 //Sidebar
 
 const $logOut = d.getElementById("log-out"),
@@ -132,6 +108,9 @@ const $logOut = d.getElementById("log-out"),
 const logOut = e=>{
   ss.clear();
   e.stopPropagation();
+  document.cookie.split(";").forEach((c) => {
+    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+  });
 }
 
 const showSearchAnilox = e=>{

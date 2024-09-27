@@ -1445,7 +1445,6 @@ function generarPdf(req, res) {
 
                 console.log("Datos de volumen: " + volData);
                 console.log("Fechas de EOL: " + eolDates);
-                const numPuntos = 2 * volData.length + 1;
 
                 if(rows3.length < 2) {
                   eolData = 2000;

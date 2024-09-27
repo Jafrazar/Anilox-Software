@@ -125,210 +125,211 @@
             </a>
           </div>
         </div>
-        <!-- Final Accesos Rapidos -->
-        <div class="right-content">
-          <div class="lista-anilox">
-            <h3>Rodillos</h3>
-            <div class="table">
-              <table class="anilox-table">
-                <tbody></tbody>
-              </table>
-              <template id="anilox-template">
-                <tr>
-                  <td class="id"></td>
-                </tr>
-              </template>
-            </div>
-          </div>
-          <!-- Final de Lista Anilox -->
-          <div class="middle">
-            <div class="title">
-              <h3>Datos</h3>
-            </div>
-            <div class="anilox-data">
-              <div id="specific-data">
-                <span>
-                  <h3>Tipo:</h3>
-                  <p id="specific-type"></p>
-                </span>
-                <span>
-                  <h3>Ángulo (°):</h3>
-                  <p id="specific-angle"></p>
-                  <p>°</p>
-                </span>
-                <span>
-                  <h3>Volumen<h3 class="volumeUnit"></h3></h3>
-                  <p id="specific-vol"></p>
-                </span>
-                <span>
-                  <h3>Lineatura<h3 class="screenUnit"></h3></h3>
-                  <p id="specific-screen"></p>
-                </span>
-              </div>
-            </div>
-            <!-- Final de Anilox-Data -->
-            <div class="title"></div>
-              <h3>Cantidad</h3>
-            </div>
-            <div class="item-cantidad">
-              <div class="cantidad-input">
-                <span>
-                  <input type="text" id="anilox-quantity" autocomplete="off">
-                </span>
-              </div>
-              <div id="quote-add">
-                <span class="material-icons-sharp" title="Añadir a solicitud" id="add-to-quote">
-                  forward
-                </span>
-              </div>
-            </div>
-            <!-- Final de Cantidad -->
-            <div id="quote-send">
-              <span class="material-icons-sharp" title="Enviar solicitud" id="request-quote">
-                check_circle
-              </span>
-            </div>
-            <!-- Final de Quote-Controls -->
-          </div>
-          <!-- Final de Middle -->
-          <div class="quote">
-            <div class="title">
-              <h3>Lista a Cotizar</h3>
-            </div>
-            <div class="quote-list">
-              <div class="quote-header">
-                <div class="header-item">
-                  <h3>Item</h3>
-                </div>
-                <div class="header-quantity">
-                  <h3>Cantidad</h3>
-                </div>
-                <div class="header-info">
-                  <h3>Descripción</h3>
-                </div>
-              </div>
-              <!-- Final de quote header -->
-              <div class="quote-body"></div>
-              <!-- Final de quote-body -->
-              <template id="quote-template">
-                <div class="quote-item">
-                  <div class="item-number">
-                    <h3 class="specific-item-number"></h3>
-                  </div>
-                  <div class="item-quantity">
-                    <h3 class="specific-item-quantity"></h3>
-                  </div>
-                  <div class="item-first">
-                    <div class="item-type">
-                      <h3>Tipo:</h3>
-                      <p class="specific-item-type"></p>
-                    </div>
-                    <div class="item-angle">
-                      <h3>Ángulo (°):</h3>
-                      <p class="specific-item-angle"></p>
-                    </div>
-                  </div>
-                  <div class="item-second">
-                    <div class="item-vol">
-                      <h3>Volumen<h3 class="volumeUnit"></h3></h3>
-                      <p class="specific-item-vol"></p>
-                    </div>
-                    <div class="item-screen">
-                      <h3>Lineatura<h3 class="screenUnit"></h3></h3>
-                      <p class="specific-item-screen"></p>
-                    </div>
-                  </div>
-                  <div class="item-remove">
-                    <span class="material-icons-sharp remove-from-quote" title="Retirar de solicitud">
-                      highlight_off
-                    </span>
-                  </div>
-                </div>
-              </template>
-              <!-- Final de quote template -->
-            </div>
-            <!-- Final de quote list -->
-          </div>
-          <!-- Final de Quote -->
-        </div>
-        <!-- Final de Req-Quotes -->
-      </main>
+<!-- Final Accesos Rapidos -->
+<div class="right-content">
+  <div class="lista-anilox">
+    <div class="title">
+      <h3>Rodillos</h3>
     </div>
-    <!-- Final de .container -->
-    <div class="modal" id="modal-search-anilox">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span class="close material-icons-sharp" id="close-search-anilox">
-            close
-          </span>
-          <h2>Buscar rodillo ánilox</h2>
-        </div>
-        <div class="modal-body">
-          <form class="form-search" autocomplete="off">
-            <div class="search-input">
-              <p>ID:</p>
-              <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
-            </div>
-            <div class="search-submit">
-              <input type="submit" value="Buscar" id="search-submit">
-            </div>
-          </form>
-        </div>
+    <div class="table">
+      <table class="anilox-table">
+        <tbody></tbody>
+      </table>
+      <template id="anilox-template">
+        <tr>
+          <td class="id"></td>
+        </tr>
+      </template>
+    </div>
+  </div>
+  <!-- Final de Lista Anilox -->
+  <div class="middle">
+    <div class="title">
+      <h3>Datos</h3>
+    </div>
+    <div class="anilox-data">
+      <div id="specific-data">
+        <span>
+          <h3>Tipo:</h3>
+          <p id="specific-type"></p>
+        </span>
+        <span>
+          <h3>Ángulo (°):</h3>
+          <p id="specific-angle"></p>
+        </span>
+        <span>
+          <h3>Volumen<h3 class="volumeUnit"></h3></h3>
+          <p id="specific-vol"></p>
+        </span>
+        <span>
+          <h3>Lineatura<h3 class="screenUnit"></h3></h3>
+          <p id="specific-screen"></p>
+        </span>
       </div>
     </div>
-    <!-- Final de buscar anilox -->
-    <div class="modal" id="modal-alert-box">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span class="close material-icons-sharp" id="close-alert-box">
-            close
-          </span>
-          <h2>Información</h2>
-        </div>
-        <div class="modal-body">
-          <h3 id="alert-content"></h3>
-        </div>
+    <!-- Final de Anilox-Data -->
+    <div class="title">
+      <h3>Cantidad</h3>
+    </div>
+    <div class="item-cantidad">
+      <div class="cantidad-input">
+        <span>
+          <input type="text" id="anilox-quantity" autocomplete="off">
+        </span>
+      </div>
+      <div id="quote-add">
+        <span class="material-icons-sharp" title="Añadir a solicitud" id="add-to-quote">
+          forward
+        </span>
       </div>
     </div>
-    <!-- Final Alert Box -->
-    <div class="modal" id="modal-config-units">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span class="close material-icons-sharp" id="close-config-units">
-            close
-          </span>
-          <h2>Configurar Unidades</h2>
+    <!-- Final de Cantidad -->
+    <div id="quote-send">
+      <span class="material-icons-sharp" title="Enviar solicitud" id="request-quote">
+        check_circle
+      </span>
+    </div>
+    <!-- Final de Quote-Controls -->
+  </div>
+  <!-- Final de Middle -->
+  <div class="quote">
+    <div class="title">
+      <h3>Lista a Cotizar</h3>
+    </div>
+    <div class="quote-list">
+      <div class="quote-header">
+        <div class="header-item">
+          <h3>Item</h3>
         </div>
-        <div class="modal-body">
-          <span>
-            <h3>Volumen de celda:</h3>
-            <label class="container-radial">
-              <input type="radio" name="volume-radio" id="unit-BCM" checked="checked">BCM
-              <span class="radial"></span>
-            </label>
-            <label class="container-radial">
-              <input type="radio" name="volume-radio" id="unit-cm3m2">cm3/m2
-              <span class="radial"></span>
-            </label>
-          </span>
-          <span>
-            <h3>Lineatura:</h3>
-            <label class="container-radial">
-              <input type="radio" name="screen-radio" id="unit-LPI" checked="checked">LPI
-              <span class="radial"></span>
-            </label>
-            <label class="container-radial">
-              <input type="radio" name="screen-radio" id="unit-LPCM">LPCM
-              <span class="radial"></span>
-            </label>
-          </span>
+        <div class="header-quantity">
+          <h3>Cantidad</h3>
+        </div>
+        <div class="header-info">
+          <h3>Descripción</h3>
         </div>
       </div>
+      <!-- Final de quote header -->
+      <div class="quote-body"></div>
+      <!-- Final de quote-body -->
+      <template id="quote-template">
+        <div class="quote-item">
+          <div class="item-number">
+            <h3 class="specific-item-number"></h3>
+          </div>
+          <div class="item-quantity">
+            <h3 class="specific-item-quantity"></h3>
+          </div>
+          <div class="item-first">
+            <div class="item-type">
+              <h3>Tipo:</h3>
+              <p class="specific-item-type"></p>
+            </div>
+            <div class="item-angle">
+              <h3>Ángulo (°):</h3>
+              <p class="specific-item-angle"></p>
+            </div>
+          </div>
+          <div class="item-second">
+            <div class="item-vol">
+              <h3>Volumen<h3 class="volumeUnit"></h3></h3>
+              <p class="specific-item-vol"></p>
+            </div>
+            <div class="item-screen">
+              <h3>Lineatura<h3 class="screenUnit"></h3></h3>
+              <p class="specific-item-screen"></p>
+            </div>
+          </div>
+          <div class="item-remove">
+            <span class="material-icons-sharp remove-from-quote" title="Retirar de solicitud">
+              highlight_off
+            </span>
+          </div>
+        </div>
+      </template>
+      <!-- Final de quote template -->
     </div>
-    <!-- Final Unit Config -->
-    <!-- Common JS Script -->
-    <script src="./js/common.js"></script>
-    <!-- Request Quotes JS Script -->
-     <script src="./js/req-quotes.js"></script>
-  </body>
+    <!-- Final de quote list -->
+  </div>
+  <!-- Final de Quote -->
+</div>
+<!-- Final de Req-Quotes -->
+</main>
+</div>
+<!-- Final de .container -->
+<div class="modal" id="modal-search-anilox">
+<div class="modal-content">
+<div class="modal-header">
+  <span class="close material-icons-sharp" id="close-search-anilox">
+    close
+  </span>
+  <h2>Buscar rodillo ánilox</h2>
+</div>
+<div class="modal-body">
+  <form class="form-search" autocomplete="off">
+    <div class="search-input">
+      <p>ID:</p>
+      <input type="text" id="search-id" placeholder="Ingrese código de ánilox" required>
+    </div>
+    <div class="search-submit">
+      <input type="submit" value="Buscar" id="search-submit">
+    </div>
+  </form>
+</div>
+</div>
+</div>
+<!-- Final de buscar anilox -->
+<div class="modal" id="modal-alert-box">
+<div class="modal-content">
+<div class="modal-header">
+  <span class="close material-icons-sharp" id="close-alert-box">
+    close
+  </span>
+  <h2>Información</h2>
+</div>
+<div class="modal-body">
+  <h3 id="alert-content"></h3>
+</div>
+</div>
+</div>
+<!-- Final Alert Box -->
+<div class="modal" id="modal-config-units">
+<div class="modal-content">
+<div class="modal-header">
+  <span class="close material-icons-sharp" id="close-config-units">
+    close
+  </span>
+  <h2>Configurar Unidades</h2>
+</div>
+<div class="modal-body">
+  <span>
+    <h3>Volumen de celda:</h3>
+    <label class="container-radial">
+      <input type="radio" name="volume-radio" id="unit-BCM" checked="checked">BCM
+      <span class="radial"></span>
+    </label>
+    <label class="container-radial">
+      <input type="radio" name="volume-radio" id="unit-cm3m2">cm3/m2
+      <span class="radial"></span>
+    </label>
+  </span>
+  <span>
+    <h3>Lineatura:</h3>
+    <label class="container-radial">
+      <input type="radio" name="screen-radio" id="unit-LPI" checked="checked">LPI
+      <span class="radial"></span>
+    </label>
+    <label class="container-radial">
+      <input type="radio" name="screen-radio" id="unit-LPCM">LPCM
+      <span class="radial"></span>
+    </label>
+  </span>
+</div>
+</div>
+</div>
+<!-- Final Unit Config -->
+<!-- Common JS Script -->
+<script src="./js/common.js"></script>
+<!-- Request Quotes JS Script -->
+<script src="./js/req-quotes.js"></script>
+</body>
 </html>
