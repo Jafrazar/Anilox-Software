@@ -742,8 +742,8 @@ async function cotizaciones(req, res) {
       port: 465,
       secure: true,
       auth: {
-        user: 'francodel380@gmail.com',
-        pass: 'xthk vflx wjqn qaef' // Es una contraseña de aplicación (se crea en Gmail cuando se autentica la verificación de 2 factores)
+        user: 'anxsuite@gmail.com',
+        pass: 'flfb qblb tsef clqq' // Es una contraseña de aplicación (se crea en Gmail cuando se autentica la verificación de 2 factores)
       }
     });
 
@@ -757,8 +757,8 @@ async function cotizaciones(req, res) {
           if (err) throw err;
         });
         let mailOptions = {
-          from: 'francodel380@gmail.com',
-          to: 'mario.molina@qanders.com',
+          from: 'anxsuite@gmail.com',
+          to: 'mario.molina@qanders.com; enzo.carpio@qanders.com; rodrigo.ma@qanders.com',
           subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
           html: 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
                 'Las características del rodillo son:<br><br>' +
@@ -777,27 +777,32 @@ async function cotizaciones(req, res) {
       const sql_q0 = 'SELECT * FROM solicitudes where tipo_solicitud = ?';
       db.query(sql_q0, ["grouped"], (err, result) => {
         if (err) throw err;
+        let string1=[], string2='';
         let aux2 = result.length > 0 ? result.length + 1 : 1; // Si ya existe se suma 1 al id máximo, caso contrario id se inicia en 1
         for(let i = 0; i < req2.length; i++){
           const sql_q1 = 'INSERT INTO solicitudes (tipo_solicitud, id, posicion, type, nomvol, screen, angle, amount, empresa, reqDate) VALUES (?,?,?,?,?,?,?,?,?,?)';
           db.query(sql_q1, ["grouped", aux2, req2[i].id, req2[i].type, req2[i].nomvol, req2[i].screen, req2[i].angle, req2[i].amount, sesion_empresa, reqDate], (err, result) => {
             if (err) throw err;
           });
-          let mailOptions = {
-            from: 'francodel380@gmail.com',
-            to: 'mario.molina@qanders.com',
-            subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
-            html: 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
-                  'Las características del rodillo son:<br><br>' +
-                  '<ul>' +
-                  '<li><strong>Tipo:</strong> ' + req2[i].type + '</li>' +
-                  '<li><strong>Volumen:</strong> ' + req2[i].nomvol + '</li>' +
-                  '<li><strong>Screen:</strong> ' + req2[i].screen + '</li>' +
-                  '<li><strong>Angle:</strong> ' + req2[i].angle + '</li>' +
-                  '</ul>',
-          };  
-          transporter.sendMail(mailOptions);
+          string1[i] = 'El cliente ' + sesion_empresa + ' ha solicitado una cotización de ' + req2[i].amount + ' rodillos anilox.<br>' + 
+          'Las características del rodillo son:<br><br>' +
+          '<ul>' +
+          '<li><strong>Tipo:</strong> ' + req2[i].type + '</li>' +
+          '<li><strong>Volumen:</strong> ' + req2[i].nomvol + '</li>' +
+          '<li><strong>Screen:</strong> ' + req2[i].screen + '</li>' +
+          '<li><strong>Angle:</strong> ' + req2[i].angle + '</li>' +
+          '</ul>'
+          
+          string2 = string2 + ''+string1[i]+'<br>';
         }
+
+        let mailOptions = {
+          from: 'anxsuite@gmail.com',
+          to: 'mario.molina@qanders.com; enzo.carpio@qanders.com; rodrigo.ma@qanders.com',
+          subject: 'ANX Suite - Solicitud de cotización de rodillos ' + sesion_empresa,
+          html: string2
+        }
+        transporter.sendMail(mailOptions);
         return res.status(200).send({ status: "Success", message: "Solicitud enviada correctamente" });        
       });      
     }
