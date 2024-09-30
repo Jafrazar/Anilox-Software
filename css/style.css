@@ -2,17 +2,17 @@
 
 /* Root Variables */
 :root{
-  --color-primary: #134371;
+  --color-primary: #009bd3;
   --color-danger: rgba(255,24,24,0.35);
   --color-success: rgba(170,187,17,0.35);
   --color-warning: rgba(255,186,38,0.6);
   --color-white: #fff;
   --color-info-dark: #7d8da1;
-  --color-info-light: #dce1eb;
-  --color-dark: #363949;
-  --color-light: rgba(132,139,200,0.18);
-  --color-primary-variant: #111e88;
-  --color-dark-variant: #677483;
+  --color-info-light: rgb(220, 225, 235);
+  --color-dark: #364349;
+  --color-light: rgba(0, 155, 211, 0.18);
+  --color-primary-variant: rgb(19, 67, 113, 0.18);
+  --color-dark-variant: #677983;
   --color-background: #f1f1f1;
 
   --card-border-radius: 2rem;
@@ -23,7 +23,7 @@
   --card-padding: 1.8rem;
   --padding-1: 1.2rem;
 
-  --box-shadow: 0 2rem  3rem var(--color-light);
+  --box-shadow: 0 2rem  3rem var(--color-primary-variant);
 }
 
 *{
@@ -48,7 +48,6 @@ body{
   font-size: 0.88rem;
   background: var(--color-background);
   user-select: none;
-  -webkit-user-select: none;
   overflow-x: hidden;
   color: var(--color-dark);
 }
@@ -125,13 +124,6 @@ select{
   appearance: menulist;
 }
 
-.profile-photo{
-  width: 2.8rem;
-  height: 2.8rem;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
 .text-muted{
   color: var(--color-info-dark);
 }
@@ -160,12 +152,16 @@ b{
   color: var(--color-warning);
 }
 
+.selected{
+  font-weight: 600;
+}
+
 /* Left */
 
 .left-content .sidebar{
   display: flex;
   flex-direction: column;
-  height: 90.5vh;
+  height: 100%;
   position: relative;
   background-color: var(--color-white);
   transition: all 300ms ease;
@@ -185,6 +181,7 @@ b{
   position: relative;
   height: 3.7rem;
   transition: all 300ms ease;
+  cursor: pointer;
 }
 
 .left-content .sidebar a span{
@@ -195,7 +192,7 @@ b{
 .left-content .sidebar a:last-child{
   position: absolute;
   bottom: 3rem;
-  width: 100%;
+  width: 3.5rem;
 }
 
 .left-content .sidebar a.active{
@@ -248,10 +245,10 @@ b{
   background: var(--color-white);
   margin: auto;
   padding: 0;
-  border: 2px solid var(--color-dark-variant);
   width: 40rem;
   box-shadow: var(--box-shadow);
   transition: all 300ms ease;
+  border-radius: var(--card-border-radius);
 }
 
 .modal .modal-content:hover{
@@ -269,9 +266,12 @@ b{
 }
 
 .modal .modal-header{
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   background: var(--color-primary);
   color: var(--color-white);
+  border-top-left-radius: 1.8rem;
+  border-top-right-radius: 1.8rem;
+  
 }
 
 .modal .modal-header h2{
@@ -283,6 +283,7 @@ b{
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
+  margin: 0 1rem;
 }
 
 .modal .modal-body h3{
@@ -292,7 +293,6 @@ b{
 
 .modal .modal-body p, label{
   color: var(--color-dark);
-  font-weight: 500;
   font-size: 20px;
   margin: 0.5rem 1rem;
 }
@@ -325,7 +325,6 @@ b{
 
 .navbar{
   background: var(--color-primary);
-  background-image: url("/assets/navbar-background.jpg");
   background-size: 100%;
 }
 
@@ -336,11 +335,11 @@ b{
 
 .navbar .dropdown .dropbtn{
   cursor: pointer;
-  font-size: 20px;  
+  font-size: 20px; 
   border: none;
   outline: none;
-  color: var(--color-info-light);
-  padding: 0.1rem 1rem;
+  color: var(--color-white);
+  padding: 0.5rem 1rem;
   background: inherit;
   font-family: inherit;
 }
@@ -355,15 +354,16 @@ b{
   background-color: var(--color-white);
   box-shadow: var(--box-shadow);
   z-index: 1;
-  font-size: 20px;
+  font-size: 14px;
 }
 
 .navbar .dropdown-content a{
   float: none;
-  color: var(--color-primary);
+  color: var(--color-dark);
   padding: 0.5rem 1rem;
   display: block;
   text-align: left;
+  font-weight: 500
 }
 
 .navbar .dropdown-content a:hover{
@@ -383,8 +383,8 @@ b{
 
 .top-bar .logo{
   flex: 0 0 5.5rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
   padding-left: 1rem;
   gap: 1rem;
   background-color: var(--color-white);
@@ -392,7 +392,7 @@ b{
 
 .top-bar .logo img{
   width: auto;
-  height: 2.7rem;
+  height: 2.6rem;
 }
 
 .top-bar .title{

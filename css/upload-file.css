@@ -3,6 +3,7 @@
 .right-content{
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .right-content .anilox-upload{
@@ -13,7 +14,6 @@
   transition: all 300ms ease;
   width: fit-content;
   height: fit-content;
-  margin-top: 6vh;
 }
 
 .right-content .anilox-upload:hover{
@@ -51,7 +51,6 @@
   height: auto;
   margin-top: 2rem;
   margin-right: 1rem;
-  margin-bottom: 2rem;
 }
 
 .right-content .files-upload .csv .form-input p{
@@ -100,7 +99,7 @@
 .right-content .files-upload .upload-inputs label{
   display: flex;
   background: var(--color-primary);
-  color: var(--color-info-light);
+  color: var(--color-white);
   align-items: center;
   font-weight: 500;
   font-size: 20px;
@@ -120,7 +119,7 @@
 .right-content .files-upload #submit{
   display: flex;
   background: var(--color-primary);
-  color: var(--color-info-light);
+  color: var(--color-white);
   align-items: center;
   font-family: inherit;
   font-size: 18px;
@@ -129,19 +128,30 @@
   width: auto;
   padding: 0.5rem 1rem;
   border-radius: 1.5rem;
-  margin-top: 1rem;
   cursor: pointer;
+  margin-top: 1rem;
 }
 
 /* Modal New Anilox & Recorrido*/
 
-.modal .modal-body span{
+#modal-new-anilox .modal-body span{
   display: flex;
   flex-direction: row;
   justify-content: center;
 }
 
-.modal .modal-body p{
+#modal-new-anilox .modal-body p{
+  color: var(--color-dark);
+  margin: 0.5rem 1rem;
+}
+
+#modal-extra-anilox .modal-body span{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#modal-extra-anilox .modal-body p{
   color: var(--color-dark);
   margin: 0.5rem 1rem;
 }
@@ -169,7 +179,7 @@
 
 .modal .modal-body #new-submit, #extra-skip, #extra-submit{
   background: var(--color-primary);
-  color: var(--color-info-light);
+  color: var(--color-white);
   font-size: 18px;
   font-family: inherit;
   height: 3rem;
@@ -177,15 +187,4 @@
   padding: 0.5rem 1rem;
   border-radius: 1.5rem;
   cursor: pointer;
-}
-
-/* warnings */
-
-.right-content .anilox-upload .warnings{
-  padding-top: 1rem;
-}
-
-.right-content .anilox-upload .warnings > h3, ul{
-  color: red;
-  font-size: 18px;
 }

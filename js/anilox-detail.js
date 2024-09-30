@@ -663,6 +663,64 @@ const viewMore = (e)=>{
   }
 }
 
+function encontrarValoresCercanosMenores(arr, objetivos) {
+  return objetivos.map(objetivo => {
+    return arr.reduce((prev, curr) => {
+      if (curr <= objetivo && (prev >= objetivo || Math.abs(curr - objetivo) < Math.abs(prev - objetivo))) {
+        return curr;
+      }
+      return prev;
+    }, Number.MAX_VALUE);
+  });
+}
+
+function generarRectaTendencia(eolDates, volData, limite) {
+  // Convertir fechas a valores numéricos (timestamp)
+  const x = eolDates.map(date => new Date(date).getTime());
+  const y = volData;
+
+  const n = x.length;
+  const sumX = x.reduce((a, b) => a + b, 0);
+  const sumY = y.reduce((a, b) => a + b, 0);
+  const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+  const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
+
+  const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const b = (sumY - m * sumX) / n;
+
+  // Calcular los puntos de la recta de tendencia en las fechas originales
+  const tendencia = x.map(xi => ({
+    x: new Date(xi).toISOString().split('T')[0], // Convertir de nuevo a formato de fecha
+    y: m * xi + b
+  }));
+
+  // Generar puntos en fechas futuras hasta que el valor sea menor o igual al límite
+  let ultimaFecha = new Date(eolDates[eolDates.length - 1]);
+  let ultimoValor = tendencia[tendencia.length - 1].y;
+  let b2 = b > 200 ? 2 : b > 100 ? 3 : 6; // Si b es mayor a 200 elabora una pendiente de 2 meses, si es mayor a 100 de 3 meses, de lo contrario de 6 meses
+
+  if(m < -0.000000000005 ){
+    while (ultimoValor > limite) {
+      ultimaFecha.setMonth(ultimaFecha.getMonth() + b2); // Incrementar la fecha en 6 meses o 3 meses dependiendo de la intersección
+      const nuevaFecha = ultimaFecha.getTime();
+      ultimoValor = m * nuevaFecha + b;
+      tendencia.push({
+        x: ultimaFecha.toISOString().split('T')[0],
+        y: ultimoValor
+      });
+    }
+  }
+
+  return { tendencia, m, b };
+}
+
+function encontrarPosiciones(arr, valoresCercanos) {
+  return valoresCercanos.map(valorCercano => {
+    const index = arr.indexOf(valorCercano);
+    return index !== -1 ? index + 1 : -1; // Sumar 1 para que la posición sea 1-indexada
+  });
+}
+
 const estimarVida = async(e)=>{
   if(e.target === $estimarVida){ 
     $modalEOLAnilox.style.display = "block";
@@ -691,14 +749,16 @@ const estimarVida = async(e)=>{
       if(!res1.ok) throw{status: res1.status, statusText: res1.statusText};
       if(!res2.ok) throw{status: res2.status, statusText: res2.statusText};
       
-      let eolData=[], nomVol = json2[0].nomvol*volMulti; // nomVol en cm3/m2;
-      if(!json1[0].eol || json1[0].eol == null) {
-        eolData[0] = 2000;
+      
+      let eolData=[], nomVol = Math.round((json2[0].nomvol*volMulti)*100/100); // nomVol en cm3/m2;
+      for(let i = 0; i < JSON.parse(json1[0].eol).length; i++){
+        eolData[i] = JSON.parse(json1[0].eol)[i]*volMulti;
       }
-      else{ eolData = JSON.parse(json1[0].eol)*volMulti }
-          
+
+      console.log("eolData: ", eolData);
       let msg;
-  // ME QUEDE AQUÍ, TENGO QUE SEGUIR REVISANDO MÁS ABAJO, AAAAAAHHHHH //////
+
+      console.log("eolData[0] = ",eolData[0]);
       if(eolData[0] == 1000 || eolData[0] == 1550){msg = `El volumen de celda ya se encuentra por debajo del 60% del volumen nominal (${(nomVol/1.55 * 0.9).toFixed(3)}).`;} // FALTA UPDATEAR
       else if (eolData[0] == 2000 || eolData[0] == 3100){msg = `No se cuenta suficientes datos para realizar una estimación.`;} // CUANDO ES MENOR A 3 actualizar eolData a 2000
       else {
@@ -719,16 +779,47 @@ const estimarVida = async(e)=>{
 
         let eolDates = [],
             volData = [],
-            percentVol = JSON.parse(json1[0].percent).values*volMulti,
+            percentVol = [],
             percentDates = JSON.parse(json1[0].percent).dates;
         for(let i = 0; i < json3.length; i++){
+          eolData[i] = json3[i].volume*volMulti;
           eolDates[i] = json3[i].date;
           volData[i] = json3[i].volume*volMulti;
         }
+        
+        for(let i = 0; i < json3.length; i++){
+          percentVol[i] = Math.round(((JSON.parse(json1[0].percent).values[i]*volMulti)*1000)/1000);
+        }
+
         console.log("eolDates", eolDates);
         console.log("volData: ", volData);
         console.log("percentVol: ", percentVol);
         console.log("percentDates: ", percentDates);
+
+        const { m, b } = generarRectaTendencia(eolDates, volData, 0.6*nomVol*volMulti);
+        console.log("m: " + m);
+        console.log("b: " + b);
+        if(m >= -0.000000000005) {
+          eolData = 2000;
+          msg = `No se cuenta con suficientes datos para realizar una estimación.`;
+          pdfPath = path.join(__dirname, '/modelo_reporte_final_alt.pdf');
+          percentVol = "";
+          percentDates = "";
+        }
+        else{
+          eolData = generarRectaTendencia(eolDates, volData, 0.6*nomVol*volMulti).tendencia.map(point => parseFloat(point.y.toFixed(3)));                    
+          newDates = generarRectaTendencia(eolDates, volData, 0.6*nomVol*volMulti).tendencia.map(point => point.x);
+          percentVol = encontrarValoresCercanosMenores(eolData, [0.9*nomVol*volMulti, 0.8*nomVol*volMulti, 0.7*nomVol*volMulti, 0.6*nomVol*volMulti]);
+          percentDates = encontrarPosiciones(eolData, percentVol);
+          actualDates = percentDates.map(pos => newDates[pos-1]);
+          ultimaFecha = new Date(eolDates[eolDates.length - 1]);
+          diferenciasEnAnios = actualDates.map(dateStr => {
+            const actualDate = new Date(dateStr);
+            const diferenciaEnMilisegundos = actualDate - ultimaFecha;
+            const diferenciaEnAnios = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24 * 365.25); // 365.25 para considerar los años bisiestos
+            return diferenciaEnAnios;
+          });
+        }
 
         for(let i = 0; i < JSON.parse(json1[0].eol).length - json3.length; i++){
           let last = `${eolDates[json3.length - 1 + i]} 00:00:00`;
@@ -879,7 +970,7 @@ const estimarVida = async(e)=>{
           }
           else {
             tableData[i].volumePercent = (90 - (i * 10));
-            tableData[i].volumeEstimated = (percentVol[i] / 1.55).toFixed(3);
+            tableData[i].volumeEstimated = (percentVol[i]).toFixed(3);
             tableData[i].timeRemainingEstimated = ((percentDates[i] - json3.length) / 2);
           }
         }

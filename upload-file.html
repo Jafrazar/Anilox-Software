@@ -88,14 +88,14 @@
                 file_upload
               </span>
             </a>
-            <a href="listado.html">
-              <span class="material-icons-sharp" title="Listado de Ánilox">
-                format_list_numbered
-              </span>
-            </a>
             <a id="search-anilox">
               <span class="material-icons-sharp" title="Buscar Ánilox">
                 manage_search
+              </span>
+            </a>
+            <a href="listado.html">
+              <span class="material-icons-sharp" title="Listado de Ánilox">
+                format_list_numbered
               </span>
             </a>
             <a href="print-report.html">
@@ -150,7 +150,7 @@
                     <input type="text" name="date" id="import-date" disabled>
                   </div>
                   <div class="form-input">
-                    <p>Volumen de Celda (cm3/m2):</p>
+                    <p>Volumen de Celda (BCM):</p>
                     <input type="text" name="volume" id="import-volume" disabled>
                   </div>
                   <div class="form-input">
@@ -181,7 +181,7 @@
               <input id="submit" type="submit" value="Importar Datos">
             </form>
             <!-- Final de Form Upload -->
-          </div>              
+          </div>
           <!-- Final de Anilox Upload -->
         </div>
       </main>
@@ -229,12 +229,12 @@
                 <input type="date" name="purchase" id="new-purchase" required>
               </span>
               <span>
-                <p>Volumen Nominal (cm3/m2):</p>
+                <p>Volumen Nominal (BCM):</p>
                 <input type="text" name="nomvol" id="new-nomvol" placeholder="Ingrese el vol. nominal" required>
               </span>
               <span>
                 <p>Reporte de Fábrica:</p>
-                <input type="file" name="master" id="new-master" accept=".pdf" required> <!--Aquí va un required. Lo quite por el error de payload-->
+                <input type="file" name="master" id="new-master" accept=".pdf" required>
               </span>
             </div>
             <div class="sub-btn">
@@ -324,7 +324,7 @@
         </div>
       </div>
     </div>
-    <!-- Final Unit Config -->    
+    <!-- Final Unit Config -->
     <!-- CSV Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Common JS Script -->
