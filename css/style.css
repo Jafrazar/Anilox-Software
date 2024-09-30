@@ -335,7 +335,7 @@ b{
 
 .navbar .dropdown .dropbtn{
   cursor: pointer;
-  font-size: 20px; 
+  font-size: 16px; 
   border: none;
   outline: none;
   color: var(--color-white);
