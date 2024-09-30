@@ -99,10 +99,15 @@ const drawTable = async(index, json)=>{
 
 const initialDraw = async()=>{
   try {
-    let res = await fetch("http://anx-suite:3000/clients"),
+    let res = await fetch("/api/clientes", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }),
         json = await res.json();
     if(!res.ok) throw{status: res.status, statusText: res.statusText};
-    clientList = Object.values(json[0]);
+    clientList = Object.values(json.result[0]);
     numPages = Math.floor(clientList.length/4)+1;
     for(let i = 0; i < numPages - 1; i++){
       clientsPerPage[i] = 4
@@ -119,6 +124,7 @@ const initialDraw = async()=>{
     drawTableContainer(i, currentPage);
     try {
       let res = await fetch(`http://anx-suite:3003/${clientList[((currentPage-1)*4)+i]}`),
+      // let res = await fetch(`http://anx-suite:3003/${clientList[((currentPage-1)*4)+i]}`),
           json = await res.json();
       if(!res.ok) throw{status: res.status, statusText: res.statusText};
       drawTable(i, json);
